@@ -18,8 +18,10 @@
 	<cffunction name="init" access="package" output="false" returntype="void" 
 		hint="Initializes the model">
 		<cfargument name="model_name" type="string" required="yes" hint="The name of the model">
+		<cfargument name="model_path" type="string" required="yes" />
 
 		<cfset variables.model_name = arguments.model_name />
+		<cfset variables.model_path = arguments.model_path />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -78,7 +80,7 @@
 		hint="Clears all of the model's attributes">
 		<cfset StructClear(This) />
 	</cffunction>
-	
+		
 <!--------------------------------------------------------------------------------------------- valid
 
 	Description: Validates the model's attributes
@@ -86,9 +88,14 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="valid" access="public" returntype="boolean">
+		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "validation.cfm" />
+		
 		<cfset StructClear(variables.errors) />	
 		<cfset StructClear(variables.warnings) />	
-<!--- 		<cfinclude template="#Request.path#app/#this.folder_name#/validation.cfm" /> --->
+		
+		<cfif FileExists(validation_file)>
+			<cfinclude template="#getIncludePath()#/validation.cfm" />
+		</cfif>
 		<cfset thisIsValid = StructIsEmpty(variables.errors)>
 		<cfreturn  thisIsValid />
 	</cffunction>	
@@ -100,11 +107,31 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="help" access="public" returntype="string">
-		<cfargument name="field" />
+		<cfargument name="field" type="string" required="yes" hint="The field we want help for" />
+		
+		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "help.cfm" />
 		
 		<cfset help_message = "No help available" />	
-<!--- 		<cfinclude template="#Request.path#app/#this.folder_name#/help.cfm" /> --->
+		
+		<cfif FileExists(validation_file)>
+			<cfinclude template="#getIncludePath()#/help.cfm" />
+		</cfif>
 		
 		<cfreturn help_message />
 	</cffunction>	
+	
+<!------------------------------------------------------------------------------------- getIncludePath
+
+	Description:	Converts a model_path of the form "folder1.folder2.modelname" to a directory path
+								that can be used by <cfinclude>
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="getIncludePath">
+		<cfset var include_path = "/" />
+		<cfset include_path = include_path & Replace(variables.model_path, ".", "/", "all") />
+		<cfset include_path = ListDeleteAt(include_path, ListLen(include_path, "/"), "/") />
+		
+		<cfreturn include_path />
+	</cffunction>
 </cfcomponent>

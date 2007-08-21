@@ -17,14 +17,15 @@
 
 	<cffunction name="init">
 		<cfargument name="dsn" type="string" required="yes" hint="The datasource name" />
-		<cfargument name="model_name" type="string" required="yes">
-		<cfargument name="table_name" type="string" default="#arguments.model_name#s">
+		<cfargument name="model_name" type="string" required="yes" />
+		<cfargument name="model_path" type="string" required="yes" />
+		<cfargument name="table_name" type="string" default="#arguments.model_name#s" />
 		
 		<cfparam name="This.id" default="" />
 		<cfparam name="variables.database_fields" default="" />
 		<cfparam name="variables.table_name" default="" />
 
-		<cfset Super.init(model_name) />
+		<cfset Super.init(model_name, model_path) />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.table_name = arguments.table_name />
 		
@@ -305,7 +306,7 @@
 		
 		<cfreturn null />
 	</cffunction>
-
+	
 <!---------------------------------------------------------------------------------------- cf_sql_type
 
 	Description:	Takes in a SQL Server column type and returns the corresponding ColdFusion type
