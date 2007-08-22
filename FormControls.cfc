@@ -62,7 +62,7 @@
 
 		<cfinvoke method="displayHelp" argumentcollection="#Arguments#" />
 		<cfif IsDefined("Arguments.addtype") AND Arguments.addtype NEQ "">
-			<cfinvoke method="displayAddTYpe" argumentcollection="#Arguments#" />
+			<cfinvoke method="displayAddType" argumentcollection="#Arguments#" />
 		</cfif>
 		<!--- Display the validation errors for this form field --->
 		<cfinvoke method="displayError" argumentcollection="#Arguments#" />
@@ -179,13 +179,13 @@
 		<cfargument name="field" type="string" required="yes" />
 		<cfargument name="position" type="string" default="side">
 
-		<cfoutput>
+<!--- 		<cfoutput>
 			<cfif StructKeyExists(Request.model_errors, Arguments.field)>
 				<div id="error_#field#" class="error" <cfif position EQ "side">style="margin-left:95px;"</cfif>>#Evaluate("Request.model_errors.#Arguments.field#")#</div>
 			<cfelse>
 				<div id="error_#field#" class="error" style="<cfif position EQ "side">margin-left:95px;</cfif>display:none;"></div>
 			</cfif>
-		</cfoutput>
+		</cfoutput> --->
 	</cffunction>
 
 <!----------------------------------------------------------------------------------------- textfield
