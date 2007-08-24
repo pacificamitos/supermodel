@@ -69,16 +69,14 @@
 		<cfargument name="conditions" required="yes" />
 		<cfargument name="columns" required="yes" />
 				
-		<cfset order_by = upperOrderBy(order_by)>
-
 		<cfquery name="SelectObject" datasource="#variables.dsn#">
-			SELECT * <cfif arguments.order_by NEQ "">, #order_by# AS sort</cfif>
+			SELECT * 
 			FROM #variables.table_name#
 			<cfif arguments.conditions NEQ "">
 			WHERE #PreserveSingleQuotes(arguments.conditions)#
 			</cfif>
 			<cfif arguments.order_by NEQ "">
-			ORDER BY sort #sort_direction#
+			ORDER BY #Arguments.order_by# #sort_direction#
 			</cfif>
 		</cfquery>
 		
