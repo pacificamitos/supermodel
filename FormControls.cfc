@@ -43,7 +43,6 @@
 		<!--- Add some default attributes if they aren't provided as arguments --->
 		<cfset attributes.set("id", Arguments.field) /> <!--- ID MUST be the field name --->
 		<cfset attributes.add("name", Arguments.field) />
-		<!---<cfset attributes.add("style", "width: 175px;") />--->
 		
 		<cfreturn attributes />
 	</cffunction>

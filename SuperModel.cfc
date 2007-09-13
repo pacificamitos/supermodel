@@ -1,6 +1,9 @@
 <cfcomponent extends="MachII.framework.Plugin">
-	<cffunction name="preView" returntype="void" access="public" output="false">
+	<cffunction name="preView" returntype="void" access="public" output="true">
 		<cfargument name="eventContext" type="MachII.framework.EventContext" required="yes" />
-		<cfset eventContext.setArg('test', 'wtf') />
+		<cfoutput>WHAT!?</cfoutput>
+		<cfinclude template="/SuperModel/FormControls.cfm" />
+
+		<cfoutput>HUH!?</cfoutput>
 	</cffunction>
 </cfcomponent>

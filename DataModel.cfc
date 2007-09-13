@@ -295,8 +295,8 @@
 		<cfargument name="field_name" type="string" required="yes" 
 			hint="The field whose null flag we want" />
 			
-		<cfset var value = StructFind(This, arguments.field_name) />
-		<cfset var type = StructFind(variables.field_types, arguments.field_name) />
+		<cfset var value = value(arguments.field_name) />
+		<cfset var type = type(arguments.field_name) />
 		<cfset var null = "no" />
 		
 		<!--- The value is null if it is blank and not a string --->
