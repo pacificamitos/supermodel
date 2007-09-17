@@ -1,23 +1,67 @@
 <cfcomponent>
 
-<!--- These are reserved form control arguments that will not be treated as HTML attributes --->
-<cfparam name="Variables.reserved_arguments" default="" />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "field") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "label") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "required") />
+<!---------------------------------------------------------------------------------------------- init
 
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "query") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "value_field") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "display_field") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "jump_to") />
+	Description:	Initializes the form controls object with a data object and sets up all the reserved
+								arguments.
+	
+	Arguments:		data_object - Some component whose fields are used to populate the form values.
+								This is typically an instantiated model object that inherits from the SuperModel
+								class.
+			
+----------------------------------------------------------------------------------------------------->
 
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "position") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "empty_value") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "expandable") />
-
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "values") />
-<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "options") />
+<cffunction name="init" access="public" output="true">
+	<cfargument name="data_object" required="no" />
+	
+	<!--- Includes scripts and styles --->
+	<cfoutput>
+	<script src="/supermodel/scripts/supermodel.js"></script>
+	<link rel="stylesheet" href="/supermodel/css/styles.css">
+	</cfoutput>
+	
+	<!--- Setup the data object --->
+	<cfif IsDefined("arguments.data_object")>
+		<cfset variables.data_object = arguments.data_object>
+	<cfelseif IsDefined("request.data_object")>
+		<cfset variables.data_object = request.data_object>
+	</cfif>
 		
+	<!--- These are reserved form control arguments that will not be treated as HTML attributes --->
+	<cfset Variables.reserved_arguments = "" />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "field") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "label") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "required") />
+	
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "query") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "value_field") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "display_field") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "jump_to") />
+	
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "position") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "empty_value") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "expandable") />
+	
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "values") />
+	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "options") />
+</cffunction>
+
+<!-------------------------------------------------------------------------------------- setDataObject
+
+	Description:	Sets the internal data_object to the passed in data_object.
+	
+	Arguments:		data_object - Some component whose fields are used to populate the form values.
+								This is typically an instantiated model object that inherits from the SuperModel
+								class.
+			
+----------------------------------------------------------------------------------------------------->
+
+<cffunction name="setDataObject" access="public" output="false">
+	<cfargument name="data_object" required="yes" />
+	
+	<cfset variables.data_object = arguments.data_object />
+</cffunction>
+
 <!------------------------------------------------------------------------------------------ preamble
 
 	Description:	This function is called at the beginning of every form control.
@@ -29,6 +73,11 @@
 ----------------------------------------------------------------------------------------------------->
 	
 	<cffunction name="preamble">	
+		<!--- Make sure we have a data_object first --->
+		<cfif NOT IsDefined("variables.data_object")>
+			<cfthrow message="Form Controls data_object not set properly." />
+		</cfif>
+		
 		<!--- Display the label for the form field --->	
 		<cfinvoke method="displayLabel" argumentcollection="#Arguments#" />
 		
@@ -96,8 +145,8 @@
 	<cffunction name="displayHelp" access="public" output="true">
 		<cfargument name="field" type="string" required="yes" />
 		<cfargument name="position" type="string" default="side">
-		<cfif IsDefined("Request.data_object")>
-			<cfset message = Request.data_object.help(field) />
+		<cfif IsDefined("variables.data_object")>
+			<cfset message = variables.data_object.help(field) />
 		<cfelse>
 			<cfset message = "">
 		</cfif>
@@ -197,16 +246,16 @@
 		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
 		
 		<cfset Variables.value = "" />
-		<cfif isDefined("Request.data_object.#Arguments.field#")>
-			<cfset Variables.value = Evaluate('Request.data_object.#Arguments.field#') />
+		<cfif isDefined("variables.data_object.#Arguments.field#")>
+			<cfset Variables.value = Evaluate('variables.data_object.#Arguments.field#') />
 		</cfif>
 		
 		<cfset attributes.set("value", Variables.value) />
 		<cfset attributes.add("type", "text") />
 		<cfset attributes.set("autocomplete", "off") />
-		<cfif IsDefined("Request.data_object.field_lengths") AND
-			  StructKeyExists(Request.data_object.field_lengths, Arguments.field)>
-			<cfset attributes.set("maxlength", StructFind(Request.data_object.field_lengths, Arguments.field)) />
+		<cfif IsDefined("variables.data_object.field_lengths") AND
+			  StructKeyExists(variables.data_object.field_lengths, Arguments.field)>
+			<cfset attributes.set("maxlength", StructFind(variables.data_object.field_lengths, Arguments.field)) />
 		</cfif>
 		<input #attributes.string()# />
 		
@@ -224,15 +273,15 @@
 		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
 		
 		<cfset Variables.value = "" />
-		<cfif isDefined("Request.data_object.#Arguments.field#") AND isNumeric(Evaluate('Request.data_object.#Arguments.field#'))>
-			<cfset Variables.value = NumberFormat(Evaluate('Request.data_object.#Arguments.field#'), ".99") />
+		<cfif isDefined("variables.data_object.#Arguments.field#") AND isNumeric(Evaluate('variables.data_object.#Arguments.field#'))>
+			<cfset Variables.value = NumberFormat(Evaluate('variables.data_object.#Arguments.field#'), ".99") />
 		</cfif>
 		
 		<cfset attributes.set("value", Variables.value) />
 		<cfset attributes.set("type", "text") />		
 		<cfset attributes.set("autocomplete", "off") />
-		<cfif StructKeyExists(Request.data_object.field_lengths, Arguments.field)>
-			<cfset attributes.set("maxlength", StructFind(Request.data_object.field_lengths, Arguments.field)) />
+		<cfif StructKeyExists(variables.data_object.field_lengths, Arguments.field)>
+			<cfset attributes.set("maxlength", StructFind(variables.data_object.field_lengths, Arguments.field)) />
 		</cfif>
 		
 		<input #attributes.string()# />
@@ -256,17 +305,17 @@
 		<cfset Variables.value_dd = "" />
 		<cfset Variables.value_mm = "" />
 		<cfset Variables.value_yyyy = "" />
-		<cfif isDefined("Request.data_object.#Arguments.field#")> 
-			<cfif isDate(Evaluate('Request.data_object.#Arguments.field#'))>
-				<cfset Variables.value = DateFormat(ParseDateTime(Evaluate('Request.data_object.#Arguments.field#')), "yyyy-mm-dd") />
+		<cfif isDefined("variables.data_object.#Arguments.field#")> 
+			<cfif isDate(Evaluate('variables.data_object.#Arguments.field#'))>
+				<cfset Variables.value = DateFormat(ParseDateTime(Evaluate('variables.data_object.#Arguments.field#')), "yyyy-mm-dd") />
 				<cfset Variables.value_dd = DateFormat(Variables.value,'dd') />
 				<cfset Variables.value_mm = DateFormat(Variables.value,'mm') />
 				<cfset Variables.value_yyyy = DateFormat(Variables.value,'yyyy') />
 			<cfelse>
-				<cfset Variables.value = Evaluate('Request.data_object.#Arguments.field#') />
-				<cfset Variables.value_dd = Evaluate('Request.data_object.#Arguments.field#_dd') />
-				<cfset Variables.value_mm = Evaluate('Request.data_object.#Arguments.field#_mm') />
-				<cfset Variables.value_yyyy = Evaluate('Request.data_object.#Arguments.field#_yyyy') />
+				<cfset Variables.value = Evaluate('variables.data_object.#Arguments.field#') />
+				<cfset Variables.value_dd = Evaluate('variables.data_object.#Arguments.field#_dd') />
+				<cfset Variables.value_mm = Evaluate('variables.data_object.#Arguments.field#_mm') />
+				<cfset Variables.value_yyyy = Evaluate('variables.data_object.#Arguments.field#_yyyy') />
 			</cfif>
 		</cfif>
 			
@@ -339,15 +388,15 @@
 		<cfset Variables.value_hh = "" />
 		<cfset Variables.value_mm = "" />
 		
-		<cfif isDefined("Request.data_object.#Arguments.field#")>
-			<cfif isDate(Evaluate('Request.data_object.#Arguments.field#'))>
-				<cfset Variables.value = TimeFormat(ParseDateTime(Evaluate('Request.data_object.#Arguments.field#')), 'HH:mm') />
+		<cfif isDefined("variables.data_object.#Arguments.field#")>
+			<cfif isDate(Evaluate('variables.data_object.#Arguments.field#'))>
+				<cfset Variables.value = TimeFormat(ParseDateTime(Evaluate('variables.data_object.#Arguments.field#')), 'HH:mm') />
 				<cfset Variables.value_hh = TimeFormat(Variables.value, 'HH') />
 				<cfset Variables.value_mm = TimeFormat(Variables.value, 'mm') />
 			<cfelse>
-				<cfset Variables.value = Evaluate("Request.data_object.#Arguments.field#") />
-				<cfset Variables.value_hh = Evaluate("Request.data_object.#Arguments.field#_hh") />
-				<cfset Variables.value_mm = Evaluate("Request.data_object.#Arguments.field#_mm") />
+				<cfset Variables.value = Evaluate("variables.data_object.#Arguments.field#") />
+				<cfset Variables.value_hh = Evaluate("variables.data_object.#Arguments.field#_hh") />
+				<cfset Variables.value_mm = Evaluate("variables.data_object.#Arguments.field#_mm") />
 			</cfif>
 		</cfif>
 		
@@ -434,7 +483,7 @@
 		<select #is_multiple# #attributes.string()# >
 			<option value="">#Arguments.empty_value#</option>
 			<cfloop query="query">
-				<option value="#Evaluate('query.#value_field#')#" <cfif IsDefined("Request.data_object") AND ListFindNoCase(Evaluate('Request.data_object.#Arguments.field#'),Evaluate('query.#value_field#'))>selected="selected"</cfif>>
+				<option value="#Evaluate('query.#value_field#')#" <cfif IsDefined("variables.data_object") AND ListFindNoCase(Evaluate('variables.data_object.#Arguments.field#'),Evaluate('query.#value_field#'))>selected="selected"</cfif>>
 					#HTMLEditFormat(Evaluate("query.#display_field#"))#
 				</option>
 			</cfloop>
@@ -453,14 +502,14 @@
 		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
 				
 		<cfset Variables.value = "" />
-		<cfif isDefined("Request.data_object.#Arguments.field#")>
-			<cfset Variables.value = Evaluate('Request.data_object.#Arguments.field#') />
+		<cfif isDefined("variables.data_object.#Arguments.field#")>
+			<cfset Variables.value = Evaluate('variables.data_object.#Arguments.field#') />
 		</cfif>
 		
 		<!---<cfset attributes.add("rows", 5) />
 		<cfset attributes.add("cols", 26) />--->
-		<cfif StructKeyExists(Request.data_object.field_lengths, Arguments.field)>
-			<cfset attributes.set("maxlength", StructFind(Request.data_object.field_lengths, Arguments.field)) />
+		<cfif StructKeyExists(variables.data_object.field_lengths, Arguments.field)>
+			<cfset attributes.set("maxlength", StructFind(variables.data_object.field_lengths, Arguments.field)) />
 		</cfif>
 	
 		<textarea #attributes.string()#>#Variables.value#</textarea>
@@ -497,7 +546,7 @@
 	  	<cfset attributes.set("id", "#field#_#option_no_space#")>
 	  	<cfset attributes.set("value", value)>
 	    <label for="#field#_#option_no_space#" class="radio">#option#</label>
-		<input #attributes.string()# <cfif Evaluate('Request.data_object.#field#') eq value>checked="checked"</cfif>  />
+		<input #attributes.string()# <cfif Evaluate('variables.data_object.#field#') eq value>checked="checked"</cfif>  />
 		
 	  <!---</div>--->
 	  <cfset option_index = option_index+1 />
@@ -520,7 +569,7 @@
 
 		<cfinvoke method="preamble" argumentcollection="#Arguments#" />
 
-		<cfif isDefined("Request.data_object.#Arguments.field#") AND (Evaluate('Request.data_object.#Arguments.field#') OR Evaluate('Request.data_object.#Arguments.field#') EQ 1) >
+		<cfif isDefined("variables.data_object.#Arguments.field#") AND (Evaluate('variables.data_object.#Arguments.field#') OR Evaluate('variables.data_object.#Arguments.field#') EQ 1) >
 			<cfset attributes.set("checked", "checked") />
 			<cfset attributes.set("value", 1) />
 		<cfelse>
@@ -562,7 +611,7 @@
 		<cfloop list="#Arguments.values#" index="value">
 			<cfset option = ListGetAt(Arguments.options,option_index) />
 			<cfset option_no_space = REReplace(option, "\s", "") />
-			<cfif isDefined("Request.data_object.#value#") AND (Evaluate('Request.data_object.#value#') OR Evaluate('Request.data_object.#value#') EQ 1) >
+			<cfif isDefined("variables.data_object.#value#") AND (Evaluate('variables.data_object.#value#') OR Evaluate('variables.data_object.#value#') EQ 1) >
 				<cfset attributes.set("checked", "checked") />
 				<cfset attributes.set("value", 1) />
 			<cfelse>

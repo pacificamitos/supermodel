@@ -1,0 +1,17 @@
+.help {
+	color: #888;
+	font-size:11px;
+	vertical-align: top;
+	text-align:left;
+	white-space:normal;
+	display:none;
+}
+
+.helpIcon {
+	vertical-align:top;
+	cursor:help;
+}
+
+.reqField {
+	color: #F00;
+}
