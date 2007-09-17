@@ -12,21 +12,27 @@
 ----------------------------------------------------------------------------------------------------->
 
 <cffunction name="init" access="public" output="true">
-	<cfargument name="data_object" required="no" />
+	<cfargument name="component" type="string" required="true" />
+	<cfargument name="event" type="MachII.framework.Event" required="true" />
+		
+	<!--- Setup the data_object --->
+	<cfset variables.data_object = createObject('component', arguments.component) />
+	<cfset variables.data_object.load(arguments.event.getArgs()) />
+	<cfset variables.data_object.valid() />
+	
+	
+	<cfif event.getArg('display_errors') EQ true>
+		<cfset variables.display_errors = true />
+	<cfelse>
+		<cfset variables.display_errors = false />
+	</cfif>
 	
 	<!--- Includes scripts and styles --->
 	<cfoutput>
 	<script src="/supermodel/scripts/supermodel.js"></script>
 	<link rel="stylesheet" href="/supermodel/css/styles.css">
 	</cfoutput>
-	
-	<!--- Setup the data object --->
-	<cfif IsDefined("arguments.data_object")>
-		<cfset variables.data_object = arguments.data_object>
-	<cfelseif IsDefined("request.data_object")>
-		<cfset variables.data_object = request.data_object>
-	</cfif>
-		
+			
 	<!--- These are reserved form control arguments that will not be treated as HTML attributes --->
 	<cfset Variables.reserved_arguments = "" />
 	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "field") />
@@ -226,14 +232,24 @@
 	<cffunction name="displayError" access="public" output="true">
 		<cfargument name="field" type="string" required="yes" />
 		<cfargument name="position" type="string" default="side">
+		
+		<cfset var error_msg = "" />
+		<cfset var errors_struct = variables.data_object.getErrors() />
+		<cfset var hide_div = false />
+		
+		<cfif variables.display_errors EQ true>
+			<cftry>
+				<cfset error_msg = Evaluate("errors_struct.#Arguments.field#") />
+				
+				<cfcatch type="any">
+					<cfset hide_div = true />
+				</cfcatch>
+			</cftry>
 
-<!--- 		<cfoutput>
-			<cfif StructKeyExists(Request.model_errors, Arguments.field)>
-				<div id="error_#field#" class="error" <cfif position EQ "side">style="margin-left:95px;"</cfif>>#Evaluate("Request.model_errors.#Arguments.field#")#</div>
-			<cfelse>
-				<div id="error_#field#" class="error" style="<cfif position EQ "side">margin-left:95px;</cfif>display:none;"></div>
-			</cfif>
-		</cfoutput> --->
+			<cfoutput>
+				<div id="error_#field#" class="error" <cfif hide_div>style="display: none"</cfif>>#error_msg#</div>
+			</cfoutput>
+		</cfif>
 	</cffunction>
 
 <!----------------------------------------------------------------------------------------- textfield

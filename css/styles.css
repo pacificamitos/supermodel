@@ -15,3 +15,11 @@
 .reqField {
 	color: #F00;
 }
+
+div.error {
+	color: #F00;
+	font-size:11px;
+	vertical-align: top;
+	white-space:normal;
+	background-color:#FFFFFF;
+}
