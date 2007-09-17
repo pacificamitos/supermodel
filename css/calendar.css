@@ -1,0 +1,59 @@
+/* CALENDAR CSS STARTS */
+
+.calendar {
+	font-size:11px;
+	text-align:center;
+	font-weight:bold;
+}
+
+.calendar a{
+	color:#000000;
+	text-decoration:underline;
+	cursor:pointer;
+}
+
+.calTop {
+	background-color:#ffea94;
+	height:20px;
+}
+
+.calDays {
+	background-color:#FFFFFF;
+	color:#777;
+}
+
+.calFooter {
+	background-color:#ffea94;
+}
+
+.evenCell {
+	background-color:#FFFFFF;
+	width:25px;
+	height: 20px;
+}
+
+.oddCell {
+	background-color:#FFFFFF;
+	width:25px;
+	height: 20px;
+}
+
+.calEmpty {
+	background-color:#FFFFFF;
+	width:25px;
+	height: 20px;
+}
+
+.calToday {
+	background:#ffea94;
+	width:23px;
+	height: 18px;
+	border:2px solid #666;
+}
+
+.calToday a {
+	color:#000000;
+}
+
+/* CALENDAR CSS ENDS */
+

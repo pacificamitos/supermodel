@@ -29,8 +29,12 @@
 	
 	<!--- Includes scripts and styles --->
 	<cfoutput>
-	<script src="/supermodel/scripts/supermodel.js"></script>
 	<link rel="stylesheet" href="/supermodel/css/styles.css">
+	<link rel="stylesheet" href="/supermodel/css/calendar.css">
+	<script src="/supermodel/scripts/common.js"></script>
+	<script src="/supermodel/scripts/supermodel.js"></script>
+	<script src="/supermodel/scripts/window.js"></script>
+	<script src="/supermodel/scripts/calendar.js"></script>
 	</cfoutput>
 			
 	<!--- These are reserved form control arguments that will not be treated as HTML attributes --->
@@ -309,11 +313,6 @@
 				<cfset Variables.value_dd = DateFormat(Variables.value,'dd') />
 				<cfset Variables.value_mm = DateFormat(Variables.value,'mm') />
 				<cfset Variables.value_yyyy = DateFormat(Variables.value,'yyyy') />
-			<cfelse>
-				<cfset Variables.value = Evaluate('variables.data_object.#Arguments.field#') />
-				<cfset Variables.value_dd = Evaluate('variables.data_object.#Arguments.field#_dd') />
-				<cfset Variables.value_mm = Evaluate('variables.data_object.#Arguments.field#_mm') />
-				<cfset Variables.value_yyyy = Evaluate('variables.data_object.#Arguments.field#_yyyy') />
 			</cfif>
 		</cfif>
 			
@@ -325,7 +324,7 @@
 				'#field#Anchor',
 				'#Arguments.label#')" >
 			
-			<img src="#Request.path#images/calendar.gif" alt="calendar" />
+			<img src="/supermodel/images/calendar.gif" alt="calendar" />
 			
 		</a>
 		<!--- Hidden Date field --->
