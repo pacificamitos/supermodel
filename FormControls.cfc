@@ -88,7 +88,7 @@
 		<cfinvoke method="displayLabel" argumentcollection="#Arguments#" />
 		
 		<!--- Create an attributes object to store the HTML attributes for the form contol --->
-		<cfobject name="attributes" component="egd_billing.cfc.attributes" />
+		<cfobject name="attributes" component="supermodel.cfc.attributes" />
 		
 		<!--- Initialize the attributes with the passed-in arguments excluding the reserved ones --->
 		<cfset attributes.init(
@@ -123,24 +123,6 @@
 		<br />
 	</cffunction>
 	
-<!---------------------------------------------------------------------------------------- displayAddType
-
-	Description:	Outputs a + icon which, when clicked, opens the add data_types page for a specified data type
-			
------------------------------------------------------------------------------------------------------>
-	
-	<cffunction name="displayAddType" access="public" output="true">
-		<cfargument name="addtype" type="string" required="yes" />
-		
-		<cfinvoke component="egd_billing.app.type_categories.typecategory"
-					method="select"
-					conditions="name = '#addtype#'"
-					returnvariable="type" />
-		<cfset link = "#Request.path#app/types/create_popup.cfm?category_id=#type.id#" />
-		<img src="#Request.path#images/plus.gif" alt="" onclick="window.open('#link#','_blank','height=160,width=330,toolbar=no,scrollbars=no,resizable=no');" />
-		
-
-	</cffunction>
 <!---------------------------------------------------------------------------------------- displayHelp
 
 	Description:	Outputs a question mark icon which, when clicked, displays a help message for the
