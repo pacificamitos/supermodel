@@ -17,6 +17,9 @@
 		
 	<!--- Setup the data_object --->
 	<cfset variables.data_object = createObject('component', arguments.component) />
+	<cfif event.isArgDefined('id')>
+		<cfset variables.data_object.read(event.getArg('id')) />
+	</cfif>
 	<cfset variables.data_object.load(arguments.event.getArgs()) />
 	<cfset variables.data_object.valid() />
 	
