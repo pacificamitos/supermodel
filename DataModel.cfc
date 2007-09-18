@@ -101,7 +101,7 @@
 		<cfargument name="params" required="no" type="struct"
 			hint="A params struct can be used to load new values into the object before update it" />
 		
-		<cfif isDefined(arguments.params)>
+		<cfif isDefined("arguments.params")>
 			<cfinvoke method="load" params="#params#" />
 		</cfif>
 		
