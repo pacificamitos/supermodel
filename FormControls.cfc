@@ -18,16 +18,6 @@
 	<cfset variables.display_errors = arguments.display_errors />
 	<cfset variables.data_object = arguments.data_object />
 		
-	<!--- Includes scripts and styles --->
-	<cfoutput>
-	<link rel="stylesheet" href="/supermodel/css/styles.css">
-	<link rel="stylesheet" href="/supermodel/css/calendar.css">
-	<script src="/supermodel/scripts/common.js"></script>
-	<script src="/supermodel/scripts/supermodel.js"></script>
-	<script src="/supermodel/scripts/window.js"></script>
-	<script src="/supermodel/scripts/calendar.js"></script>
-	</cfoutput>
-			
 	<!--- These are reserved form control arguments that will not be treated as HTML attributes --->
 	<cfset Variables.reserved_arguments = "" />
 	<cfset Variables.reserved_arguments = ListAppend(Variables.reserved_arguments, "field") />
