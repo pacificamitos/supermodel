@@ -12,24 +12,12 @@
 ----------------------------------------------------------------------------------------------------->
 
 <cffunction name="init" access="public" output="true">
-	<cfargument name="component" type="string" required="true" />
-	<cfargument name="event" type="MachII.framework.Event" required="true" />
+	<cfargument name="display_errors" type="boolean" required="true" />
+	<cfargument name="data_object" type="SuperModel.DataModel" required="yes" />
+
+	<cfset variables.display_errors = arguments.display_errors />
+	<cfset variables.data_object = arguments.data_object />
 		
-	<!--- Setup the data_object --->
-	<cfset variables.data_object = createObject('component', arguments.component) />
-	<cfif event.isArgDefined('id')>
-		<cfset variables.data_object.read(event.getArg('id')) />
-	</cfif>
-	<cfset variables.data_object.load(arguments.event.getArgs()) />
-	<cfset variables.data_object.valid() />
-	
-	
-	<cfif event.getArg('display_errors') EQ true>
-		<cfset variables.display_errors = true />
-	<cfelse>
-		<cfset variables.display_errors = false />
-	</cfif>
-	
 	<!--- Includes scripts and styles --->
 	<cfoutput>
 	<link rel="stylesheet" href="/supermodel/css/styles.css">
@@ -90,10 +78,7 @@
 		<cfif NOT IsDefined("variables.data_object")>
 			<cfthrow message="Form Controls data_object not set properly." />
 		</cfif>
-		
-		<!--- Display the label for the form field --->	
-		<cfinvoke method="displayLabel" argumentcollection="#Arguments#" />
-		
+				
 		<!--- Create an attributes object to store the HTML attributes for the form contol --->
 		<cfobject name="attributes" component="supermodel.attributes" />
 		
@@ -105,6 +90,11 @@
 		<!--- Add some default attributes if they aren't provided as arguments --->
 		<cfset attributes.set("id", Arguments.field) /> <!--- ID MUST be the field name --->
 		<cfset attributes.add("name", Arguments.field) />
+		
+		<!--- Display the label for the form field --->	
+		<cfif attributes.get("type") NEQ "hidden">
+		<cfinvoke method="displayLabel" argumentcollection="#Arguments#" />
+		</cfif>
 		
 		<cfreturn attributes />
 	</cffunction>
@@ -121,13 +111,11 @@
 			<cfset arguments.position = "none">
 		</cfif>	
 
-		<cfinvoke method="displayHelp" argumentcollection="#Arguments#" />
-		<cfif IsDefined("Arguments.addtype") AND Arguments.addtype NEQ "">
-			<cfinvoke method="displayAddType" argumentcollection="#Arguments#" />
+		<cfif attributes.get("type") NEQ "hidden">
+			<cfinvoke method="displayHelp" argumentcollection="#Arguments#" />
+			<cfinvoke method="displayError" argumentcollection="#Arguments#" />
+			<br />
 		</cfif>
-		<!--- Display the validation errors for this form field --->
-		<cfinvoke method="displayError" argumentcollection="#Arguments#" />
-		<br />
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------- displayHelp
