@@ -177,7 +177,7 @@
 			UPDATE #table#
 			SET
 			<cfloop list="#fields#" index="field_name">
-					#delimiter##field_name# = 
+					#delimiter#[#field_name#] = 
 					<cfqueryparam 
 						value="#value(field_name)#" 
 						null="#null(field_name)#" 
