@@ -425,7 +425,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="selectfield" access="public" output="true">
-		<cfargument name="query" required="yes" />
+		<cfargument name="query" required="yes" type="query" />
 		<cfargument name="value_field" default="#Arguments.field#" />
 		<cfargument name="display_field" default="#Arguments.field#" />
 		<cfargument name="multiple" default="false" />

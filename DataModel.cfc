@@ -120,6 +120,16 @@
 		<cfinvoke method="deleteQuery" />
 		<cfinvoke method="clear" />
 	</cffunction>
+	
+<!------------------------------------------------------------------------------------------ persisted
+
+	Description: Returns true if the object is currently tied to a database record
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="persisted" access="public" output="false" returntype="boolean">
+		<cfreturn This.id NEQ "">
+	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
 <!---------------------------------------- Query Functions ----------------------------------------->
@@ -240,7 +250,9 @@
 			</cfif>
 			
 			<!--- Insert the field name into the list of database fields --->
-			<cfset variables.database_fields = ListAppend(variables.database_fields, GetColumns.column_name) />
+			<cfset variables.database_fields = ListAppend(
+				variables.database_fields, 
+				GetColumns.column_name) />
 			
 			<!--- Populate the field_types structure with the column type --->
 			<cfset StructInsert(
