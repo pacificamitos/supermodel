@@ -1,6 +1,141 @@
-<cfcomponent extends="MachII.framework.Plugin">
-	<cffunction name="preView" returntype="void" access="public" output="true">
-		<cfargument name="eventContext" type="MachII.framework.EventContext" required="yes" />
-		<cfinclude template="/SuperModel/FormControls.cfm" />
+<cfcomponent>
+
+<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------- Parameters and Initialization ----------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+
+	<cfparam name="variables.errors" default="#StructNew()#" />
+	<cfparam name="variables.warnings" default="#StructNew()#" />
+	
+<!---------------------------------------------------------------------------------------------- init
+
+	Description:	Sets the name of the object and the filesystem folder that the object's CFC file is
+								stored in.  This function is called implicitly whenever an object is instantiated or
+								invoked.
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="init" access="package" output="false" returntype="void" 
+		hint="Initializes the object">
+		<cfargument name="object_name" type="string" required="yes" hint="The name of the object">
+		<cfargument name="object_path" type="string" required="yes" />
+
+		<cfset variables.object_name = arguments.object_name />
+		<cfset variables.object_path = arguments.object_path />
+	</cffunction>
+	
+	<cffunction name="getErrors">
+		<cfreturn variables.errors>
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!---------------------------------------- Core Functions ------------------------------------------>
+<!-------------------------------------------------------------------------------------------------->
+			
+<!---------------------------------------------------------------------------------------------- load
+
+	Description:	Takes in a structure of attribute-value pairs and updates the object's attributes 
+								to match those in the given structure.  If the structure contains attributes that the
+								object does not have then those attributes are silently ignored.
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="load" access="public" output="false" returntype="void" 
+		hint="Loads parameters from a structure into the object's member variables.">
+		
+		<cfargument
+			name="params" 
+			required="yes" 
+			type="struct"
+			hint="Structure of parameters to load into the object" />
+		
+		<cfargument 
+			name="fields"
+			default="" 
+			type="string"
+			hint="List of fields to update" />
+		
+		<!--- 
+			If the list of fields is not provided explicitly then we loop 
+			over every field in the provided params structure
+		--->
+		<cfif arguments.fields EQ "">
+			<cfset arguments.fields = StructKeyList(params) />
+		</cfif>
+
+		<!--- 
+			Loop over the list of fields and copy them from the params struct 
+			into the "This" struct 
+		--->
+		<cfloop list="#arguments.fields#" index="key">
+			<cfif StructKeyExists(This, key)>
+				<cfset StructInsert(This, key, StructFind(params, key), "True") />
+			</cfif>
+		</cfloop>
+	</cffunction>	
+	
+<!--------------------------------------------------------------------------------------------- clear
+
+	Description: Clears the object's attributes
+			
+---------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="clear" access="public" returntype="void" output="false" 
+		hint="Clears all of the object's attributes">
+		<cfset StructClear(This) />
+	</cffunction>
+		
+<!--------------------------------------------------------------------------------------------- valid
+
+	Description: Validates the object's attributes
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="valid" access="public" returntype="boolean">
+		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "validation.cfm" />
+		
+		<cfset StructClear(variables.errors) />	
+		<cfset StructClear(variables.warnings) />	
+		
+		<cfif FileExists(validation_file)>
+			<cfinclude template="#getIncludePath()#/validation.cfm" />
+		</cfif>
+		<cfset thisIsValid = StructIsEmpty(variables.errors)>
+		<cfreturn  thisIsValid />
+	</cffunction>	
+	
+<!---------------------------------------------------------------------------------------------- help
+
+	Description:	Given a field name, returns the corresponding help message if one exists.
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="help" access="public" returntype="string">
+		<cfargument name="field" type="string" required="yes" hint="The field we want help for" />
+		
+		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "help.cfm" />
+		
+		<cfset help_message = "No help available" />	
+		
+		<cfif FileExists(validation_file)>
+			<cfinclude template="#getIncludePath()#/help.cfm" />
+		</cfif>
+		
+		<cfreturn help_message />
+	</cffunction>	
+	
+<!------------------------------------------------------------------------------------- getIncludePath
+
+	Description:	Converts a object_path of the form "folder1.folder2.objectname" to a directory path
+								that can be used by <cfinclude>
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="getIncludePath">
+		<cfset var include_path = "/" />
+		<cfset include_path = include_path & Replace(variables.object_path, ".", "/", "all") />
+		<cfset include_path = ListDeleteAt(include_path, ListLen(include_path, "/"), "/") />
+		
+		<cfreturn include_path />
 	</cffunction>
 </cfcomponent>

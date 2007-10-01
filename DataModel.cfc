@@ -6,7 +6,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-<cfcomponent name="DataModel" extends="BaseModel">
+<cfcomponent name="DataModel" extends="supermodel.SuperModel">
 
 <!---------------------------------------------------------------------------------------------- init
 
@@ -38,6 +38,21 @@
 		<!--- Initiate all the fields (see the function's description for more info) --->
 		<cfset initDatabaseFields() />
 	</cffunction>
+  
+<!---------------------------------------------------------------------------------------------- save
+
+	Description:	If the object has a value for its id then the record will be updated otherwise
+                a new record will be created.
+			
+----------------------------------------------------------------------------------------------------->	
+  
+  <cffunction name="save" access="public" returntype="void" output="false">   
+    <cfif This.id EQ "">
+      <cfset create()>
+    <cfelse>
+      <cfset update()>
+    </cfif>
+  </cffunction>
 	
 <!--------------------------------------------------------------------------------------------- create
 
@@ -87,8 +102,6 @@
 		</cfif>
 				
  		<cfset load(params) />
-
-		<cfreturn This />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------- update
