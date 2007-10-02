@@ -21,9 +21,9 @@
 		<cfargument name="model_path" type="string" required="yes" />
 		<cfargument name="table_name" type="string" default="#arguments.model_name#s" />
 		
-		<cfparam name="This.id" default="" />
-		<cfparam name="variables.database_fields" default="" />
-		<cfparam name="variables.table_name" default="" />
+		<cfset this.id = "" />
+		<cfset variables.database_fields = "" />
+		<cfset variables.table_name = "" />
 
 		<!--- Initiate the BaseModel --->
 		<cfset Super.init(model_name, model_path) />
@@ -141,7 +141,7 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="persisted" access="public" output="false" returntype="boolean">
-		<cfreturn This.id NEQ "">
+		<cfreturn this.id NEQ "">
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
