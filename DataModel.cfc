@@ -24,6 +24,7 @@
 		<cfset this.id = "" />
 		<cfset variables.database_fields = "" />
 		<cfset variables.table_name = "" />
+		<cfset variables.relationships = StructNew() />
 
 		<!--- Initiate the BaseModel --->
 		<cfset Super.init(model_name, model_path) />
@@ -32,13 +33,13 @@
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.table_name = arguments.table_name />
 		
-		<!--- Create a structure to whole the data type of each field/attribute --->
+		<!--- Create a structure to hold the data type of each field/attribute --->
 		<cfset variables.field_types = StructNew() />
 
 		<!--- Initiate all the fields (see the function's description for more info) --->
 		<cfset initDatabaseFields() />
 	</cffunction>
-  
+	 
 <!---------------------------------------------------------------------------------------------- save
 
 	Description:	If the object has a value for its id then the record will be updated otherwise
@@ -47,7 +48,7 @@
 ----------------------------------------------------------------------------------------------------->	
   
   <cffunction name="save" access="public" returntype="void" output="false">   
-    <cfif This.id EQ "">
+    <cfif this.id EQ "">
       <cfset create()>
     <cfelse>
       <cfset update()>
@@ -72,7 +73,7 @@
 				<cfset insertQuery() />
 		</cfif>
 
-		<cfreturn This />
+		<cfreturn this />
 	</cffunction>
 
 <!---------------------------------------------------------------------------------------------- read
@@ -83,15 +84,15 @@
 	
 	<cffunction name="read" access="public">
 		<cfargument name="id" required="yes" />
-		<cfset This.id = arguments.id />
+		<cfset this.id = arguments.id />
 		
-		<cfif NOT IsNumeric(This.id)>
-			<cfreturn This />
+		<cfif NOT IsNumeric(this.id)>
+			<cfreturn this />
 		</cfif>
 		
 		<cfquery name="SelectObject" datasource="#variables.dsn#">
 		SELECT * FROM #variables.table_name#
-		WHERE #variables.table_name#.#variables.primary_key# = #This.id#
+		WHERE #variables.table_name#.#variables.primary_key# = #this.id#
 		</cfquery>
 
 		<cfset params = StructNew() />
@@ -102,6 +103,7 @@
 		</cfif>
 				
  		<cfset load(params) />
+		<cfset loadAllRelationData() />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------- update
@@ -145,6 +147,93 @@
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
+<!------------------------------------- Relational Functions --------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+
+<!----------------------------------------------------------------------------------------------- get
+
+	Description:	Gets a query of data based on the name of a foreign key relationship
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="get" access="public" returntype="query" output="false">
+		<cfargument name="relation_name" type="string" required="yes" />
+		<cfset loadRelationData(relation_name) />
+		<cfreturn this['relation_name'] />
+	</cffunction>
+
+<!------------------------------------------------------------------------------------------- hasMany
+
+	Description:	Used to indicate that the object should contain a collection of foreign objects.
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="hasMany" access="private" returntype="void" output="false">
+		<cfargument name="foreign_table" type="string" required="yes" />
+		<cfargument name="foreign_key" type="string" required="yes" />
+		<cfargument name="join_table" type="string" required="no" />
+		<cfargument name="join_key" type="string" required="no" />
+		
+		<cfset StructInsert(variables.relationships, arguments.foreign_tablem, arguments) />
+	</cffunction>		
+	
+<!------------------------------------------------------------------------------- loadAllRelationData
+
+	Description:	Loops over all the relationships and loads them into the object
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="loadAllRelationData" access="private" returntype="void" output="false">
+		<cfloop list="#structKeyList(variables.relationships)#" index="relation_name">
+			<cfset loadRelationData(relation_name = relation_name, reload = true) />
+		</cfloop>
+	</cffunction>
+	
+<!----------------------------------------------------------------------------------- loadRelationData
+
+	Description:	Reads a query of data into an attribute of the object
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="loadRelationData" access="private" returntype="void" output="false">
+		<cfargument name="relation_name" type="string" required="yes" />
+		<cfargument name="reload" type="boolean" default="false" />
+		
+		<cfset var relationship = variables.relationships[relation_name] />		
+		<cfset var foreign_table = relationship['foreign_table'] />
+		<cfset var foreign_key = relationship['foreign_key'] />
+		
+		<cfset var join_table = IIF(
+			structKeyExists(relationship, 'join_table'), 
+			DE("#relationship['join_table']#"), 
+			"") />
+			
+		<cfset var join_key = IIF(
+			structKeyExists(relationship, 'join_key'), 
+			DE("#relationship['join_key']#"), 
+			"") />
+			
+		<cfset var query = "" />
+			
+		<cfif structKeyExists(this, arguments.relation_name) AND reload EQ false>
+			<cfreturn />
+		</cfif>
+
+		<cfquery name="query" datasource="#variables.dsn#">
+			SELECT * FROM #relationship['foreign_table']#
+			<cfif join_table NEQ "">
+			JOIN #join_table#
+			ON #join_table#.#foreign_key# = #foreign_table#.id
+			WHERE #join_table#.#join_key# = #this.id#
+			<cfelse>
+			WHERE #foreign_table#.#join_key# = #this.id#
+			</cfif>
+		</cfquery>
+		
+			<cfset structInsert(this, relationship['foreign_table'], query, true) />
+	</cffunction>
+
+<!-------------------------------------------------------------------------------------------------->
 <!---------------------------------------- Query Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
 
@@ -178,7 +267,7 @@
 			SELECT SCOPE_IDENTITY() as id;
 		</cfquery> 
 		
-		<cfset This.id = InsertData.id />
+		<cfset this.id = InsertData.id />
 	</cffunction>
 
 
@@ -207,7 +296,7 @@
 						cfsqltype="#type(field_name)#" />
 					<cfset delimiter = ",">
 			</cfloop>
-			WHERE #arguments.primary_key# = '#Evaluate("This.#arguments.primary_key#")#'
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
 		</cfquery>
 	</cffunction>
 
@@ -223,7 +312,7 @@
 		
 		<cfquery datasource="#variables.dsn#">
 			DELETE FROM #table#
-			WHERE #arguments.primary_key# = '#Evaluate("This.#arguments.primary_key#")#'
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
 		</cfquery>
 	</cffunction>
 	
@@ -235,7 +324,7 @@
 
 	Description:	Uses the information_schema table to determine the name and data type of each
 								column in the table associated with this model.  For each column found, a 
-								corresponding attribute is added to the model by inserting it into the "This" 
+								corresponding attribute is added to the model by inserting it into the "this" 
 								structure.
 			
 ----------------------------------------------------------------------------------------------------->	
@@ -279,7 +368,7 @@
 				has the same name as the database column name 
 			--->
 			<cfset StructInsert(
-				This, 
+				this, 
 				GetColumns.column_name, 
 				column_default, 
 				"True") />
@@ -313,7 +402,7 @@
 		<cfargument name="field_name" type="string" required="yes" 
 			hint="The field whose value we want" />
 			
-		<cfset var value = StructFind(This, arguments.field_name) />
+		<cfset var value = StructFind(this, arguments.field_name) />
 		<cfset var type = type(arguments.field_name) />
 
 		<!--- If the value is a date we must convert it to an ODBC date --->
