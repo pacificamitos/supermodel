@@ -174,7 +174,7 @@
 		<cfargument name="join_table" type="string" required="no" />
 		<cfargument name="join_key" type="string" required="no" />
 		
-		<cfset StructInsert(variables.relationships, arguments.foreign_tablem, arguments) />
+		<cfset StructInsert(variables.relationships, arguments.foreign_table, arguments) />
 	</cffunction>		
 	
 <!------------------------------------------------------------------------------- loadAllRelationData

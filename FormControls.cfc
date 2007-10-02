@@ -469,6 +469,49 @@
 		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
 	</cffunction>
 	
+<!-------------------------------------------------------------------------------------- multipleselectfield
+
+	Description:	Outputs a <select multiple="multiple"> tag with options provided by the query argument.
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="multipleselectfield" access="public" output="true">
+		<cfargument name="query" required="yes" type="query" />
+		<cfargument name="object_query_name" default="#Arguments.field#" />
+		<cfargument name="value_field" default="#Arguments.field#" />
+		<cfargument name="display_field" default="#Arguments.field#" />
+		<cfargument name="empty_value" default="Select One" />
+		<cfargument name="expandable" default="yes" />
+		
+		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfset max_width=0>
+		<cfloop query="query">
+			<cfset max_width = Max(len(Evaluate("query.#display_field#")), max_width)>
+		</cfloop>
+		<cfif max_width GT 26 and expandable neq "no"> 
+			<!---<cfif max_width GT 37 AND expandable eq "no">
+				<cfset attributes.set("style",attributes.get("style")&"width:250px;") />--->
+			<!---<cfif max_width GT 33 AND expandable eq "no">
+				<cfset attributes.set("style",attributes.get("style")&"width:227px;") />
+			<cfelse>--->
+				<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
+			<!---</cfif>--->
+		</cfif>
+<!---		<cfif max_width GT 26  AND expandable eq "yes"> 
+			<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
+		</cfif>   --->
+		
+		<select multiple="multiple" #attributes.string()# >
+			<option value="">#Arguments.empty_value#</option>
+			<cfloop query="query">
+				<option value="#Evaluate('query.#value_field#')#" <cfif IsDefined("variables.data_object.#Arguments.field#") AND inQuery(Evaluate("variables.data_object.#Arguments.object_query_name#"),Arguments.value_field,Evaluate("query.#value_field#"))>selected="selected"</cfif>>
+					#HTMLEditFormat(Evaluate("query.#display_field#"))#
+				</option>
+			</cfloop>
+		</select>
+		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+	</cffunction>
+	
 <!----------------------------------------------------------------------------------------- textarea
 
 	Description:	Outputs a dynamic <textarea>
@@ -606,4 +649,21 @@
 		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
 	</cffunction>
 
+
+	<cffunction name="inQuery" access="private" returntype="boolean">
+		<cfargument name="query" type="query" required="yes" />
+		<cfargument name="column" required="yes" />
+		<cfargument name="value" required="yes" />
+		<cfquery dbtype="query" name="search">
+			SELECT *
+			FROM Arguments.query
+			WHERE #Arguments.column# = #Arguments.value#
+		</cfquery>
+		
+		<cfif search.recordCount gt 0>
+			<cfreturn true />
+		<cfelse>
+			<cfreturn false />
+		</cfif>
+	</cffunction>		
 </cfcomponent>
