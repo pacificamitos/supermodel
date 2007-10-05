@@ -428,37 +428,16 @@
 		<cfargument name="query" required="yes" type="query" />
 		<cfargument name="value_field" default="#Arguments.field#" />
 		<cfargument name="display_field" default="#Arguments.field#" />
-		<cfargument name="multiple" default="false" />
 		<cfargument name="empty_value" default="Select One" />
 		<cfargument name="expandable" default="yes" />
 		
 		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
-		<cfset multiple_size = '' />
-		<cfif Arguments.multiple eq 'false'>
-			<cfset is_multiple = "" />
-		<cfelse>
-			<cfset is_multiple = "Multiple" />
-			<cfset attributes.add("size", "10") />
-			<cfset attributes.set("style",attributes.get("style")&"margin-bottom: 10px;") />
-		</cfif>
-		<cfset max_width=0>
-		<cfloop query="query">
-			<cfset max_width = Max(len(Evaluate("query.#display_field#")), max_width)>
-		</cfloop>
-		<cfif max_width GT 26 and expandable neq "no"> 
-			<!---<cfif max_width GT 37 AND expandable eq "no">
-				<cfset attributes.set("style",attributes.get("style")&"width:250px;") />--->
-			<!---<cfif max_width GT 33 AND expandable eq "no">
-				<cfset attributes.set("style",attributes.get("style")&"width:227px;") />
-			<cfelse>--->
-				<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
-			<!---</cfif>--->
-		</cfif>
-<!---		<cfif max_width GT 26  AND expandable eq "yes"> 
-			<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
-		</cfif>   --->
 		
-		<select #is_multiple# #attributes.string()# >
+		<cfif expandable> 
+				<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
+		</cfif>
+		
+		<select #attributes.string()# >
 			<option value="">#Arguments.empty_value#</option>
 			<cfloop query="query">
 				<option value="#Evaluate('query.#value_field#')#" <cfif IsDefined("variables.data_object") AND ListFindNoCase(Evaluate('variables.data_object.#Arguments.field#'),Evaluate('query.#value_field#'))>selected="selected"</cfif>>
@@ -484,22 +463,10 @@
 		<cfargument name="expandable" default="yes" />
 		
 		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
-		<cfset max_width=0>
-		<cfloop query="query">
-			<cfset max_width = Max(len(Evaluate("query.#display_field#")), max_width)>
-		</cfloop>
-		<cfif max_width GT 26 and expandable neq "no"> 
-			<!---<cfif max_width GT 37 AND expandable eq "no">
-				<cfset attributes.set("style",attributes.get("style")&"width:250px;") />--->
-			<!---<cfif max_width GT 33 AND expandable eq "no">
-				<cfset attributes.set("style",attributes.get("style")&"width:227px;") />
-			<cfelse>--->
+
+		<cfif expandable> 
 				<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
-			<!---</cfif>--->
 		</cfif>
-<!---		<cfif max_width GT 26  AND expandable eq "yes"> 
-			<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
-		</cfif>   --->
 		
 		<select multiple="multiple" #attributes.string()# >
 			<option value="">#Arguments.empty_value#</option>

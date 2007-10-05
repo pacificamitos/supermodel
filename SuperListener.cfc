@@ -31,6 +31,7 @@
 		
     <cfset variables.object.read(event.getArg('id')) />
     <cfset event.setArg(variables.object_name, variables.object) />
+		<cfset event.setArg('data_object', variables.object) />
 	</cffunction>
 	
 <!--------------------------------------------------------------------------------------- prepareList

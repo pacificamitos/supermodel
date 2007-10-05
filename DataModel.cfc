@@ -1,8 +1,8 @@
 <!--------------------------------------- DataModel -------------------------------------------------
 
-	Description:	Associates the model with a table in the database and reads its attributes from the 
-								fields in the table.  Also adds CRUD (Create/Read/Update/Delete) methods to the model
-								so that each instance of the model is tied to a single record in the database table.
+	Description:	Associates the object with a table in the database and reads its attributes from the 
+								fields in the table.  Also adds CRUD (Create/Read/Update/Delete) methods to the object
+								so that each instance of the object is tied to a single record in the database table.
 			
 ----------------------------------------------------------------------------------------------------->	
 
@@ -15,21 +15,21 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init">
+	<cffunction name="init" access="public" returntype="void" output="false">
 		<cfargument name="dsn" type="string" required="yes" hint="The datasource name" />
-		<cfargument name="model_name" type="string" required="yes" />
-		<cfargument name="model_path" type="string" required="yes" />
-		<cfargument name="table_name" type="string" default="#arguments.model_name#s" />
+		<cfargument name="object_name" type="string" required="yes" />
+		<cfargument name="object_path" type="string" required="yes" />
+		<cfargument name="table_name" type="string" default="#arguments.object_name#s" />
 		
 		<cfset this.id = "" />
 		<cfset variables.database_fields = "" />
 		<cfset variables.table_name = "" />
-		<cfset variables.relationships = StructNew() />
+		<cfset variables.relations = StructNew() />
 
-		<!--- Initiate the BaseModel --->
-		<cfset Super.init(model_name, model_path) />
+		<!--- Initiate the SuperModel --->
+		<cfset Super.init(object_name, object_path) />
 		
-		<!--- Set the DSN and indicate which database table we'll be modelling --->
+		<!--- Set the DSN and indicate which database table we'll be objectling --->
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.table_name = arguments.table_name />
 		
@@ -103,7 +103,7 @@
 		</cfif>
 				
  		<cfset load(params) />
-		<cfset loadAllRelationData() />
+		<cfset loadRelationData() />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------- update
@@ -127,7 +127,7 @@
 
 <!--------------------------------------------------------------------------------------------- delete
 
-	Description: Deletes the current record from the database and clears the model.
+	Description: Deletes the current record from the database and clears the object.
 			
 ----------------------------------------------------------------------------------------------------->	
 
@@ -152,14 +152,14 @@
 
 <!----------------------------------------------------------------------------------------------- get
 
-	Description:	Gets a query of data based on the name of a foreign key relationship
+	Description:	Gets a query of data based on the name of a foreign key relation
 			
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="get" access="public" returntype="query" output="false">
 		<cfargument name="relation_name" type="string" required="yes" />
 		<cfset loadRelationData(relation_name) />
-		<cfreturn this['relation_name'] />
+		<cfreturn this[arguments.relation_name] />
 	</cffunction>
 
 <!------------------------------------------------------------------------------------------- hasMany
@@ -173,20 +173,48 @@
 		<cfargument name="foreign_key" type="string" required="yes" />
 		<cfargument name="join_table" type="string" required="no" />
 		<cfargument name="join_key" type="string" required="no" />
+		<cfargument name="join_columns" type="string" required="no" />
 		
-		<cfset StructInsert(variables.relationships, arguments.foreign_table, arguments) />
+		<cfset StructInsert(variables.relations, arguments.foreign_table, arguments) />
+		
+
+		<cfset StructInsert(this, foreign_table, manyToManySelect(argumentcollection = arguments)) />
 	</cffunction>		
 	
-<!------------------------------------------------------------------------------- loadAllRelationData
-
-	Description:	Loops over all the relationships and loads them into the object
+	<cffunction name="manyToManySelect">
+		<cfargument name="foreign_table" type="string" required="yes" />
+		<cfargument name="foreign_key" type="string" required="yes" />
+		<cfargument name="join_table" type="string" required="yes" />
+		<cfargument name="join_key" type="string" required="yes" />
+		<cfargument name="join_columns" type="string" required="no" />
+		
+		<!--- Perform a dynamic query to get all the relation items --->
+		<cfquery name="SelectItems" datasource="#variables.dsn#">
+			<!--- Select all columns from the foreign table --->
+			SELECT #arguments.foreign_table#.*
 			
------------------------------------------------------------------------------------------------------>
-
-	<cffunction name="loadAllRelationData" access="private" returntype="void" output="false">
-		<cfloop list="#structKeyList(variables.relationships)#" index="relation_name">
-			<cfset loadRelationData(relation_name = relation_name, reload = true) />
-		</cfloop>
+			<!--- If there are non-key columns in the join table, select those as well --->
+			<cfif join_table_used>
+				<cfloop list="#join_columns#" index="join_column">
+				, #arguments.join_table#.#join_column#
+				</cfloop> 
+			</cfif>
+			
+			FROM #arguments.foreign_table#
+			
+			<!--- If a join_table is specified (manyToMany) then we JOIN on it --->
+			<cfif arguments.join_table NEQ "">
+			JOIN #arguments.join_table#
+			ON #arguments.join_table#.#arguments.foreign_key# = #arguments.foreign_table#.id
+			WHERE #arguments.join_table#.#arguments.join_key# = #this.id#
+			
+			<!--- Otherwise we join directly to the foreign table (oneToMany) --->
+			<cfelse>
+			WHERE #relation['foreign_table']#.#relation['join_key']# = #this.id#
+			</cfif>
+		</cfquery>
+		
+		<cfreturn SelectItems />
 	</cffunction>
 	
 <!----------------------------------------------------------------------------------- loadRelationData
@@ -196,42 +224,99 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="loadRelationData" access="private" returntype="void" output="false">
-		<cfargument name="relation_name" type="string" required="yes" />
-		<cfargument name="reload" type="boolean" default="false" />
+		<!--- Var scope the local function variables --->
+		<cfset var relation = "" />		
+		<cfset var relation_name = "" />
+		<cfset var join_column = "" />
+		<cfset var items = "" />
 		
-		<cfset var relationship = variables.relationships[relation_name] />		
-		<cfset var foreign_table = relationship['foreign_table'] />
-		<cfset var foreign_key = relationship['foreign_key'] />
-		
-		<cfset var join_table = IIF(
-			structKeyExists(relationship, 'join_table'), 
-			DE("#relationship['join_table']#"), 
-			"") />
-			
-		<cfset var join_key = IIF(
-			structKeyExists(relationship, 'join_key'), 
-			DE("#relationship['join_key']#"), 
-			"") />
-			
-		<cfset var query = "" />
-			
-		<cfif structKeyExists(this, arguments.relation_name) AND reload EQ false>
-			<cfreturn />
-		</cfif>
+		<!--- Loop over the collection of relations --->
+		<cfloop list="#structKeyList(variables.relations)#" index="relation_name">
+			<cfset relation = variables.relations[relation_name] />
+			<cfset join_table_used = structKeyExists(relation, 'join_table') />
 
-		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT * FROM #relationship['foreign_table']#
-			<cfif join_table NEQ "">
-			JOIN #join_table#
-			ON #join_table#.#foreign_key# = #foreign_table#.id
-			WHERE #join_table#.#join_key# = #this.id#
-			<cfelse>
-			WHERE #foreign_table#.#join_key# = #this.id#
-			</cfif>
-		</cfquery>
-		
-			<cfset structInsert(this, relationship['foreign_table'], query, true) />
+			<cfset items = manyToManySelect(
+				relation['foreign_table'],
+				relation['foreign_key'],
+				relation['join_table'],
+				relation['join_key'],
+				relation['join_columns']) />
+			
+			<cfset structInsert(this, relation['foreign_table'], items, true) />
+		</cfloop>
 	</cffunction>
+	
+<!----------------------------------------------------------------------------------- saveRelationData
+
+	Description:	Reads a query of data into an attribute of the object
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="saveRelationData" access="private" returntype="void" output="false">		
+		<!--- Var scope the local function variables --->
+		<cfset var relation = "" />		
+		<cfset var relation_name = "" />
+		<cfset var query = "" />
+		<cfset var join_column = "" />
+		<cfset var items = "" />
+		
+		<!--- Loop over the collection of relations --->
+		<cfloop list="#structKeyList(variables.relations)#" index="relation_name">
+			<cfset relation = variables.relations[relation_name] />
+			<cfset join_table_used = structKeyExists(relation, 'join_table') />
+
+			<!--- Only continue if there is a join table --->
+			<cfif join_table_used>			
+				<cfquery name="DeleteItems" datasource="#variables.dsn#">
+					DELETE FROM user_positions
+					WHERE user_positions.position_id = #this.id#
+				</cfquery>
+				
+				<cfset items = this[relation['foreign_table']] />
+				<cfloop query="items">
+					<cfquery name="InsertItems" datasource="#variables.dsn#">
+						INSERT INTO user_positions (
+							#relation['join_key']#,
+							#relation['foreign_key']#,
+						)
+						VALUES (
+							#this.id#,
+							#items.id#)
+						)
+					</cfquery>
+				</cfloop>
+			</cfif>
+					
+				
+			<cfquery name="query" datasource="#variables.dsn#">
+				<!--- Select all columns from the foreign table --->
+				SELECT #relation['foreign_table']#.*
+				
+				<!--- If there are non-key columns in the join table, select those as well --->
+				<cfif join_table_used>
+					<cfloop list="#join_columns#" index="join_column">
+					, #relation['join_table']#.#join_column#
+					</cfloop> 
+				</cfif>
+				
+				FROM #relation['foreign_table']#
+				
+				<!--- If a join_table is specified (manyToMany) then we JOIN on it --->
+				<cfif relation['join_table'] NEQ "">
+				JOIN #relation['join_table']#
+				ON #relation['join_table']#.#relation['foreign_key']# = #relation['foreign_table']#.id
+				WHERE #relation['join_table']#.#relation['join_key']# = #this.id#
+				
+				<!--- Otherwise we join directly to the foreign table (oneToMany) --->
+				<cfelse>
+				WHERE #relation['foreign_table']#.#relation['join_key']# = #this.id#
+				</cfif>
+			</cfquery>
+			
+			<cfset structInsert(this, relation['foreign_table'], query, true) />
+		</cfloop>
+	</cffunction>
+	
 
 <!-------------------------------------------------------------------------------------------------->
 <!---------------------------------------- Query Functions ----------------------------------------->
@@ -323,8 +408,8 @@
 <!-------------------------------------------------------------------------------- initDatabaseFields
 
 	Description:	Uses the information_schema table to determine the name and data type of each
-								column in the table associated with this model.  For each column found, a 
-								corresponding attribute is added to the model by inserting it into the "this" 
+								column in the table associated with this object.  For each column found, a 
+								corresponding attribute is added to the object by inserting it into the "this" 
 								structure.
 			
 ----------------------------------------------------------------------------------------------------->	
