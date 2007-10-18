@@ -145,6 +145,21 @@
 	<cffunction name="persisted" access="public" output="false" returntype="boolean">
 		<cfreturn this.id NEQ "">
 	</cffunction>
+	
+<!------------------------------------------------------------------------------ getDatabaseAttributes
+
+	Description: Returns a structure of those attribute key/value pairs which come from the database
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="getDatabaseAttributes" access="public" output="false" returntype="struct">
+		<cfset var attributes = StructNew() />
+		<cfloop list="#variables.database_fields#" index="field">
+			<cfset StructInsert(attributes, field, this[field]) />
+		</cfloop>
+		
+		<cfreturn attributes />
+	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
 <!------------------------------------- Relational Functions --------------------------------------->
