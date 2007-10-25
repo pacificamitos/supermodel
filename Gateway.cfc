@@ -6,20 +6,16 @@
 
 <!---------------------------------------------------------------------------------------------- init
 
-	Description: Private constructor.  Called implicitly.
+	Description: Constructor
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="private" output="false" returntype="void">
-		<cfargument name="dsn" type="string" required="yes" hint="The datasource name" />
-		<cfargument name="model_name" type="string" required="yes">
-		<cfargument name="table_name" type="string" default="#arguments.model_name#s">
-
-		<cfparam name="variables.order_by" default="" />
-		<cfparam name="variables.sort_direction" default="" />
+	<cffunction name="init" access="public" output="false" returntype="void">
+		<cfargument name="dsn" type="string" required="yes" />
+		<cfargument name="table_name" type="string" required="yes" />
 		
-		<cfset variables.table_name = arguments.table_name />
 		<cfset variables.dsn = arguments.dsn />
+		<cfset variables.table_name = arguments.table_name />
 	</cffunction>
 			
 <!-------------------------------------------------------------------------------------------------->
@@ -56,6 +52,16 @@
 
 		<cfreturn selectObject />
 	</cffunction>
+	
+	<cffunction name="initialize" access="public" returntype="void" output="false">
+		<cfargument name="object" type="supermodel.datamodel" required="yes" />
+		
+		<cfset var field_types = StructNew() />
+		<cfset var database_fields = "" />
+		<cfset StructInsert(object, field_types) />
+
+		<!--- Initiate all the fields (see the function's description for more info) --->
+		<cfset initDatabaseFields() />
 	
 <!--------------------------------------------------------------------------------------- selectQuery
 

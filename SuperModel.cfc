@@ -4,9 +4,6 @@
 <!-------------------------------- Parameters and Initialization ----------------------------------->
 <!-------------------------------------------------------------------------------------------------->
 
-	<cfparam name="variables.errors" default="#StructNew()#" />
-	<cfparam name="variables.warnings" default="#StructNew()#" />
-	
 <!---------------------------------------------------------------------------------------------- init
 
 	Description:	Sets the name of the object and the filesystem folder that the object's CFC file is
@@ -22,10 +19,7 @@
 
 		<cfset variables.object_name = arguments.object_name />
 		<cfset variables.object_path = arguments.object_path />
-	</cffunction>
-	
-	<cffunction name="getErrors">
-		<cfreturn variables.errors>
+		<cfset variables.errors  = StructNew() />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -124,6 +118,39 @@
 		<cfreturn help_message />
 	</cffunction>	
 	
+<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------- Accessor Functions ---------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+
+<!------------------------------------------------------------------------------------- setObjectName
+
+	Description:	Sets the name of the object
+			
+---------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="setObjectName" access="private" output="false" returntype="void">
+		<cfargument name="object_name" type="string" required="yes" />
+		
+		<cfset variables.object_name = arguments.object_name />
+	</cffunction>
+	
+<!------------------------------------------------------------------------------------- setObjectPath
+
+	Description:	Sets the path to the object's cfc
+			
+---------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="setObjectPath" access="private" output="false" returntype="void">
+		<cfargument name="object_path" type="string" required="yes" />
+		
+		<cfset variables.object_path = arguments.object_path />
+	</cffunction>
+	
+	
+<!-------------------------------------------------------------------------------------------------->
+<!--------------------------------------- Helper Functions ----------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+	
 <!------------------------------------------------------------------------------------- getIncludePath
 
 	Description:	Converts a object_path of the form "folder1.folder2.objectname" to a directory path
@@ -131,7 +158,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="getIncludePath">
+	<cffunction name="getIncludePath" access="private" output="false" returntype="string">
 		<cfset var include_path = "/" />
 		<cfset include_path = include_path & Replace(variables.object_path, ".", "/", "all") />
 		<cfset include_path = ListDeleteAt(include_path, ListLen(include_path, "/"), "/") />

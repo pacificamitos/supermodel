@@ -16,20 +16,16 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="init" access="public" returntype="void" output="false">
-		<cfargument name="dsn" type="string" required="yes" hint="The datasource name" />
 		<cfargument name="object_name" type="string" required="yes" />
 		<cfargument name="object_path" type="string" required="yes" />
-		<cfargument name="table_name" type="string" default="#arguments.object_name#s" />
-		
-		<cfset this.id = "" />
-		<cfset variables.database_fields = "" />
+		<cfargument name="gateway" type="supermodel.gateway" required="no" />
+			
 		<cfset variables.table_name = "" />
 		<cfset variables.relations = StructNew() />
 
 		<!--- Initiate the SuperModel --->
-		<cfset Super.init(object_name, object_path) />
+		<cfset Super.init(arguments.object_name, arguments.object_path) />
 		
-		<!--- Set the DSN and indicate which database table we'll be objectling --->
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.table_name = arguments.table_name />
 		
@@ -196,14 +192,107 @@
 		<cfset StructInsert(this, foreign_table, manyToManySelect(argumentcollection = arguments)) />
 	</cffunction>		
 	
-	<cffunction name="manyToManySelect">
+<!-------------------------------------------------------------------------------------------------->
+<!------------------------------------- Basic Query Functions -------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+
+<!--------------------------------------------------------------------------------------- insertQuery
+
+	Description:	Insert a new record into the database with values read from the object's attributes
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="insertQuery" access="private" returntype="void" output="false">
+		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="fields" default="#variables.database_fields#" />
+
+		<cfset var delimiter = "" />
+
+		<cfquery name="InsertData" datasource="#variables.dsn#">
+			SET nocount ON		
+			INSERT INTO #arguments.table# (#arguments.fields#)
+			VALUES (
+				<cfloop list="#arguments.fields#" index="field_name">					
+					#delimiter#
+					<cfqueryparam 
+						value="#value(field_name)#" 
+						null="#null(field_name)#" 
+						cfsqltype="#type(field_name)#" />
+					<cfset delimiter = ",">
+				</cfloop>
+				);
+			SET nocount OFF
+			
+			SELECT SCOPE_IDENTITY() as id;
+		</cfquery> 
+		
+		<cfset this.id = InsertData.id />
+	</cffunction>
+
+
+<!--------------------------------------------------------------------------------------- updateQuery
+
+	Description:	Update an existing record in the database with values read from the object's 
+								attributes
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="updateQuery" access="private" returntype="void" output="false">
+		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="fields" default="#variables.database_fields#" />
+		<cfargument name="primary_key" default="#variables.primary_key#" />
+				
+		<cfset var delimiter = "" />
+		
+		<cfquery datasource="#variables.dsn#">
+			UPDATE #table#
+			SET
+			<cfloop list="#fields#" index="field_name">
+					#delimiter#[#field_name#] = 
+					<cfqueryparam 
+						value="#value(field_name)#" 
+						null="#null(field_name)#" 
+						cfsqltype="#type(field_name)#" />
+					<cfset delimiter = ",">
+			</cfloop>
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+		</cfquery>
+	</cffunction>
+
+<!--------------------------------------------------------------------------------------- deleteQuery
+
+	Description:	Delete the record from the database whose ID matches the ID of the current object.
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="deleteQuery" access="private" returntype="void" output="false">
+		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="primary_key" default="#variables.primary_key#" />
+		
+		<cfquery datasource="#variables.dsn#">
+			DELETE FROM #table#
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+		</cfquery>
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!--------------------------------- Relational Query Functions ------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+	
+<!---------------------------------------------------------------------------------- manyToManySelect
+
+	Description:	This helper function performs a SELECT query from a foreign table
+								to get the foreign records associated with the current object.
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="selectMany">
 		<cfargument name="foreign_table" type="string" required="yes" />
 		<cfargument name="foreign_key" type="string" required="yes" />
 		<cfargument name="join_table" type="string" required="yes" />
 		<cfargument name="join_key" type="string" required="yes" />
 		<cfargument name="join_columns" type="string" required="no" />
 		
-		<!--- Perform a dynamic query to get all the relation items --->
 		<cfquery name="SelectItems" datasource="#variables.dsn#">
 			<!--- Select all columns from the foreign table --->
 			SELECT #arguments.foreign_table#.*
@@ -217,7 +306,7 @@
 			
 			FROM #arguments.foreign_table#
 			
-			<!--- If a join_table is specified (manyToMany) then we JOIN on it --->
+			<!--- If a join table is specified (manyToMany) then we JOIN on it --->
 			<cfif arguments.join_table NEQ "">
 			JOIN #arguments.join_table#
 			ON #arguments.join_table#.#arguments.foreign_key# = #arguments.foreign_table#.id
@@ -231,6 +320,85 @@
 		
 		<cfreturn SelectItems />
 	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!--------------------------------------- Core Functions ------------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+
+<!-------------------------------------------------------------------------------- initDatabaseFields
+
+	Description:	Uses the information_schema table to determine the name and data type of each
+								column in the table associated with this object.  For each column found, a 
+								corresponding attribute is added to the object by inserting it into the "this" 
+								structure.
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="initDatabaseFields" access="private" returntype="void" output="false">
+		<cfargument name="table_name" default="#variables.table_name#" />
+
+		<!--- Get the column names and column types for the table --->
+		<cfquery name="GetColumns" datasource="#variables.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
+			SELECT column_name, data_type, character_maximum_length, numeric_precision
+			FROM information_schema.columns
+			WHERE(table_name = '#arguments.table_name#')
+			AND COLUMNPROPERTY(OBJECT_ID(table_name), column_name, 'isIdentity') = 0
+		</cfquery>
+				
+		<!--- Loop over each column in the table --->
+		<cfloop query="GetColumns">
+			<!--- 
+				The default value for an attribute is an empty string except for money 
+				and bit atrributes which default to 0 instead
+			--->
+			<cfset column_default = "" />
+			<cfif GetColumns.data_type EQ "money" OR GetColumns.data_type EQ "bit">
+				<cfset column_default = 0 />
+			</cfif>
+			
+			<!--- Insert the field name into the list of database fields --->
+			<cfset variables.database_fields = ListAppend(
+				variables.database_fields, 
+				GetColumns.column_name) />
+			
+			<!--- Populate the field_types structure with the column type --->
+			<cfset StructInsert(
+				variables.field_types, 
+				GetColumns.column_name, 
+				cf_sql_type(GetColumns.data_type), 
+				"True") />
+			
+			<!--- 
+				Populate this object itself with an attribute that 
+				has the same name as the database column name 
+			--->
+			<cfset StructInsert(
+				this, 
+				GetColumns.column_name, 
+				column_default, 
+				"True") />
+		</cfloop>
+		
+		<!--- 
+			Determine the primary key of the table.  Compound primary 
+			keys are not supported at this time.
+		--->
+		<cfquery name="getPK" datasource="#request.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
+			SELECT col.column_name 
+			FROM   INFORMATION_SCHEMA.TABLE_CONSTRAINTS tab   
+			INNER JOIN   INFORMATION_SCHEMA.KEY_COLUMN_USAGE col   
+				ON tab.constraint_name = col.constraint_name 
+			WHERE tab.table_name = '#variables.table_name#' 
+			AND constraint_type = 'PRIMARY KEY'
+		</cfquery>
+		
+		<!--- Save the primary key in a private variable --->
+		<cfset variables.primary_key = ValueList(getPK.Column_Name,',') />
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!--------------------------------- Relational Helper Functions ------------------------------------>
+<!-------------------------------------------------------------------------------------------------->
 	
 <!----------------------------------------------------------------------------------- loadRelationData
 
@@ -332,164 +500,37 @@
 		</cfloop>
 	</cffunction>
 	
-
 <!-------------------------------------------------------------------------------------------------->
-<!---------------------------------------- Query Functions ----------------------------------------->
+<!-------------------------------------- Accessor Functions ---------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
 
-<!--------------------------------------------------------------------------------------- insertQuery
+<!-------------------------------------------------------------------------------------------- setDSN
 
-	Description:	Insert a new record into the database with values read from the object's attributes
+	Description:	Sets the DSN to be used for all queries to the database
 			
------------------------------------------------------------------------------------------------------>	
-	
-	<cffunction name="insertQuery" output="false">
-		<cfargument name="table" default="#variables.table_name#" />
-		<cfargument name="fields" default="#variables.database_fields#" />
+---------------------------------------------------------------------------------------------------->	
 
-		<cfset var delimiter = "" />
-
-		<cfquery name="InsertData" datasource="#variables.dsn#">
-			SET nocount ON		
-			INSERT INTO #arguments.table# (#arguments.fields#)
-			VALUES (
-				<cfloop list="#arguments.fields#" index="field_name">					
-					#delimiter#
-					<cfqueryparam 
-						value="#value(field_name)#" 
-						null="#null(field_name)#" 
-						cfsqltype="#type(field_name)#" />
-					<cfset delimiter = ",">
-				</cfloop>
-				);
-			SET nocount OFF
-			
-			SELECT SCOPE_IDENTITY() as id;
-		</cfquery> 
+	<cffunction name="setDSN" access="private" returntype="void" output="false">
+		<cfargument name="dsn" type="string" required="yes" />
 		
-		<cfset this.id = InsertData.id />
+		<cfset variables.dsn = arguments.dsn />
 	</cffunction>
-
-
-<!--------------------------------------------------------------------------------------- updateQuery
-
-	Description:	Update an existing record in the database with values read from the object's 
-								attributes
-			
------------------------------------------------------------------------------------------------------>	
-
-	<cffunction name="updateQuery">
-		<cfargument name="table" default="#variables.table_name#" />
-		<cfargument name="fields" default="#variables.database_fields#" />
-		<cfargument name="primary_key" default="#variables.primary_key#" />
-				
-		<cfset var delimiter = "" />
-		
-		<cfquery datasource="#variables.dsn#">
-			UPDATE #table#
-			SET
-			<cfloop list="#fields#" index="field_name">
-					#delimiter#[#field_name#] = 
-					<cfqueryparam 
-						value="#value(field_name)#" 
-						null="#null(field_name)#" 
-						cfsqltype="#type(field_name)#" />
-					<cfset delimiter = ",">
-			</cfloop>
-			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
-		</cfquery>
-	</cffunction>
-
-<!--------------------------------------------------------------------------------------- deleteQuery
-
-	Description:	Delete the record from the database whose ID matches the ID of the current object.
-			
------------------------------------------------------------------------------------------------------>	
 	
-	<cffunction name="deleteQuery">
-		<cfargument name="table" default="#variables.table_name#" />
-		<cfargument name="primary_key" default="#variables.primary_key#" />
+<!-------------------------------------------------------------------------------------- setTableName
+
+	Description:	Sets the database table that the object represents
+			
+---------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="setTableName" access="private" returntype="void" output="false">
+		<cfargument name="table_name" type="string" required="yes" />
 		
-		<cfquery datasource="#variables.dsn#">
-			DELETE FROM #table#
-			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
-		</cfquery>
+		<cfset variables.table_name = arguments.table_name />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
-<!------------------------------------- Database Functions ----------------------------------------->
+<!--------------------------------------- Helper Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
-
-<!-------------------------------------------------------------------------------- initDatabaseFields
-
-	Description:	Uses the information_schema table to determine the name and data type of each
-								column in the table associated with this object.  For each column found, a 
-								corresponding attribute is added to the object by inserting it into the "this" 
-								structure.
-			
------------------------------------------------------------------------------------------------------>	
-	
-	<cffunction name="initDatabaseFields">
-		<cfargument name="table_name" default="#variables.table_name#" />
-
-		<!--- Get the column names and column types for the table --->
-		<cfquery name="GetColumns" datasource="#variables.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
-			SELECT column_name, data_type, character_maximum_length, numeric_precision
-			FROM information_schema.columns
-			WHERE(table_name = '#arguments.table_name#')
-			AND COLUMNPROPERTY(OBJECT_ID(table_name), column_name, 'isIdentity') = 0
-		</cfquery>
-				
-		<!--- Loop over each column in the table --->
-		<cfloop query="GetColumns">
-			<!--- 
-				The default value for an attribute is an empty string except for money 
-				and bit atrributes which default to 0 instead
-			--->
-			<cfset column_default = "" />
-			<cfif GetColumns.data_type EQ "money" OR GetColumns.data_type EQ "bit">
-				<cfset column_default = 0 />
-			</cfif>
-			
-			<!--- Insert the field name into the list of database fields --->
-			<cfset variables.database_fields = ListAppend(
-				variables.database_fields, 
-				GetColumns.column_name) />
-			
-			<!--- Populate the field_types structure with the column type --->
-			<cfset StructInsert(
-				variables.field_types, 
-				GetColumns.column_name, 
-				cf_sql_type(GetColumns.data_type), 
-				"True") />
-			
-			<!--- 
-				Populate this object itself with an attribute that 
-				has the same name as the database column name 
-			--->
-			<cfset StructInsert(
-				this, 
-				GetColumns.column_name, 
-				column_default, 
-				"True") />
-		</cfloop>
-		
-		<!--- 
-			Determine the primary key of the table.  Compound primary 
-			keys are not supported at this time.
-		--->
-		<cfquery name="getPK" datasource="#request.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
-			SELECT col.column_name 
-			FROM   INFORMATION_SCHEMA.TABLE_CONSTRAINTS tab   
-			INNER JOIN   INFORMATION_SCHEMA.KEY_COLUMN_USAGE col   
-				ON tab.constraint_name = col.constraint_name 
-			WHERE tab.table_name = '#variables.table_name#' 
-			AND constraint_type = 'PRIMARY KEY'
-		</cfquery>
-		
-		<!--- Save the primary key in a private variable --->
-		<cfset variables.primary_key = ValueList(getPK.Column_Name,',') />
-	</cffunction>
 	
 <!--------------------------------------------------------------------------------------------- value
 
