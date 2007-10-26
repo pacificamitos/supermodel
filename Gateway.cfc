@@ -29,10 +29,10 @@
 ----------------------------------------------------------------------------------------------------->	
 	
 	<cffunction name="select" access="public" returntype="query">
-		<cfargument name="order_by" default="#variables.order_by#" />
-		<cfargument name="sort_direction" default="" />
-		<cfargument name="conditions" default="" />
-		<cfargument name="columns" default="*" />
+		<cfargument name="columns" type="string" />
+		<cfargument name="tables" type="string" />
+		<cfargument name="conditions" type="string"/>
+		<cfargument name="ordering" type="string" />
 		
 		<cfset var selectObject = "" />
 		
@@ -56,36 +56,9 @@
 	<cffunction name="initialize" access="public" returntype="void" output="false">
 		<cfargument name="object" type="supermodel.datamodel" required="yes" />
 		
-		<cfset var field_types = StructNew() />
-		<cfset var database_fields = "" />
-		<cfset StructInsert(object, field_types) />
+		
 
 		<!--- Initiate all the fields (see the function's description for more info) --->
 		<cfset initDatabaseFields() />
-	
-<!--------------------------------------------------------------------------------------- selectQuery
-
-	Description:	Private function that executes a SELECT SQL query
-			
------------------------------------------------------------------------------------------------------>	
-
-<cffunction name="selectQuery" access="private">
-		<cfargument name="order_by" required="yes" />
-		<cfargument name="sort_direction" required="yes" />
-		<cfargument name="conditions" required="yes" />
-		<cfargument name="columns" required="yes" />
-				
-		<cfquery name="SelectObject" datasource="#variables.dsn#">
-			SELECT * 
-			FROM #variables.table_name#
-			<cfif arguments.conditions NEQ "">
-			WHERE #PreserveSingleQuotes(arguments.conditions)#
-			</cfif>
-			<cfif arguments.order_by NEQ "">
-			ORDER BY #Arguments.order_by# #sort_direction#
-			</cfif>
-		</cfquery>
-		
-		<cfreturn SelectObject />
 	</cffunction>
 </cfcomponent>
