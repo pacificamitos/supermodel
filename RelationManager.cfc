@@ -9,6 +9,37 @@
 		<cfset variables.relations = StructNew() />
 	</cffunction>
 	
+<!----------------------------------------------------------------------------------------------- get
+
+	Description:	Gets a query of data based on the name of a foreign key relation
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="get" access="public" returntype="query" output="false">
+		<cfargument name="relation_name" type="string" required="yes" />
+		<cfset loadRelationData(relation_name) />
+		<cfreturn this[arguments.relation_name] />
+	</cffunction>
+
+<!------------------------------------------------------------------------------------------- hasMany
+
+	Description:	Used to indicate that the object should contain a collection of foreign objects.
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="hasMany" access="private" returntype="void" output="false">
+		<cfargument name="foreign_table" type="string" required="yes" />
+		<cfargument name="foreign_key" type="string" required="yes" />
+		<cfargument name="join_table" type="string" required="no" />
+		<cfargument name="join_key" type="string" required="no" />
+		<cfargument name="join_columns" type="string" required="no" />
+		
+		<cfset StructInsert(variables.relations, arguments.foreign_table, arguments) />
+		
+
+		<cfset StructInsert(this, foreign_table, manyToManySelect(argumentcollection = arguments)) />
+	</cffunction>		
+	
 <!-------------------------------------------------------------------------------------------------->
 <!--------------------------------- Relational Helper Functions ------------------------------------>
 <!-------------------------------------------------------------------------------------------------->

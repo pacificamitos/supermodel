@@ -15,12 +15,10 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="init" access="public" returntype="void" output="false">
-		<cfargument name="object_name" type="string" required="yes" />
-		<cfargument name="object_path" type="string" required="yes" />
 		<cfargument name="table_manager" type="supermodel.TableManager" required="yes" />
 		<cfargument name="relation_manager" type="supermodel.RelationManager" required="yes" />
 
-		<cfset Super.init(arguments.object_name, arguments.object_path) />
+		<cfset super.init() />
 		<cfset variables.table_manager = arguments.table_manager />
 		<cfset variables.relation_manager = arguments.relation_manager />
 	</cffunction>
@@ -130,44 +128,33 @@
 	<cffunction name="persisted" access="public" returntype="boolean" output="false">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "">
 	</cffunction>
+	
+<!--------------------------------------------------------------------------------------- addAttribute
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------- Relational Functions --------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
-
-<!----------------------------------------------------------------------------------------------- get
-
-	Description:	Gets a query of data based on the name of a foreign key relation
+	Description:	This functions adds an attribute to the object, either in public "this" scope or
+								private "variables" scope.
 			
------------------------------------------------------------------------------------------------------>
-
-	<cffunction name="get" access="public" returntype="query" output="false">
-		<cfargument name="relation_name" type="string" required="yes" />
-		<cfset loadRelationData(relation_name) />
-		<cfreturn this[arguments.relation_name] />
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="addAttribute" access="public" returntype="void" output="false">
+		<cfargument name="name" type="string" required="yes" />
+		<cfargument name="scope" type="string" required="yes" />
+		
+		<cfif arguments.scope EQ "public">
+			<cfset structInsert(this, arguments.name, '') />
+		<cfelse>
+			<cfset structInsert(variables, arguments.name, '') />
+		</cfif>
 	</cffunction>
+	
+<!--------------------------------------------------------------------------------------- getTableName
 
-<!------------------------------------------------------------------------------------------- hasMany
-
-	Description:	Used to indicate that the object should contain a collection of foreign objects.
+	Description:	Returns the database table name that this object is associated with
 			
------------------------------------------------------------------------------------------------------>
+----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="hasMany" access="private" returntype="void" output="false">
-		<cfargument name="foreign_table" type="string" required="yes" />
-		<cfargument name="foreign_key" type="string" required="yes" />
-		<cfargument name="join_table" type="string" required="no" />
-		<cfargument name="join_key" type="string" required="no" />
-		<cfargument name="join_columns" type="string" required="no" />
+	<cffunction name="getTableName" access="public" returntype="string" output="false">
+		<cfreturn variables.table_name />
+	</cffunction>
 		
-		<cfset StructInsert(variables.relations, arguments.foreign_table, arguments) />
-		
-
-		<cfset StructInsert(this, foreign_table, manyToManySelect(argumentcollection = arguments)) />
-	</cffunction>		
-	
-
-	
-
-
 </cfcomponent>

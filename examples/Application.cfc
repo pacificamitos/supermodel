@@ -1,7 +1,10 @@
 <cfcomponent>
-	<cffunction name="myFunction" access="public" returntype="string">
-		<cfargument name="myArgument" type="string" required="yes">
-		<cfset myResult="foo">
-		<cfreturn myResult>
+	<cffunction name="onRequestStart" returntype="void" output="false">
+		<cfargument name="targetPage" type="string" required="true" />
+
+		<cfinclude template="server_settings.cfm" />
+		
+		<cfset application.supermodelFactory = createObject('component', 'supermodel.Factory') />
+		<cfset application.supermodelFactory.init(dsn = "supermodel") />
 	</cffunction>
 </cfcomponent>

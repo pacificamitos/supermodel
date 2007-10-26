@@ -2,9 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Untitled Document</title>
+<title>Supermodel Example</title>
 </head>
 
 <body>
+	<h1>User</h1>
+	
+	<cfset user = application.supermodelFactory.getInstance('supermodel.examples.User') />
+	<cfdump var="#user#">
+	
 </body>
 </html>

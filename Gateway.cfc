@@ -52,13 +52,4 @@
 
 		<cfreturn selectObject />
 	</cffunction>
-	
-	<cffunction name="initialize" access="public" returntype="void" output="false">
-		<cfargument name="object" type="supermodel.datamodel" required="yes" />
-		
-		
-
-		<!--- Initiate all the fields (see the function's description for more info) --->
-		<cfset initDatabaseFields() />
-	</cffunction>
 </cfcomponent>

@@ -7,7 +7,9 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="init" access="public" returntype="void" output="false">
-		<cfset variables.relations = StructNew() />
+		<cfargument name="dsn" type="string" required="yes" />
+		
+		<cfset variables.dsn = arguments.dsn />
 	</cffunction>
 	
 <!------------------------------------------------------------------------------ getDatabaseAttributes
@@ -34,7 +36,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="injectAttributes" access="private" returntype="void" output="false">
+	<cffunction name="injectAttributes" access="public" returntype="void" output="false">
 		<cfargument name="object" type="supermodel.DataModel" required="yes" />
 		
 		<cfset var field_types = StructNew() />
@@ -50,8 +52,7 @@
 				numeric_precision
 			FROM information_schema.columns
 			WHERE 
-				table_name = 
-				<cfqueryparam value="#variables.table_name#" cfsqltype="cf_sql_varchar">
+				table_name = '#object.getTableName()#'
 			AND COLUMNPROPERTY(
 				OBJECT_ID(table_name), 
 				column_name, 
@@ -65,44 +66,27 @@
 				and bit atrributes which default to 0 instead
 			--->
 			<cfset column_default = "" />
-			<cfif GetColumns.data_type EQ "money" OR GetColumns.data_type EQ "bit">
+			<cfif table_columns.data_type EQ "money" OR table_columns.data_type EQ "bit">
 				<cfset column_default = 0 />
 			</cfif>
 			
 			<!--- Insert the column name into the list of database fields --->
 			<cfset database_fields = ListAppend(
 				database_fields, 
-				GetColumns.column_name) />
+				table_columns.column_name) />
 			
 			<!--- Insert the column type structure with the column type --->
 			<cfset StructInsert(
 				field_types, 
-				GetColumns.column_name, 
-				cf_sql_type(GetColumns.data_type), 
+				table_columns.column_name, 
+				cf_sql_type(table_columns.data_type), 
 				"True") />
 				
 			<!--- Add the column as an attribute of the object --->
 			<cfset object.addAttribute(
 				name = table_columns.column_name, 
-				value = column_default,
 				scope = 'public') />
 		</cfloop>
-		
-		<!--- 
-			Determine the primary key of the table.  Compound primary 
-			keys are not supported at this time.
-		--->
-		<cfquery name="getPK" datasource="#request.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
-			SELECT col.column_name 
-			FROM   INFORMATION_SCHEMA.TABLE_CONSTRAINTS tab   
-			INNER JOIN   INFORMATION_SCHEMA.KEY_COLUMN_USAGE col   
-				ON tab.constraint_name = col.constraint_name 
-			WHERE tab.table_name = '#variables.table_name#' 
-			AND constraint_type = 'PRIMARY KEY'
-		</cfquery>
-		
-		<!--- Save the primary key in a private variable --->
-		<cfset variables.primary_key = ValueList(getPK.Column_Name,',') />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->

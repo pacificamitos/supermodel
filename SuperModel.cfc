@@ -14,11 +14,6 @@
 
 	<cffunction name="init" access="package" output="false" returntype="void" 
 		hint="Initializes the object">
-		<cfargument name="object_name" type="string" required="yes" hint="The name of the object">
-		<cfargument name="object_path" type="string" required="yes" />
-
-		<cfset variables.object_name = arguments.object_name />
-		<cfset variables.object_path = arguments.object_path />
 		<cfset variables.errors  = StructNew() />
 	</cffunction>
 	
