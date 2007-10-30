@@ -9,7 +9,13 @@
 	<h1>User</h1>
 	
 	<cfset user = application.supermodelFactory.getInstance('supermodel.examples.User') />
-	<cfdump var="#user#">
+	<cfset user.read(1) />
+	
+	<cfset positionGateway = createObject('component', 'hr_staffing.model.positions.positiongateway') />
+	<cfset positionGateway.configure() />
+	<cfset positionGateway.init('hr_staffing') />
+	<cfset wtf = positionGateway.select() />
+	<cfdump var="#wtf#">
 	
 </body>
 </html>

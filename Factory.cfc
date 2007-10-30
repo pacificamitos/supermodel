@@ -2,9 +2,7 @@
 	<cffunction name="init" access="public" returntype="void" output="false">
 		<cfargument name="dsn" type="string" required="yes" />
 
-		<cfset variables.table_manager = createObject('component', 'supermodel.TableManager') />
-		<cfset variables.relation_manager = createObject('component', 'supermodel.RelationManager') />
-		<cfset variables.table_manager.init(arguments.dsn) />
+		<cfset variables.dsn = arguments.dsn />
 	</cffunction>
 	
 	<cffunction name="getInstance" access="public" returntype="supermodel.supermodel" output="false">
@@ -12,11 +10,7 @@
 		
 		<cfset var object = createObject('component', arguments.type) />
 		<cfset object.configure() />
-		<cfset object.init(
-			variables.table_manager,
-			variables.relation_manager) />
-			
-		<cfset variables.table_manager.injectAttributes(object) />
+		<cfset object.init(variables.dsn) />
 		
 		<cfreturn object />
 	</cffunction>

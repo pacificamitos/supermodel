@@ -160,4 +160,19 @@
 		
 		<cfreturn include_path />
 	</cffunction>
+	
+<!--------------------------------------------------------------------------------------------- assert
+
+	Description:	Asserts the given condition by throwing an exception if the condition is false
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="assert" access="private" returntype="void" output="false">
+		<cfargument name="condition" type="boolean" required="yes" />
+		<cfargument name="message" type="string" default="Assertion Failed" />
+		
+		<cfif NOT condition>
+			<cfthrow message="#arguments.message#">
+		</cfif>
+	</cffunction>
 </cfcomponent>

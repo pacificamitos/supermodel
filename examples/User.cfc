@@ -1,4 +1,5 @@
 <cfcomponent extends="supermodel.DataModel">
+	<cfproperty name="name" />
 
 <!------------------------------------------------------------------------------------------ configure
 

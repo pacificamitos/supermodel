@@ -15,12 +15,10 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="init" access="public" returntype="void" output="false">
-		<cfargument name="table_manager" type="supermodel.TableManager" required="yes" />
-		<cfargument name="relation_manager" type="supermodel.RelationManager" required="yes" />
+		<cfargument name="dsn" type="string" required="yes" />
 
 		<cfset super.init() />
-		<cfset variables.table_manager = arguments.table_manager />
-		<cfset variables.relation_manager = arguments.relation_manager />
+		<cfset variables.dsn = arguments.dsn />
 	</cffunction>
 	 
 <!---------------------------------------------------------------------------------------------- save
@@ -67,26 +65,22 @@
 	
 	<cffunction name="read" access="public" returntype="void" output="false">
 		<cfargument name="id" required="yes" />
+		
+		<cfset var query = "" />
+		<cfset var params = StructNew() />
+		
+		<cfset assert(isNumeric(arguments.id), "id must be a numeric value") />
+		
 		<cfset this.id = arguments.id />
+		<cfset query = selectQuery(this.id) />
 		
-		<cfif NOT IsNumeric(this.id)>
-			<cfreturn this />
-		</cfif>
-		
-		<cfquery name="SelectObject" datasource="#variables.dsn#">
-		SELECT * FROM #variables.table_name#
-		WHERE #variables.table_name#.#variables.primary_key# = #this.id#
-		</cfquery>
-
-		<cfset params = StructNew() />
-		<cfif SelectObject.recordcount EQ 1>
-			<cfloop list="#SelectObject.columnlist#" index="column">
-				<cfset StructInsert(params, column, Evaluate("SelectObject.#column#"), "True") />
+		<cfif query.recordcount EQ 1>
+			<cfloop list="#query.columnlist#" index="column">
+				<cfset StructInsert(params, column, Evaluate("query.#column#"), true) />
 			</cfloop>
 		</cfif>
 				
  		<cfset load(params) />
-		<cfset loadRelationData() />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------- update
@@ -156,5 +150,180 @@
 	<cffunction name="getTableName" access="public" returntype="string" output="false">
 		<cfreturn variables.table_name />
 	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!------------------------------------- Basic Query Functions -------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+
+<!--------------------------------------------------------------------------------------- selectQuery
+
+	Description:	Private function that executes a SELECT SQL query
+			
+----------------------------------------------------------------------------------------------------->	
+
+<cffunction name="selectQuery" access="private" returntype="query" output="false">
+		<cfargument name="columns" default="*" />
+		<cfargument name="tables" default="#variables.table_name#" />
+		<cfargument name="conditions" default="" />
+		<cfargument name="ordering" default="" />
 		
+		<cfset var query  = "" />
+
+		<cfquery name="query" datasource="#variables.dsn#">
+			SELECT #arguments.columns# 
+			FROM #arguments.tables#
+			<cfif arguments.conditions NEQ "">
+			WHERE #PreserveSingleQuotes(arguments.conditions)#
+			</cfif>
+			<cfif arguments.ordering NEQ "">
+			ORDER BY #arguments.ordering#
+			</cfif>
+		</cfquery>
+		
+		<cfreturn query />
+	</cffunction>
+
+<!--------------------------------------------------------------------------------------- insertQuery
+
+	Description:	Insert a new record into the database with values read from the object's attributes
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="insertQuery" access="private" returntype="void" output="false">
+		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="fields" default="#variables.database_fields#" />
+
+		<cfset var delimiter = "" />
+
+		<cfquery name="InsertData" datasource="#variables.dsn#">
+			SET nocount ON		
+			INSERT INTO #arguments.table# (#arguments.fields#)
+			VALUES (
+				<cfloop list="#arguments.fields#" index="field_name">					
+					#delimiter#
+					<cfqueryparam 
+						value="#value(field_name)#" 
+						null="#null(field_name)#" 
+						cfsqltype="#type(field_name)#" />
+					<cfset delimiter = ",">
+				</cfloop>
+				);
+			SET nocount OFF
+			
+			SELECT SCOPE_IDENTITY() as id;
+		</cfquery> 
+		
+		<cfset this.id = InsertData.id />
+	</cffunction>
+
+
+<!--------------------------------------------------------------------------------------- updateQuery
+
+	Description:	Update an existing record in the database with values read from the object's 
+								attributes
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="updateQuery" access="private" returntype="void" output="false">
+		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="fields" default="#variables.database_fields#" />
+		<cfargument name="primary_key" default="#variables.primary_key#" />
+				
+		<cfset var delimiter = "" />
+		
+		<cfquery datasource="#variables.dsn#">
+			UPDATE #table#
+			SET
+			<cfloop list="#fields#" index="field_name">
+					#delimiter#[#field_name#] = 
+					<cfqueryparam 
+						value="#value(field_name)#" 
+						null="#null(field_name)#" 
+						cfsqltype="#type(field_name)#" />
+					<cfset delimiter = ",">
+			</cfloop>
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+		</cfquery>
+	</cffunction>
+
+<!--------------------------------------------------------------------------------------- deleteQuery
+
+	Description:	Delete the record from the database whose ID matches the ID of the current object.
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="deleteQuery" access="private" returntype="void" output="false">
+		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="primary_key" default="#variables.primary_key#" />
+		
+		<cfquery datasource="#variables.dsn#">
+			DELETE FROM #table#
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+		</cfquery>
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!--------------------------------------- Helper Functions ----------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+	
+<!--------------------------------------------------------------------------------------------- value
+
+	Description:	Given a field name this function returns the corresponding value for the 
+								<cfqueryparam> tag
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="value" access="private" returntype="string" output="false">
+		<cfargument name="field_name" type="string" required="yes" 
+			hint="The field whose value we want" />
+			
+		<cfset var value = StructFind(this, arguments.field_name) />
+		<cfset var type = type(arguments.field_name) />
+
+		<!--- If the value is a date we must convert it to an ODBC date --->
+		<cfif (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') and value NEQ "">
+			<cfset value = createODBCDate(value) />
+		</cfif>
+		
+		<cfreturn value />
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------------- type
+
+	Description:	Given a field name this function returns the corresponding type for the 
+								<cfqueryparam> tag
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="type" access="private" returntype="string" output="false">
+		<cfargument name="field_name" type="string" required="yes" 
+			hint="The field whose type we want" />
+		
+		<cfset var type = StructFind(variables.field_types, arguments.field_name) />
+		
+		<cfreturn type />
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------------- null
+
+	Description:	Given a field name this function returns the corresponding null flag for the 
+								<cfqueryparam> tag
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="null" access="private" returntype="string" output="false">
+		<cfargument name="field_name" type="string" required="yes" 
+			hint="The field whose null flag we want" />
+			
+		<cfset var value = value(arguments.field_name) />
+		<cfset var type = type(arguments.field_name) />
+		<cfset var null = "no" />
+		
+		<!--- The value is null if it is blank and not a string --->
+		<cfif value EQ "" AND type NEQ "cf_sql_varchar">
+			<cfset null = "yes" />
+		</cfif>
+		
+		<cfreturn null />
+	</cffunction>
 </cfcomponent>
