@@ -84,7 +84,6 @@
 		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "validation.cfm" />
 		
 		<cfset StructClear(variables.errors) />	
-		<cfset StructClear(variables.warnings) />	
 		
 		<cfif FileExists(validation_file)>
 			<cfinclude template="#getIncludePath()#/validation.cfm" />
