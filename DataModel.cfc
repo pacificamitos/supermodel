@@ -72,7 +72,7 @@
 		<cfset assert(isNumeric(arguments.id), "id must be a numeric value") />
 		
 		<cfset this.id = arguments.id />
-		<cfset query = selectQuery(this.id) />
+		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 		
 		<cfif query.recordcount EQ 1>
 			<cfloop list="#query.columnlist#" index="column">

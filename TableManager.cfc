@@ -1,4 +1,4 @@
-<cfcomponent extends="supermodel.Gateway">
+<cfcomponent>
 
 <!---------------------------------------------------------------------------------------------- init
 
@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="getDatabaseAttributes" access="public" output="false" returntype="struct">
+		<cfargument name="object" type="supermodel.DataModel" required="yes" />
+		
 		<cfset var attributes = StructNew() />
 		<cfloop list="#variables.database_fields#" index="field">
 			<cfset StructInsert(attributes, field, this[field]) />

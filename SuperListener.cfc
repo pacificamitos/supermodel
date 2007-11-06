@@ -28,7 +28,7 @@
 
 	<cffunction name="prepareForm" access="public" output="false" returntype="void">
 		<cfargument name="event" type="MachII.framework.Event" required="true" />
-		
+
     <cfset variables.object.read(event.getArg('id')) />
     <cfset event.setArg(variables.object_name, variables.object) />
 		<cfset event.setArg('data_object', variables.object) />
@@ -42,7 +42,7 @@
 
 	<cffunction name="prepareList" access="public" output="false" returntype="void">
 		<cfargument name="event" type="MachII.framework.Event" required="true" />
-				
+		
     <cfset event.setArg(variables.object_name & "s", variables.gateway.select())>
 	</cffunction>
 	
