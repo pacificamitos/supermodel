@@ -12,10 +12,12 @@
 
 	<cffunction name="init" access="public" output="false" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
-		<cfargument name="table_name" type="string" required="yes" />
+		<cfargument name="table_name" type="string" />
 		
 		<cfset variables.dsn = arguments.dsn />
-		<cfset variables.table_name = arguments.table_name />
+		<cfif structKeyExists(arguments, 'table_name')>
+			<cfset variables.table_name = arguments.table_name />
+		</cfif>
 	</cffunction>
 			
 <!-------------------------------------------------------------------------------------------------->

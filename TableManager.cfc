@@ -89,6 +89,8 @@
 				name = table_columns.column_name, 
 				scope = 'public') />
 		</cfloop>
+		
+		<cfset object.database_fields = database_fields />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -130,46 +132,5 @@
 		<cfset variables.object = arguments.object />
 	</cffunction>
 	
-<!---------------------------------------------------------------------------------------- cf_sql_type
 
-	Description:	Takes in a SQL Server column type and returns the corresponding ColdFusion type
-								to be used by the <cfqueryparam> tag.
-			
------------------------------------------------------------------------------------------------------>
-	
-	<cffunction name="cf_sql_type" access="private" returntype="string" output="false">
-		<cfargument name="type" required="yes" />
-		<cfswitch expression="#type#">
-			<cfcase value="int">
-				<cfreturn "cf_sql_integer" />
-			</cfcase>
-			<cfcase value="varchar">
-				<cfreturn "cf_sql_varchar" />
-			</cfcase>
-			<cfcase value="money">
-				<cfreturn "cf_sql_money" />
-			</cfcase>
-			<cfcase value="decimal">
-				<cfreturn "cf_sql_decimal" />
-			</cfcase>
-			<cfcase value="double">
-				<cfreturn "cf_sql_double" />
-			</cfcase>
-			<cfcase value="date">
-				<cfreturn "cf_sql_timestamp" />
-			</cfcase>
-			<cfcase value="datetime">
-				<cfreturn "cf_sql_timestamp" />
-			</cfcase>
-			<cfcase value="time">
-				<cfreturn "cf_sql_timestamp" />
-			</cfcase>
-			<cfcase value="bit">
-				<cfreturn "cf_sql_bit" />
-			</cfcase>
-			<cfdefaultcase>
-				<cfreturn "cf_sql_varchar" />
-			</cfdefaultcase>
-		</cfswitch>
-	</cffunction>	
 </cfcomponent>

@@ -19,6 +19,7 @@
 
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
+		<cfset injectAttributes() />
 	</cffunction>
 	 
 <!---------------------------------------------------------------------------------------------- save
@@ -265,6 +266,67 @@
 <!-------------------------------------------------------------------------------------------------->
 <!--------------------------------------- Helper Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
+
+<!---------------------------------------------------------------------------------- injectAttributes
+
+	Description:	Uses the information_schema table to determine the name and data type of each
+								column in the table associated with this object.  For each column found, a 
+								corresponding attribute is added to the object by inserting it into the "this" 
+								structure.
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="injectAttributes" access="private" returntype="void" output="false">	
+		<cfargument name="dsn" type="string" default="#variables.dsn#" />
+		<cfargument name="table_name" type="string" default="#variables.table_name#" />
+		
+		<cfset var table_columns = "" />
+		<cfset variables.database_fields = "" />
+		<cfset variables.field_types = StructNew() />
+		
+		<!--- Get the column names and column types for the table --->
+		<cfquery name="table_columns" datasource="#arguments.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
+			SELECT 
+				column_name, 
+				data_type, 
+				character_maximum_length, 
+				numeric_precision
+			FROM information_schema.columns
+			WHERE 
+				table_name = '#arguments.table_name#'
+			AND COLUMNPROPERTY(
+				OBJECT_ID(table_name), 
+				column_name, 
+				'isIdentity') = 0
+		</cfquery>
+				
+		<!--- Loop over each column in the table --->
+		<cfloop query="table_columns">
+			<!--- 
+				The default value for an attribute is an empty string except for money 
+				and bit atrributes which default to 0 instead
+			--->
+			<cfset column_default = "" />
+			<cfif table_columns.data_type EQ "money" OR table_columns.data_type EQ "bit">
+				<cfset column_default = 0 />
+			</cfif>
+			
+			<!--- Insert the column name into the list of database fields --->
+			<cfset variables.database_fields = ListAppend(
+				variables.database_fields, 
+				table_columns.column_name) />
+			
+			<!--- Insert the column type structure with the column type --->
+			<cfset StructInsert(
+				field_types, 
+				table_columns.column_name, 
+				cf_sql_type(table_columns.data_type), 
+				"True") />
+				
+			<!--- Add the column as an attribute of the object --->
+			<cfset structInsert(this, table_columns.column_name, "", true) />
+		</cfloop>
+	</cffunction>
 	
 <!--------------------------------------------------------------------------------------------- value
 
@@ -326,4 +388,47 @@
 		
 		<cfreturn null />
 	</cffunction>
+	
+<!---------------------------------------------------------------------------------------- cf_sql_type
+
+	Description:	Takes in a SQL Server column type and returns the corresponding ColdFusion type
+								to be used by the <cfqueryparam> tag.
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="cf_sql_type" access="private" returntype="string" output="false">
+		<cfargument name="type" required="yes" />
+		<cfswitch expression="#type#">
+			<cfcase value="int">
+				<cfreturn "cf_sql_integer" />
+			</cfcase>
+			<cfcase value="varchar">
+				<cfreturn "cf_sql_varchar" />
+			</cfcase>
+			<cfcase value="money">
+				<cfreturn "cf_sql_money" />
+			</cfcase>
+			<cfcase value="decimal">
+				<cfreturn "cf_sql_decimal" />
+			</cfcase>
+			<cfcase value="double">
+				<cfreturn "cf_sql_double" />
+			</cfcase>
+			<cfcase value="date">
+				<cfreturn "cf_sql_timestamp" />
+			</cfcase>
+			<cfcase value="datetime">
+				<cfreturn "cf_sql_timestamp" />
+			</cfcase>
+			<cfcase value="time">
+				<cfreturn "cf_sql_timestamp" />
+			</cfcase>
+			<cfcase value="bit">
+				<cfreturn "cf_sql_bit" />
+			</cfcase>
+			<cfdefaultcase>
+				<cfreturn "cf_sql_varchar" />
+			</cfdefaultcase>
+		</cfswitch>
+	</cffunction>	
 </cfcomponent>
