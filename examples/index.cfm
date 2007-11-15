@@ -18,8 +18,10 @@
 	<cfdump var="#wtf#"> --->
 	
 	<cfset positionService = createObject('component', 'hr_staffing.model.positions.positionService') />
+	<cfset userService = createObject('component', 'hr_staffing.model.users.userService') />
 	<cfset positions = positionService.getPositions() />
 	<cfdump var="#positions#">
-	
+	<cfset user = userService.getUser('soltysa') />
+	<cfdump var="#user#">
 </body>
 </html>

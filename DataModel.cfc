@@ -136,9 +136,9 @@
 		<cfargument name="scope" type="string" required="yes" />
 		
 		<cfif arguments.scope EQ "public">
-			<cfset structInsert(this, arguments.name, '') />
+			<cfset this[arguments.name] = "" />
 		<cfelse>
-			<cfset structInsert(variables, arguments.name, '') />
+			<cfset variables[arguments.name] = "" />
 		</cfif>
 	</cffunction>
 	

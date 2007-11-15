@@ -58,6 +58,7 @@
 
 		<cfloop condition="#next()#">
 			<cfset array[i] = current().clone() />
+			<!--- <cfset array[i] = current().toValueObject() /> --->
 			<cfset i = i + 1 />
 		</cfloop>
 		

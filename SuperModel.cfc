@@ -119,11 +119,29 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="clone" access="public" returntype="supermodel.supermodel" output="false">
-		<cfset var copy = createObject('component', getMetaData(this).name) />
+		<cfset var copy = createObject('component', LCase(getMetaData(this).name)) />
 		
 		<!--- Copy all attributes/keys from the current object into the copy --->
 		<cfloop list="#structKeyList(this)#" index="attribute">
 			<cfset copy[attribute] = this[attribute] />
+		</cfloop>
+		
+		<cfreturn copy />
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------- toValueObject
+
+	Description:	Returns a shallow copy of this object
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="toValueObject" access="public" returntype="struct" output="false">
+		<cfset var copy = StructNew() />
+		<cfset copy['__type__'] = getMetaData(this).name />
+		
+		<!--- Copy all attributes/keys from the current object into the copy --->
+		<cfloop list="#structKeyList(this)#" index="attribute">
+			<cfset copy[lCase(attribute)] = this[attribute] />
 		</cfloop>
 		
 		<cfreturn copy />
