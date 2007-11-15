@@ -80,7 +80,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-	<cffunction name="valid" access="public" returntype="boolean">
+	<cffunction name="valid" access="public" returntype="boolean" output="false">
 		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "validation.cfm" />
 		
 		<cfset StructClear(variables.errors) />	
@@ -98,7 +98,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="help" access="public" returntype="string">
+	<cffunction name="help" access="public" returntype="string" output="false">
 		<cfargument name="field" type="string" required="yes" hint="The field we want help for" />
 		
 		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "help.cfm" />
@@ -110,7 +110,24 @@
 		</cfif>
 		
 		<cfreturn help_message />
-	</cffunction>	
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------------- clone
+
+	Description:	Returns a shallow copy of this object
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="clone" access="public" returntype="supermodel.supermodel" output="false">
+		<cfset var copy = createObject('component', getMetaData(this).name) />
+		
+		<!--- Copy all attributes/keys from the current object into the copy --->
+		<cfloop list="#structKeyList(this)#" index="attribute">
+			<cfset copy[attribute] = this[attribute] />
+		</cfloop>
+		
+		<cfreturn copy />
+	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
 <!-------------------------------------- Accessor Functions ---------------------------------------->

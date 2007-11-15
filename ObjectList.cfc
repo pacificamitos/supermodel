@@ -48,6 +48,23 @@
 		
 		<cfreturn true />
 	</cffunction>
+	
+	<cffunction name="toArray" access="public" returntype="array" output="false">
+		<cfset var array = ArrayNew(1) />
+		<cfset var saved_current_row = variables.current_row />
+		<cfset var i = 1 />
+		
+		<cfset variables.current_row = 0 />
+
+		<cfloop condition="#next()#">
+			<cfset array[i] = current().clone() />
+			<cfset i = i + 1 />
+		</cfloop>
+		
+		<cfset variables.current_row = saved_current_row />
+		
+		<cfreturn array />
+	</cffunction>
 		
 	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">
 		<cfloop list="#query.columnlist#" index="column">
