@@ -19,6 +19,7 @@
 
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
+		<cfset variables.primary_key = 'id' />
 		<cfset injectAttributes() />
 	</cffunction>
 	 
@@ -30,7 +31,7 @@
 ----------------------------------------------------------------------------------------------------->	
   
   <cffunction name="save" access="public" returntype="void" output="false">   
-    <cfif this.id EQ "">
+    <cfif NOT persisted()>
       <cfset create()>
     <cfelse>
       <cfset update()>
@@ -122,34 +123,6 @@
 
 	<cffunction name="persisted" access="public" returntype="boolean" output="false">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "">
-	</cffunction>
-	
-<!--------------------------------------------------------------------------------------- addAttribute
-
-	Description:	This functions adds an attribute to the object, either in public "this" scope or
-								private "variables" scope.
-			
------------------------------------------------------------------------------------------------------>	
-	
-	<cffunction name="addAttribute" access="public" returntype="void" output="false">
-		<cfargument name="name" type="string" required="yes" />
-		<cfargument name="scope" type="string" required="yes" />
-		
-		<cfif arguments.scope EQ "public">
-			<cfset this[arguments.name] = "" />
-		<cfelse>
-			<cfset variables[arguments.name] = "" />
-		</cfif>
-	</cffunction>
-	
-<!--------------------------------------------------------------------------------------- getTableName
-
-	Description:	Returns the database table name that this object is associated with
-			
------------------------------------------------------------------------------------------------------>	
-	
-	<cffunction name="getTableName" access="public" returntype="string" output="false">
-		<cfreturn variables.table_name />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -324,7 +297,9 @@
 				"True") />
 				
 			<!--- Add the column as an attribute of the object --->
-			<cfset structInsert(this, table_columns.column_name, "", true) />
+			<cfif NOT structKeyExists(this, table_columns.column_name)>
+				<cfset structInsert(this, table_columns.column_name, "", true) />
+			</cfif>
 		</cfloop>
 	</cffunction>
 	

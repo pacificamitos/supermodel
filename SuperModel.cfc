@@ -137,7 +137,6 @@
 
 	<cffunction name="toValueObject" access="public" returntype="struct" output="false">
 		<cfset var copy = StructNew() />
-		<cfset copy['__type__'] = getMetaData(this).name />
 		
 		<!--- Copy all attributes/keys from the current object into the copy --->
 		<cfloop list="#structKeyList(this)#" index="attribute">
