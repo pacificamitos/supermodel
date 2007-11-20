@@ -31,7 +31,7 @@
 ----------------------------------------------------------------------------------------------------->	
   
   <cffunction name="save" access="public" returntype="void" output="false">   
-    <cfif NOT persisted()>
+		<cfif NOT persisted()>
       <cfset create()>
     <cfelse>
       <cfset update()>
@@ -122,7 +122,7 @@
 ----------------------------------------------------------------------------------------------------->	
 
 	<cffunction name="persisted" access="public" returntype="boolean" output="false">
-		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "">
+		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "" AND this.id NEQ 0>
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
