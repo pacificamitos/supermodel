@@ -1,6 +1,6 @@
 <cfcomponent>
 	<cffunction name="init" access="public" returntype="void" output="false">
-		<cfargument name="object" type="supermodel.datamodel" required="yes" />
+		<cfargument name="object" type="supermodel" required="yes" />
 		<cfargument name="query" type="query" required="yes" />
 		
 		<cfset variables.object = arguments.object />
@@ -9,7 +9,7 @@
 		<cfset variables.current_row = 0 />
 	</cffunction>
 	
-	<cffunction name="current" access="public" returntype="supermodel.datamodel" output="false">
+	<cffunction name="current" access="public" returntype="supermodel" output="false">
 		<cfreturn variables.object />
 	</cffunction>
 	
@@ -72,7 +72,6 @@
 			<cfset row_values[column] = query[column][variables.current_row] />
 		</cfloop>
 		
-		<cfset variables.object.id = row_values['id'] />
 		<cfset variables.object.load(row_values) />
 	</cffunction>
 </cfcomponent>

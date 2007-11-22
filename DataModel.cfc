@@ -267,10 +267,6 @@
 			FROM information_schema.columns
 			WHERE 
 				table_name = '#arguments.table_name#'
-			AND COLUMNPROPERTY(
-				OBJECT_ID(table_name), 
-				column_name, 
-				'isIdentity') = 0
 		</cfquery>
 				
 		<!--- Loop over each column in the table --->
@@ -285,9 +281,11 @@
 			</cfif>
 			
 			<!--- Insert the column name into the list of database fields --->
-			<cfset variables.database_fields = ListAppend(
-				variables.database_fields, 
-				table_columns.column_name) />
+			<cfif table_columns.column_name NEQ "id">
+				<cfset variables.database_fields = ListAppend(
+					variables.database_fields, 
+					table_columns.column_name) />
+			</cfif>
 			
 			<!--- Insert the column type structure with the column type --->
 			<cfset StructInsert(

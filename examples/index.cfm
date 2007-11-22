@@ -17,11 +17,23 @@
 	<cfset wtf = positionGateway.select() />
 	<cfdump var="#wtf#"> --->
 	
-	<cfset positionService = createObject('component', 'hr_staffing.model.positions.positionService') />
+<!--- 	<cfset positionServic<cfset positionService = createObject('component', 'hr_staffing.model.positions.positionService') />
 	<cfset userService = createObject('component', 'hr_staffing.model.users.userService') />
 	<cfset positions = positionService.getPositions() />
 	<cfdump var="#positions#">
 	<cfset user = userService.getUser('soltysa') />
-	<cfdump var="#user#">
+	<cfdump var="#user#"> --->
+	
+	<cfset positionService = createObject('component', 'hr_staffing.model.positions.positionService') />
+	<cfset position = createObject('component', 'hr_staffing.model.positions.position') />
+	<cfset position.configure() />
+	<cfset position.init('hr_staffing') />
+	<cfset position.read(1) />
+	
+	<cfset position_activities = positionService.getPositionActivities(position) />
+	<cfdump var="#position_activities#">
+	
+	<cfset positions = positionService.getPositions() />
+	<cfdump var="#positions#">
 </body>
 </html>

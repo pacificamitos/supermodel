@@ -12,7 +12,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="package" output="false" returntype="void" 
+	<cffunction name="init" access="public" output="false" returntype="void" 
 		hint="Initializes the object">
 		<cfset variables.errors  = StructNew() />
 	</cffunction>
