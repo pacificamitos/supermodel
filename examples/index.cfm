@@ -30,10 +30,13 @@
 	<cfset position.init('hr_staffing') />
 	<cfset position.read(1) />
 	
-	<cfset position_activities = positionService.getPositionActivities(position) />
+	<!--- 	<cfset position_activities = positionService.getPositionActivities(position) />
 	<cfdump var="#position_activities#">
 	
 	<cfset positions = positionService.getPositions() />
-	<cfdump var="#positions#">
+	<cfdump var="#positions#"> --->
+	
+	<cfset positionService.getTransactions(position) />
+
 </body>
 </html>
