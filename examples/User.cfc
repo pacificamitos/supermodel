@@ -7,7 +7,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="configure" access="public" returntype="void" output="false">
+	<cffunction name="configure" access="public" returntype="void">
 		<cfset variables.object_path = 'supermodel.examples.user' />
 		<cfset variables.table_name = 'users' />
 	</cffunction>

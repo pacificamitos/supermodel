@@ -47,7 +47,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-<cffunction name="setDataObject" access="public" output="false">
+<cffunction name="setDataObject" access="public">
 	<cfargument name="data_object" required="yes" />
 	
 	<cfset variables.data_object = arguments.data_object />

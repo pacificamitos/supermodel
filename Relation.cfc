@@ -5,7 +5,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void">
 		
 	</cffunction>
 </cfcomponent>

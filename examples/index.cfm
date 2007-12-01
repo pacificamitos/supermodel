@@ -1,3 +1,5 @@
+<cfoutput>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -30,13 +32,19 @@
 	<cfset position.init('hr_staffing') />
 	<cfset position.read(1) />
 	
+	<cfset userService = createObject('component', 'hr_staffing.model.users.UserService') />
+	<cfset users = userService.getUsers() />
+	<cfdump var="#users#">
+	
 	<!--- 	<cfset position_activities = positionService.getPositionActivities(position) />
-	<cfdump var="#position_activities#">
+	<cfdump var="#position_activities#"> --->
 	
-	<cfset positions = positionService.getPositions() />
-	<cfdump var="#positions#"> --->
-	
-	<cfset positionService.getTransactions(position) />
+<!--- 	<cfset positions = positionService.getPositions() />
+	<cfdump var="#positions#">
+	 --->
+	<!--- <cfset positionService.getTransactions(position) /> --->
 
 </body>
 </html>
+
+</cfoutput>

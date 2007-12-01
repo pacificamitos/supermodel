@@ -1,11 +1,11 @@
 <cfcomponent>
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
 
 		<cfset variables.dsn = arguments.dsn />
 	</cffunction>
 	
-	<cffunction name="getInstance" access="public" returntype="supermodel.supermodel" output="false">
+	<cffunction name="getInstance" access="public" returntype="supermodel.supermodel">
 		<cfargument name="type" type="string" required="yes" />
 		
 		<cfset var object = createObject('component', arguments.type) />

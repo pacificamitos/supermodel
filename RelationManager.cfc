@@ -5,7 +5,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void">
 		<cfset variables.relations = StructNew() />
 	</cffunction>
 	
@@ -15,7 +15,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-	<cffunction name="get" access="public" returntype="query" output="false">
+	<cffunction name="get" access="public" returntype="query">
 		<cfargument name="relation_name" type="string" required="yes" />
 		<cfset loadRelationData(relation_name) />
 		<cfreturn this[arguments.relation_name] />
@@ -27,7 +27,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="hasMany" access="private" returntype="void" output="false">
+	<cffunction name="hasMany" access="private" returntype="void">
 		<cfargument name="foreign_table" type="string" required="yes" />
 		<cfargument name="foreign_key" type="string" required="yes" />
 		<cfargument name="join_table" type="string" required="no" />
@@ -50,7 +50,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-	<cffunction name="loadRelationData" access="private" returntype="void" output="false">
+	<cffunction name="loadRelationData" access="private" returntype="void">
 		<!--- Var scope the local function variables --->
 		<cfset var relation = "" />		
 		<cfset var relation_name = "" />
@@ -79,7 +79,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-	<cffunction name="saveRelationData" access="private" returntype="void" output="false">		
+	<cffunction name="saveRelationData" access="private" returntype="void">		
 		<!--- Var scope the local function variables --->
 		<cfset var relation = "" />		
 		<cfset var relation_name = "" />

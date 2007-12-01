@@ -1,5 +1,5 @@
 <cfcomponent>
-	<cffunction name="onRequestStart" returntype="void" output="false">
+	<cffunction name="onRequestStart" returntype="void">
 		<cfargument name="targetPage" type="string" required="true" />
 
 		<cfinclude template="server_settings.cfm" />

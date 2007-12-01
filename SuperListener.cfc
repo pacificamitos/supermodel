@@ -5,7 +5,7 @@
 	
 ---------------------------------------------------------------------------------------------------->
 
-<cfcomponent displayname="SuperListener" output="false" extends="MachII.framework.Listener">
+<cfcomponent displayname="SuperListener" extends="MachII.framework.Listener">
 
 <!----------------------------------------------------------------------------------------- configure
 
@@ -14,7 +14,7 @@
 	
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="configure" access="public" output="false" returntype="void" 
+	<cffunction name="configure" access="public" returntype="void" 
 			hint="Configures this listener as part of the Mach-II framework">
 
     <cfthrow message="configure method must be overridden by a child listener">
@@ -26,7 +26,7 @@
 	
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="prepareForm" access="public" output="false" returntype="void">
+	<cffunction name="prepareForm" access="public" returntype="void">
 		<cfargument name="event" type="MachII.framework.Event" required="true" />
 
     <cfset variables.object.read(event.getArg('id')) />
@@ -40,7 +40,7 @@
 	
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="prepareList" access="public" output="false" returntype="void">
+	<cffunction name="prepareList" access="public" returntype="void">
 		<cfargument name="event" type="MachII.framework.Event" required="true" />
 		
     <cfset event.setArg(variables.object_name & "s", variables.gateway.select())>
@@ -52,7 +52,7 @@
 	
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="processForm" access="public" output="false" returntype="void">
+	<cffunction name="processForm" access="public" returntype="void">
 		<cfargument name="event" type="MachII.framework.Event" required="true" />
     <cfset variables.object.load(arguments.event.getArgs()) />
 		

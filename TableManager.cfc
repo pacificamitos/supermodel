@@ -6,7 +6,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
 		
 		<cfset variables.dsn = arguments.dsn />
@@ -18,7 +18,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="getDatabaseAttributes" access="public" output="false" returntype="struct">
+	<cffunction name="getDatabaseAttributes" access="public" returntype="struct">
 		<cfargument name="object" type="supermodel.DataModel" required="yes" />
 		
 		<cfset var attributes = StructNew() />
@@ -38,7 +38,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="injectAttributes" access="public" returntype="void" output="false">
+	<cffunction name="injectAttributes" access="public" returntype="void">
 		<cfargument name="object" type="supermodel.DataModel" required="yes" />
 		
 		<cfset var field_types = StructNew() />
@@ -103,7 +103,7 @@
 			
 ---------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="setDSN" access="private" returntype="void" output="false">
+	<cffunction name="setDSN" access="private" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
 		
 		<cfset variables.dsn = arguments.dsn />
@@ -115,7 +115,7 @@
 			
 ---------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="setTableName" access="private" returntype="void" output="false">
+	<cffunction name="setTableName" access="private" returntype="void">
 		<cfargument name="table_name" type="string" required="yes" />
 		
 		<cfset variables.table_name = arguments.table_name />

@@ -14,7 +14,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
 
 		<cfset super.init() />
@@ -30,7 +30,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
   
-  <cffunction name="save" access="public" returntype="void" output="false">   
+  <cffunction name="save" access="public" returntype="void">   
 		<cfif NOT persisted()>
       <cfset create()>
     <cfelse>
@@ -44,7 +44,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="create" access="public" returntype="supermodel.DataModel" output="false">
+	<cffunction name="create" access="public" returntype="supermodel.DataModel">
 		<cfargument name="params" required="no" type="struct"
 			hint="A params struct can be used to load new values into the object before inserting it" />
 		
@@ -65,14 +65,12 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="read" access="public" returntype="void" output="false">
-		<cfargument name="id" required="yes" />
+	<cffunction name="read" access="public" returntype="void">
+		<cfargument name="id" type="numeric" required="yes" />
 		
 		<cfset var query = "" />
 		<cfset var params = StructNew() />
-		
-		<cfset assert(isNumeric(arguments.id), "id must be a numeric value") />
-		
+			
 		<cfset this.id = arguments.id />
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 		
@@ -81,7 +79,7 @@
 				<cfset StructInsert(params, column, Evaluate("query.#column#"), true) />
 			</cfloop>
 		</cfif>
-				
+	
  		<cfset load(params) />
 	</cffunction>
 	
@@ -91,7 +89,7 @@
 				
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="update" access="public" returntype="void" output="false">
+	<cffunction name="update" access="public" returntype="void">
 		<cfargument name="params" required="no" type="struct"
 			hint="A params struct can be used to load new values into the object before update it" />
 		
@@ -110,7 +108,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="delete" access="public" returntype="void" output="false">
+	<cffunction name="delete" access="public" returntype="void">
 		<cfinvoke method="deleteQuery" />
 		<cfinvoke method="clear" />
 	</cffunction>
@@ -121,7 +119,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="persisted" access="public" returntype="boolean" output="false">
+	<cffunction name="persisted" access="public" returntype="boolean">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "" AND this.id NEQ 0>
 	</cffunction>
 	
@@ -135,7 +133,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-<cffunction name="selectQuery" access="private" returntype="query" output="false">
+<cffunction name="selectQuery" access="private" returntype="query">
 		<cfargument name="columns" default="*" />
 		<cfargument name="tables" default="#variables.table_name#" />
 		<cfargument name="conditions" default="" />
@@ -163,7 +161,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="insertQuery" access="private" returntype="void" output="false">
+	<cffunction name="insertQuery" access="private" returntype="void">
 		<cfargument name="table" default="#variables.table_name#" />
 		<cfargument name="fields" default="#variables.database_fields#" />
 
@@ -198,13 +196,13 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="updateQuery" access="private" returntype="void" output="false">
+	<cffunction name="updateQuery" access="private" returntype="void">
 		<cfargument name="table" default="#variables.table_name#" />
 		<cfargument name="fields" default="#variables.database_fields#" />
 		<cfargument name="primary_key" default="#variables.primary_key#" />
-				
+					
 		<cfset var delimiter = "" />
-		
+				
 		<cfquery datasource="#variables.dsn#">
 			UPDATE #table#
 			SET
@@ -226,7 +224,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="deleteQuery" access="private" returntype="void" output="false">
+	<cffunction name="deleteQuery" access="private" returntype="void">
 		<cfargument name="table" default="#variables.table_name#" />
 		<cfargument name="primary_key" default="#variables.primary_key#" />
 		
@@ -249,7 +247,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="injectAttributes" access="private" returntype="void" output="false">	
+	<cffunction name="injectAttributes" access="private" returntype="void">	
 		<cfargument name="dsn" type="string" default="#variables.dsn#" />
 		<cfargument name="table_name" type="string" default="#variables.table_name#" />
 		
@@ -308,7 +306,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="value" access="private" returntype="string" output="false">
+	<cffunction name="value" access="private" returntype="string">
 		<cfargument name="field_name" type="string" required="yes" 
 			hint="The field whose value we want" />
 			
@@ -330,7 +328,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="type" access="private" returntype="string" output="false">
+	<cffunction name="type" access="private" returntype="string">
 		<cfargument name="field_name" type="string" required="yes" 
 			hint="The field whose type we want" />
 		
@@ -346,7 +344,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="null" access="private" returntype="string" output="false">
+	<cffunction name="null" access="private" returntype="string">
 		<cfargument name="field_name" type="string" required="yes" 
 			hint="The field whose null flag we want" />
 			
@@ -369,7 +367,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="cf_sql_type" access="private" returntype="string" output="false">
+	<cffunction name="cf_sql_type" access="private" returntype="string">
 		<cfargument name="type" required="yes" />
 		<cfswitch expression="#type#">
 			<cfcase value="int">

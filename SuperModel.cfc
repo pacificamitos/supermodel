@@ -12,7 +12,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="public" output="false" returntype="void" 
+	<cffunction name="init" access="public" returntype="void" 
 		hint="Initializes the object">
 		<cfset variables.errors  = StructNew() />
 	</cffunction>
@@ -29,20 +29,10 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="load" access="public" output="false" returntype="void" 
-		hint="Loads parameters from a structure into the object's member variables.">
-		
-		<cfargument
-			name="params" 
-			required="yes" 
-			type="struct"
-			hint="Structure of parameters to load into the object" />
-		
-		<cfargument 
-			name="fields"
-			default="" 
-			type="string"
-			hint="List of fields to update" />
+	<cffunction name="load" access="public"  returntype="void"
+		hint="Loads a structure of attributes into the model">
+		<cfargument	name="params" required="yes" type="struct" />
+		<cfargument name="fields"	default="" type="string" />
 		
 		<!--- 
 			If the list of fields is not provided explicitly then we loop 
@@ -69,7 +59,7 @@
 			
 ---------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="clear" access="public" returntype="void" output="false" 
+	<cffunction name="clear" access="public" returntype="void" 
 		hint="Clears all of the object's attributes">
 		<cfset StructClear(This) />
 	</cffunction>
@@ -80,7 +70,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-	<cffunction name="valid" access="public" returntype="boolean" output="false">
+	<cffunction name="valid" access="public" returntype="boolean">
 		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "validation.cfm" />
 		
 		<cfset StructClear(variables.errors) />	
@@ -98,7 +88,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="help" access="public" returntype="string" output="false">
+	<cffunction name="help" access="public" returntype="string">
 		<cfargument name="field" type="string" required="yes" hint="The field we want help for" />
 		
 		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "help.cfm" />
@@ -118,7 +108,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="clone" access="public" returntype="supermodel.supermodel" output="false">
+	<cffunction name="clone" access="public" returntype="supermodel.supermodel">
 		<cfset var copy = createObject('component', LCase(getMetaData(this).name)) />
 		
 		<!--- Copy all attributes/keys from the current object into the copy --->
@@ -126,7 +116,19 @@
 			<cfset copy[attribute] = this[attribute] />
 		</cfloop>
 		
+		<cfset copy.deepCopy() />
+		
 		<cfreturn copy />
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------------- clone
+
+	Description:	Creates deep copies (i.e. clones) of all complex member variables
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="deepCopy" access="public" returntype="void">
+		<!--- Only implemented in child classes --->
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------- toValueObject
@@ -135,7 +137,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="toValueObject" access="public" returntype="struct" output="false">
+	<cffunction name="toValueObject" access="public" returntype="struct">
 		<cfset var copy = StructNew() />
 		
 		<!--- Copy all attributes/keys from the current object into the copy --->
@@ -156,7 +158,7 @@
 			
 ---------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="setObjectPath" access="private" output="false" returntype="void">
+	<cffunction name="setObjectPath" access="private" returntype="void">
 		<cfargument name="object_path" type="string" required="yes" />
 		
 		<cfset variables.object_path = arguments.object_path />
@@ -174,7 +176,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 	
-	<cffunction name="getIncludePath" access="private" output="false" returntype="string">
+	<cffunction name="getIncludePath" access="private" returntype="string">
 		<cfset var include_path = "/" />
 		<cfset include_path = include_path & Replace(variables.object_path, ".", "/", "all") />
 		<cfset include_path = ListDeleteAt(include_path, ListLen(include_path, "/"), "/") />
@@ -188,7 +190,7 @@
 			
 ----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="assert" access="private" returntype="void" output="false">
+	<cffunction name="assert" access="private" returntype="void">
 		<cfargument name="condition" type="boolean" required="yes" />
 		<cfargument name="message" type="string" default="Assertion Failed" />
 		

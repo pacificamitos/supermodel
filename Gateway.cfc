@@ -10,7 +10,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="init" access="public" output="false" returntype="void">
+	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
 		<cfargument name="table_name" type="string" />
 		
@@ -30,7 +30,7 @@
 			
 ----------------------------------------------------------------------------------------------------->	
 
-	<cffunction name="select" access="public" returntype="query" output="false">
+	<cffunction name="select" access="public" returntype="query">
 		<cfargument name="columns" default="*" />
 		<cfargument name="tables" default="#variables.table_name#" />
 		<cfargument name="conditions" default="" />
