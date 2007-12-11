@@ -250,10 +250,11 @@
 	<cffunction name="injectAttributes" access="private" returntype="void">	
 		<cfargument name="dsn" type="string" default="#variables.dsn#" />
 		<cfargument name="table_name" type="string" default="#variables.table_name#" />
+		<cfargument name="field_list" type="string" default="database_fields" />
 		
 		<cfset var table_columns = "" />
-		<cfset variables.database_fields = "" />
-		<cfset variables.field_types = StructNew() />
+		<cfset variables[arguments.field_list] = "" />
+		<cfset variables['field_types'] = StructNew() />
 		
 		<!--- Get the column names and column types for the table --->
 		<cfquery name="table_columns" datasource="#arguments.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
@@ -280,8 +281,8 @@
 			
 			<!--- Insert the column name into the list of database fields --->
 			<cfif table_columns.column_name NEQ "id">
-				<cfset variables.database_fields = ListAppend(
-					variables.database_fields, 
+				<cfset variables[arguments.field_list] = ListAppend(
+					variables[arguments.field_list], 
 					table_columns.column_name) />
 			</cfif>
 			

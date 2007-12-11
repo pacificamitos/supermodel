@@ -121,6 +121,16 @@
 		<cfreturn copy />
 	</cffunction>
 	
+<!------------------------------------------------------------------------------------------ getErrors
+
+	Description:	Creates deep copies (i.e. clones) of all complex member variables
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="getErrors" access="public" returntype="struct">
+		<cfreturn variables.errors />
+	</cffunction>
+	
 <!---------------------------------------------------------------------------------------------- clone
 
 	Description:	Creates deep copies (i.e. clones) of all complex member variables
@@ -130,24 +140,7 @@
 	<cffunction name="deepCopy" access="public" returntype="void">
 		<!--- Only implemented in child classes --->
 	</cffunction>
-	
-<!-------------------------------------------------------------------------------------- toValueObject
-
-	Description:	Returns a shallow copy of this object
-			
------------------------------------------------------------------------------------------------------>	
-
-	<cffunction name="toValueObject" access="public" returntype="struct">
-		<cfset var copy = StructNew() />
 		
-		<!--- Copy all attributes/keys from the current object into the copy --->
-		<cfloop list="#structKeyList(this)#" index="attribute">
-			<cfset copy[lCase(attribute)] = this[attribute] />
-		</cfloop>
-		
-		<cfreturn copy />
-	</cffunction>
-	
 <!-------------------------------------------------------------------------------------------------->
 <!-------------------------------------- Accessor Functions ---------------------------------------->
 <!-------------------------------------------------------------------------------------------------->

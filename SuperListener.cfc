@@ -29,7 +29,10 @@
 	<cffunction name="prepareForm" access="public" returntype="void">
 		<cfargument name="event" type="MachII.framework.Event" required="true" />
 
-    <cfset variables.object.read(event.getArg('id')) />
+		<cfif event.isArgDefined('id')>
+	    <cfset variables.object.read(event.getArg('id')) />
+		</cfif>
+		
     <cfset event.setArg(variables.object_name, variables.object) />
 		<cfset event.setArg('data_object', variables.object) />
 	</cffunction>
