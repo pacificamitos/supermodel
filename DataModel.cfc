@@ -110,7 +110,6 @@
 
 	<cffunction name="delete" access="public" returntype="void">
 		<cfinvoke method="deleteQuery" />
-		<cfinvoke method="clear" />
 	</cffunction>
 	
 <!------------------------------------------------------------------------------------------ persisted

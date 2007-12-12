@@ -52,17 +52,6 @@
 			</cfif>
 		</cfloop>
 	</cffunction>	
-	
-<!--------------------------------------------------------------------------------------------- clear
-
-	Description: Clears the object's attributes
-			
----------------------------------------------------------------------------------------------------->	
-
-	<cffunction name="clear" access="public" returntype="void" 
-		hint="Clears all of the object's attributes">
-		<cfset StructClear(This) />
-	</cffunction>
 		
 <!--------------------------------------------------------------------------------------------- valid
 
@@ -131,7 +120,7 @@
 		<cfreturn variables.errors />
 	</cffunction>
 	
-<!---------------------------------------------------------------------------------------------- clone
+<!------------------------------------------------------------------------------------------- deepCopy
 
 	Description:	Creates deep copies (i.e. clones) of all complex member variables
 			

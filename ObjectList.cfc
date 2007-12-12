@@ -9,6 +9,10 @@
 		<cfset variables.current_row = 0 />
 	</cffunction>
 	
+	<cffunction name="length" access="public" returntype="numeric">
+		<cfreturn variables.query.recordcount />
+	</cffunction>
+	
 	<cffunction name="current" access="public" returntype="supermodel">
 		<cfreturn variables.object />
 	</cffunction>
@@ -24,7 +28,7 @@
 	<cffunction name="next" access="public" returntype="boolean">
 		<cfset var row_values = StructNew() />
 		
-		<cfif variables.current_row EQ query.recordcount>
+		<cfif variables.current_row EQ variables.query.recordcount>
 			<cfreturn false />
 		</cfif>
 		
@@ -64,6 +68,10 @@
 		<cfset variables.current_row = saved_current_row />
 		
 		<cfreturn array />
+	</cffunction>
+	
+	<cffunction name="toQuery" access="public" returntype="query">
+		<cfreturn variables.query />
 	</cffunction>
 		
 	<cffunction name="loadCurrentValues" access="private" returntype="void">
