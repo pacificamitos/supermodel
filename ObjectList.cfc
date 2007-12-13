@@ -6,6 +6,10 @@
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		
+		<cfset reset() />
+	</cffunction>
+	
+	<cffunction name="reset" access="public" returntype="void">
 		<cfset variables.current_row = 0 />
 	</cffunction>
 	
