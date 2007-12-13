@@ -125,9 +125,9 @@
 			<cfset message = "">
 		</cfif>
 		
-		<img src="/SuperModel/images/question.gif" id="help_img_#arguments.field#" class="helpIcon" alt="" onclick="showhide('#arguments.field#');" />
+		<img src="/SuperModel/images/question.gif" id="help_img_#arguments.field#" class="helpIcon" alt="helpIcon" title="Click for help" onmouseover="this.src='/SuperModel/images/question_hover.gif';return true" onmouseout="this.src='/SuperModel/images/question.gif'" onclick="showhide('#arguments.field#');" />
 
-		<div class="help" id="help_msg_#arguments.field#" <cfif position EQ "side">style="margin-left:95px;"</cfif>> #message# </div>
+		<div class="help" id="help_msg_#arguments.field#"> #message# </div>
 
 		<CFIF FindNoCase("Netscape", CGI.HTTP_USER_AGENT)><div style="clear:both;"></div></CFIF>
 		

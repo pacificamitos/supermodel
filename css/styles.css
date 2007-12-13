@@ -7,18 +7,23 @@ form.index_form input.time {
 	width:40px; 
 }
 
-.help {
-	color: #888;
-	font-size:11px;
-	vertical-align: top;
-	text-align:left;
-	white-space:normal;
-	display:none;
+.helpIcon {
+	cursor: help;
+	float: right;
+	margin-top: -2.5em;
 }
 
-.helpIcon {
-	vertical-align:top;
-	cursor:help;
+.help {
+	color: #888;
+	display: none;
+	font-size: 11px;
+	float: right;
+	margin: -10px 33px 5px 0;
+	padding: 0 !important;
+	text-align: left;
+	vertical-align: top;
+	white-space: normal;
+	width: 220px;
 }
 
 .reqField {
@@ -27,8 +32,8 @@ form.index_form input.time {
 
 div.error {
 	color: #F00;
-	font-size:11px;
+	font-size: 11px;
 	vertical-align: top;
-	white-space:normal;
-	background-color:#FFFFFF;
+	white-space: normal;
+	background-color: #FFFFFF;
 }
