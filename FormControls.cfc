@@ -105,7 +105,7 @@
 		<cfif attributes.get("type") NEQ "hidden">
 			<cfinvoke method="displayHelp" argumentcollection="#arguments#" />
 			<cfinvoke method="displayError" argumentcollection="#arguments#" />
-			<br />
+			<!---<br />--->
 		</cfif>
 	</cffunction>
 	

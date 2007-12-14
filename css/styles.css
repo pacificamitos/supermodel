@@ -10,14 +10,14 @@ form.index_form input.time {
 img.helpIcon {
 	cursor: help;
 	float: right;
-	margin-top: -2.5em;
+	margin-top: -25px;
 }
 
 div.help {
 	color: #888;
 	display: none;
 	font-size: 11px;
-	margin: -10px 33px 8px 265px;
+	margin: 0 33px 2px 265px;
 	padding: 0 !important;
 	text-align: left;
 	vertical-align: top;
@@ -33,10 +33,9 @@ div.error {
 	background: url(/hr_competency/images/error_bg.gif) #FFF no-repeat;
 	color: #F00;
 	font-size: 11px;
-	float: right;
-	margin: -5px 33px 5px 0;
+	margin: 0 33px -5px 265px;
 	padding-left: 12px;
 	vertical-align: top;
 	white-space: normal;
-	width: 220px;
+	width: 205px;
 }
