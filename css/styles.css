@@ -33,7 +33,7 @@ div.error {
 	background: url(/hr_competency/images/error_bg.gif) #FFF no-repeat;
 	color: #F00;
 	font-size: 11px;
-	margin: 0 33px -5px 265px;
+	margin: 0 33px 10px 265px;
 	padding-left: 12px;
 	vertical-align: top;
 	white-space: normal;
