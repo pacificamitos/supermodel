@@ -30,7 +30,7 @@ div.help {
 }
 
 div.error {
-	background: url(/hr_competency/images/error_bg.gif) #FFF no-repeat;
+	background: url(/hr_competency/images/error_bg.gif) no-repeat;
 	color: #F00;
 	font-size: 11px;
 	margin: 0 33px 10px 265px;
