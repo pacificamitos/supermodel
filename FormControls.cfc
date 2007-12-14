@@ -434,6 +434,7 @@
 		<cfargument name="expandable" default="yes" />
 		
 		<cfset var selected = "" />
+		<cfset var selected_value = variables.data_object[arguments.field] />
 		
 		<!--- If a list is provided, convert it into a query --->
 		<cfif NOT structKeyExists(arguments, 'query')>
@@ -449,14 +450,18 @@
 		<cfif expandable> 
 				<cfset attributes.set("style",attributes.get("style")&"width:auto;") />
 		</cfif>
-
+		
+		<cfif isObject(variables.data_object[arguments.field])>
+			<cfset selected_value = variables.data_object[arguments.field][arguments.value_field] />
+		</cfif>
+		
 		<select #attributes.string()#>
 			<option value="">#arguments.empty_value#</option>
 			<cfloop query="query">
 
 				<!--- Determine whether the current value is the selected value --->
 				<cfset selected = "" />
-				<cfif variables.data_object[arguments.field] EQ query[value_field][arguments.query.currentRow]>
+				<cfif selected_value EQ query[value_field][arguments.query.currentRow]>
 					<cfset selected = "selected=""selected""" />
 				</cfif>
 				
