@@ -7,18 +7,17 @@ form.index_form input.time {
 	width:40px; 
 }
 
-.helpIcon {
+img.helpIcon {
 	cursor: help;
 	float: right;
 	margin-top: -2.5em;
 }
 
-.help {
+div.help {
 	color: #888;
 	display: none;
 	font-size: 11px;
-	float: right;
-	margin: -10px 33px 5px 0;
+	margin: -10px 33px 8px 265px;
 	padding: 0 !important;
 	text-align: left;
 	vertical-align: top;
@@ -31,9 +30,13 @@ form.index_form input.time {
 }
 
 div.error {
+	background: url(/hr_competency/images/error_bg.gif) #FFF no-repeat;
 	color: #F00;
 	font-size: 11px;
+	float: right;
+	margin: -5px 33px 5px 0;
+	padding-left: 12px;
 	vertical-align: top;
 	white-space: normal;
-	background-color: #FFFFFF;
+	width: 220px;
 }
