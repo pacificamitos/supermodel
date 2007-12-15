@@ -519,12 +519,6 @@
 		<cfif isDefined("variables.data_object.#arguments.field#")>
 			<cfset Variables.value = Evaluate('variables.data_object.#arguments.field#') />
 		</cfif>
-		
-		<!---<cfset attributes.add("rows", 5) />
-		<cfset attributes.add("cols", 26) />--->
-		<cfif StructKeyExists(variables.data_object.field_lengths, arguments.field)>
-			<cfset attributes.set("maxlength", StructFind(variables.data_object.field_lengths, arguments.field)) />
-		</cfif>
 	
 		<textarea #attributes.string()#>#Variables.value#</textarea>
 		
