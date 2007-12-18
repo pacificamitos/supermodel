@@ -1,7 +1,7 @@
 /* CALENDAR CSS STARTS */
 
 .calendar {
-	font-size:11px;
+	font-size:10px;
 	text-align:center;
 	font-weight:bold;
 }
@@ -19,11 +19,12 @@
 
 .calDays {
 	background-color:#FFFFFF;
-	color:#777;
+	color:#ccc;
 }
 
-.calFooter {
+#calFooter {
 	background-color:#ffea94;
+	border-top: 1px dotted #ccc;
 }
 
 .evenCell {

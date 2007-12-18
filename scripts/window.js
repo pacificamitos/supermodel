@@ -33,13 +33,16 @@ function jWindow(aTitle,width,posx,posy)
 	main.style.position = 'absolute';
 	main.style.visibility = 'hidden';
 	main.style.width = width + 'px';
-	main.style.border = "1px solid #000";
+	main.style.border = "1px solid #ccc";
 	main.style.backgroundColor = "#fff";
+	main.style.padding = "1px";
+	main.style.paddingRight = "3px";
 	
 	head.style.textAlign = "center";
-	head.style.backgroundColor = "#dbe7f8";
+	head.style.backgroundColor = "#CC3333";
+	head.style.border = "1px solid #333";
 	head.style.padding = "5px 0px 5px 0px";
-	head.style.color = "#000";
+	head.style.color = "#fff";
 	head.style.fontWeight = "bold";
 	head.style.fontSize = "10px";
 	head.style.width = "100%";

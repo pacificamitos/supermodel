@@ -306,7 +306,7 @@
 				'#field#Anchor',
 				'#arguments.label#')" >
 			
-			<img src="/supermodel/images/calendar.gif" alt="calendar" />
+			<img class="popupCal" src="/supermodel/images/calendar.gif" alt="calendar" />
 			
 		</a>
 		<!--- Hidden Date field --->
