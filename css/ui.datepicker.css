@@ -25,7 +25,10 @@
 	border: 4px ridge #ddd !important;
 }
 button.datepicker_trigger {
-	width: 25px;
+	background: none;	
+	border: none;
+	padding: 0;
+	width: 35px;
 }
 img.datepicker_trigger {
 	margin: 2px;
@@ -65,6 +68,9 @@ img.datepicker_trigger {
 }
 .datepicker_clear, .datepicker_prev {
 	float: left;
+	font-size: 8pt;
+	letter-spacing: 0;
+	text-transform: uppercase;
 	width: 34%;
 }
 .datepicker_rtl .datepicker_clear, .datepicker_rtl .datepicker_prev {
@@ -78,8 +84,11 @@ img.datepicker_trigger {
 }
 .datepicker_close, .datepicker_next {
 	float: right;
-	width: 34%;
+	font-size: 8pt;
+	letter-spacing: 0;
 	text-align: right;
+	text-transform: uppercase;
+	width: 34%;
 }
 .datepicker_rtl .datepicker_close, .datepicker_rtl .datepicker_next {
 	float: left;
@@ -97,6 +106,8 @@ img.datepicker_trigger {
 	color: #fff;
 	border: 0px;
 	font-weight: bold;
+	margin: 0;
+	width: auto;
 }
 .datepicker {
 	background: #ccc;
@@ -109,6 +120,8 @@ img.datepicker_trigger {
 }
 .datepicker_titleRow {
 	background: #777;
+	font-weight: bold;
+	font-size: 10pt;
 }
 .datepicker_daysRow {
 	background: #eee;
