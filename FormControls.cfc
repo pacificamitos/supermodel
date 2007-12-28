@@ -342,22 +342,34 @@
 		<cfset attributes.set("onfocus", "jfKeyCounter('clear')") />
 
 		<!--- Day field --->
-		<cfset attributes.set("value", Variables.value_dd) />
+		<cfif IsDefined("Variables.value_dd") AND Trim(Variables.value_dd) NEQ "">
+			<cfset attributes.set("value", Variables.value_dd) />
+		<cfelse>
+			<cfset attributes.set("value", "dd") />
+		</cfif>
 		<cfset attributes.set("id", "#field#_dd") />
 		<cfset attributes.set("name", "#field#_dd") />	
 		<cfset attributes.set("onkeyup", "jumpField(event, 'yes','#field#_dd','#field#_mm',2);") />	
-		<input #attributes.string()# />
+		<input #attributes.string()# style="width:30px" />
 		
 		<!--- Month field  --->
-		<cfset attributes.set("value", Variables.value_mm) />
+		<cfif IsDefined("Variables.value_mm") AND Trim(Variables.value_mm) NEQ "">
+			<cfset attributes.set("value", Variables.value_mm) />
+		<cfelse>
+			<cfset attributes.set("value", "mm") />
+		</cfif>
 		<cfset attributes.set("id", "#field#_mm") />
 		<cfset attributes.set("name", "#field#_mm") />
 		<cfset attributes.set("onkeyup", "jumpField(event, 'yes','#field#_mm','#field#_yyyy',2)") />	
-		<input #attributes.string()# />
+		<input #attributes.string()# style="width:30px" />
 		
 		
 		<!--- Year field --->
-		<cfset attributes.set("value", Variables.value_yyyy) />
+		<cfif IsDefined("Variables.value_yyyy") AND Trim(Variables.value_yyyy) NEQ "">
+			<cfset attributes.set("value", Variables.value_yyyy) />
+		<cfelse>
+			<cfset attributes.set("value", "yyyy") />
+		</cfif>
 		<cfset attributes.set("id", "#field#_yyyy") />
 		<cfset attributes.set("name", "#field#_yyyy") />
 		<!---<cfif IsDefined("arguments.jump_to") AND NOT arguments.jump_to EQ "">
