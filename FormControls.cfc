@@ -297,18 +297,37 @@
 				<cfset Variables.value_yyyy = DateFormat(Variables.value,'yyyy') />
 			</cfif>
 		</cfif>
+		
+		<script type="text/javascript" charset="utf-8">
+			jQuery(function($)
+			{
+				$('###field#').datepicker({ 
+						minDate: new Date(1995, 1 - 1, 1),  
+						maxDate: new Date(2020, 12 - 1, 31),  
+						beforeShow: readLinked,     
+						onSelect: updateLinked,
+						showOn: 'button',
+						buttonImage: '/supermodel/images/calendar.gif'}); 
+			});
 			
-		<!--- Popup calendar --->
-		<a href="###field#Cal" 
-			id="#field#Anchor" 
-			onfocus="createCal(
-				'#field#',
-				'#field#Anchor',
-				'#arguments.label#')" >
-			
-			<img class="popupCal" src="/supermodel/images/calendar.gif" alt="calendar" />
-			
-		</a>
+			// Prepare to show a date picker linked to three select controls 
+			function readLinked() { 
+					$('###field#').val( 
+							$('###field#_mm').val() + '/' + 
+							$('###field#_dd').val() + '/' +  
+							$('###field#_yyyy').val() 
+					); 
+					return {}; 
+			} 
+			 
+			// Update three select controls to match a date picker selection 
+			function updateLinked(date) { 
+					$('###field#_mm').val(date.substring(0, 2)); 
+					$('###field#_dd').val(date.substring(3, 5)); 
+					$('###field#_yyyy').val(date.substring(6, 10)); 
+			} 
+		</script>
+
 		<!--- Hidden Date field --->
 		<cfset attributes.set("value", "#Variables.value#") />
 		<cfset attributes.set("type", "hidden") />
