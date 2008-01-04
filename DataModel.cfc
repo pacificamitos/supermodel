@@ -356,7 +356,7 @@
 		<cfif value EQ "" AND type NEQ "cf_sql_varchar">
 			<cfset null = "yes" />
 		</cfif>
-		
+
 		<cfreturn null />
 	</cffunction>
 	
@@ -375,6 +375,9 @@
 			</cfcase>
 			<cfcase value="varchar">
 				<cfreturn "cf_sql_varchar" />
+			</cfcase>
+			<cfcase value="char">
+				<cfreturn "cf_sql_char" />
 			</cfcase>
 			<cfcase value="money">
 				<cfreturn "cf_sql_money" />
