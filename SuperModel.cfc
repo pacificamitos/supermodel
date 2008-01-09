@@ -110,6 +110,31 @@
 		<cfreturn copy />
 	</cffunction>
 	
+<!------------------------------------------------------------------------------------------- toStruct
+
+	Description:	Returns a shallow copy of this object
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="toStruct" access="public" returntype="struct">
+		<cfset var copy = structNew() />
+		<cfset var attribute = "" />
+				
+		<!--- Copy all attributes/keys from the current object into the copy --->
+		<cfloop list="#structKeyList(this)#" index="attribute">
+			<cfset attribute = LCase(attribute) />
+			<cfif NOT isCustomFunction(this[attribute])>
+				<cfif isObject(this[attribute])>
+					<cfset copy[attribute] = this[attribute].toValueObject() />
+				<cfelse>
+					<cfset copy[attribute] = this[attribute] />
+				</cfif>
+			</cfif>
+		</cfloop>
+		
+		<cfreturn copy />
+	</cffunction>
+	
 <!------------------------------------------------------------------------------------------ getErrors
 
 	Description:	Creates deep copies (i.e. clones) of all complex member variables
