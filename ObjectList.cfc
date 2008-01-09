@@ -31,7 +31,7 @@
 	
 	<cffunction name="next" access="public" returntype="boolean">
 		<cfset var row_values = StructNew() />
-		
+
 		<cfif variables.current_row EQ variables.query.recordcount>
 			<cfreturn false />
 		</cfif>
