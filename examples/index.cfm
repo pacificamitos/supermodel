@@ -10,6 +10,13 @@
 <body>
 	<h1>User</h1>
 	
+	<cfset title = "Hello <font color=""blue"">Bob</font>" />
+	<cfoutput>#title#</cfoutput>
+	
+	<br />
+	<cfset title = ReReplace(title, "<[^>]*>", "", "all")>
+	<cfoutput>#title#</cfoutput>
+	
 	<!--- <cfset user = application.supermodelFactory.getInstance('supermodel.examples.User') />
 	<cfset user.read(1) />
 	

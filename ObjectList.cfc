@@ -21,6 +21,10 @@
 		<cfreturn variables.object />
 	</cffunction>
 	
+	<cffunction name="currentIndex" access="public" returntype="numeric">
+		<cfreturn variables.current_row />
+	</cffunction>
+	
 	<cffunction name="jump_to" access="public" returntype="void">
 		<cfargument name="row" type="numeric" required="yes" />
 		
@@ -76,6 +80,22 @@
 	
 	<cffunction name="toQuery" access="public" returntype="query">
 		<cfreturn variables.query />
+	</cffunction>
+	
+	<cffunction name="toOptions" access="public" returntype="query">
+		<cfargument name="value_field" type="string" required="yes" />
+		<cfargument name="label_field" type="string" required="yes" />
+		
+		<cfset var result = "" />
+				
+		<cfquery name="result" dbtype="query">
+			SELECT 
+				#arguments.value_field# as [value], 
+				#arguments.label_field# as [label]
+			FROM variables.query
+		</cfquery>
+		
+		<cfreturn result />
 	</cffunction>
 		
 	<cffunction name="loadCurrentValues" access="private" returntype="void">

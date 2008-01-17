@@ -125,7 +125,7 @@
 			<cfset attribute = LCase(attribute) />
 			<cfif NOT isCustomFunction(this[attribute])>
 				<cfif isObject(this[attribute])>
-					<cfset copy[attribute] = this[attribute].toValueObject() />
+					<cfset copy[attribute] = this[attribute].toStruct() />
 				<cfelse>
 					<cfset copy[attribute] = this[attribute] />
 				</cfif>
