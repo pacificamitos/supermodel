@@ -10,7 +10,7 @@ form.index_form input.time {
 img.helpIcon {
 	cursor: help;
 	float: right;
-	margin-top: -25px;
+	margin-top: 0px;
 }
 
 div.help {
