@@ -372,11 +372,7 @@
 		</cfif>
 		<cfset attributes.set("id", "#field#_yyyy") />
 		<cfset attributes.set("name", "#field#_yyyy") />
-		<!---<cfif IsDefined("arguments.jump_to") AND NOT arguments.jump_to EQ "">
-			<cfset attributes.set("onkeyup", "jumpField(event, 'yes','#field#_yyyy','#arguments.jump_to#',4)") />	
-		<cfelse>--->
-			<cfset attributes.set("onkeyup", "jumpField(event, 'no','#field#_yyyy','none',4)") />	
-		<!---</cfif>--->
+		<cfset attributes.set("onkeyup", "jumpField(event, 'no','#field#_yyyy','none',4)") />	
 		<input #attributes.string()# />
 
 		<cfinvoke method="postamble" argumentcollection="#arguments#" />
