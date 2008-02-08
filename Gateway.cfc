@@ -14,6 +14,7 @@
 		<cfargument name="dsn" type="string" required="yes" />
 		<cfargument name="table_name" type="string" />
 		
+		<cfset configure() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfif structKeyExists(arguments, 'table_name')>
 			<cfset variables.table_name = arguments.table_name />
