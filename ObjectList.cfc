@@ -5,8 +5,17 @@
 		
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
+		<cfset variables.length = arguments.query.recordcount />
 		
 		<cfset reset() />
+	</cffunction>
+	
+	<cffunction name="paginate" access="public" returntype="void">
+		<cfargument name="page" type="numeric" required="yes" />
+		<cfargument name="offset" type="numeric" required="yes" />
+		
+		<cfset variables.current_row = (arguments.page - 1) />
+		<cfset variables.length = arguments.offset />
 	</cffunction>
 	
 	<cffunction name="reset" access="public" returntype="void">
@@ -14,7 +23,7 @@
 	</cffunction>
 	
 	<cffunction name="length" access="public" returntype="numeric">
-		<cfreturn variables.query.recordcount />
+		<cfreturn variables.length />
 	</cffunction>
 	
 	<cffunction name="current" access="public" returntype="supermodel">
@@ -36,7 +45,7 @@
 	<cffunction name="next" access="public" returntype="boolean">
 		<cfset var row_values = StructNew() />
 
-		<cfif variables.current_row EQ variables.query.recordcount>
+		<cfif variables.current_row EQ variables.length>
 			<cfreturn false />
 		</cfif>
 		
