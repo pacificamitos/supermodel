@@ -15,7 +15,7 @@
 		<cfargument name="offset" type="numeric" required="yes" />
 		
 		<cfset variables.current_row = (arguments.page - 1) />
-		<cfset variables.length = arguments.offset />
+		<cfset variables.length = min(variables.query.recordcount, arguments.offset) />
 	</cffunction>
 	
 	<cffunction name="reset" access="public" returntype="void">
