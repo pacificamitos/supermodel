@@ -15,6 +15,7 @@
 	<cffunction name="init" access="public" returntype="void" 
 		hint="Initializes the object">
 		<cfset variables.errors  = StructNew() />
+		<cfset variables.lazy_variables = StructNew() />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -33,6 +34,9 @@
 		hint="Loads a structure of attributes into the model">
 		<cfargument	name="params" required="yes" type="struct" />
 		<cfargument name="fields"	default="" type="string" />
+		
+		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
+		<cfset clear() />
 		
 		<!--- 
 			If the list of fields is not provided explicitly then we loop 
@@ -204,5 +208,44 @@
 		<cfif NOT condition>
 			<cfthrow message="#arguments.message#">
 		</cfif>
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------------- clear
+
+	Description:	Check if the given property is stale or not
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="clear" access="private" returntype="void">		
+		<cfloop list="#StructKeyList(variables.lazy_variables)#" index="property">
+			<cfset StructDelete(variables, property) />
+		</cfloop>
+	</cffunction>
+	
+<!--------------------------------------------------------------------------------------------- define
+
+	Description:	Indicate that the given property was defined via lazy-loading
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="define" access="private" returntype="void">
+		<cfargument name="property" type="string" required="yes" />
+		<cfargument name="value" type="any" required="yes" />
+		
+		<cfset variables.lazy_variables[arguments.property] = true />
+		<cfset variables[arguments.property] = arguments.value />
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------- defined
+
+	Description:	A wrapper around the structKeyExists method to make checking for variables a little
+								cleaner
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="defined" access="private" returntype="boolean">
+		<cfargument name="property" type="string" required="yes" />
+		
+		<cfreturn structKeyExists(variables, arguments.property) />
 	</cffunction>
 </cfcomponent>
