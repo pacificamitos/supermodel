@@ -316,7 +316,7 @@
 
 		<!--- If the value is a date we must convert it to an ODBC date --->
 		<cfif (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') and value NEQ "">
-			<cfset value = createODBCDate(value) />
+			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
 		</cfif>
 		
 		<cfreturn value />
