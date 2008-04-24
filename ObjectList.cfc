@@ -114,4 +114,10 @@
 		
 		<cfset variables.object.load(row_values) />
 	</cffunction>
+	
+	<cffunction name="setQuery" access="public" returntype="void">
+		<cfargument name="query" type="query" required="yes" />
+		
+		<cfset init(variables.object,arguments.query) />
+	</cffunction>
 </cfcomponent>
