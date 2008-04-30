@@ -10,6 +10,18 @@
 		<cfset reset() />
 	</cffunction>
 	
+	<cffunction name="setOrder" access="public" returntype="void">
+		<cfargument name="fields" type="string" required="yes" />
+		
+		<cfquery name="variables.query" dbtype="query">
+			SELECT * 
+			FROM variables.query
+			ORDER BY #fields#
+		</cfquery>
+		
+		<cfset reset() />
+	</cffunction>
+	
 	<cffunction name="paginate" access="public" returntype="void">
 		<cfargument name="page" type="numeric" required="yes" />
 		<cfargument name="offset" type="numeric" required="yes" />
