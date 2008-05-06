@@ -10,6 +10,22 @@
 		<cfset reset() />
 	</cffunction>
 	
+	<cffunction name="filter" access="public" returntype="supermodel.objectlist">
+		<cfargument name="condition" type="string" required="yes" />
+		<cfset var list = createObject('component', 'supermodel.objectlist') />
+		<cfset var query = "" />
+		
+		<cfquery name="query" dbtype="query">
+			SELECT *
+			FROM variables.query
+			WHERE #arguments.condition#
+		</cfquery>
+		
+		<cfset list.init(variables.object, query) />
+		
+		<cfreturn list />
+	</cffunction>
+	
 	<cffunction name="setOrder" access="public" returntype="void">
 		<cfargument name="fields" type="string" required="yes" />
 		
