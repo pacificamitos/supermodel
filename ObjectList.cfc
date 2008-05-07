@@ -18,7 +18,7 @@
 		<cfquery name="query" dbtype="query">
 			SELECT *
 			FROM variables.query
-			WHERE #arguments.condition#
+			WHERE #preserveSingleQuotes(arguments.condition)#
 		</cfquery>
 		
 		<cfset list.init(variables.object, query) />
