@@ -94,8 +94,8 @@
 		<cfargument name="params" required="no" type="struct"
 			hint="A params struct can be used to load new values into the object before update it" />
 		
-		<cfif isDefined("arguments.params")>
-			<cfinvoke method="load" params="#params#" />
+		<cfif structKeyExists(arguments, 'params')>
+			<cfset load(params) />
 		</cfif>
 		
 		<cfif valid()>
@@ -315,17 +315,33 @@
 		<cfset var type = type(arguments.field_name) />
 
 		<!--- If the value is a date we must convert it to an ODBC date --->
-		<cfif (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') and value NEQ "">
-			<cftry>
-				<cfset value = LSParseDateTime(value) />		
-				<cfcatch>
-					<cfset value = ParseDateTime(value) />
-				</cfcatch>
-			</cftry>
-
-			
-			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+		<cfif isDate(value) OR (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') and value NEQ "">
+			<cfset value = makeDate(value) />
 		</cfif>
+
+		<cfreturn value />
+	</cffunction>
+	
+	<cffunction name="makeDate" access="private" returntype="string">
+		<cfargument name="value" type="string" required="yes" />
+		
+		<!--- First, see if we can create a valid date right off the bat --->
+		<cftry>
+			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+			<cfcatch>
+				<!--- Next, try parsing the value as a timestamp formatted in the current locale --->
+				<cftry>
+					<cfset value = LSParseDateTime(value) />		
+					<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+					
+					<!--- Finally, try assuming that it's a timestamp string that's not formatted for the current locale --->
+					<cfcatch>
+						<cfset value = ParseDateTime(value) />
+						<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+					</cfcatch>
+				</cftry>
+			</cfcatch>
+		</cftry>
 		
 		<cfreturn value />
 	</cffunction>
