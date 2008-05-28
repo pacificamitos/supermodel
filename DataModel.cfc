@@ -29,15 +29,22 @@
 
 		<cfset var object_name = ListLast(arguments.component, '.') />
 		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
+		<cfset var collection_name = "" />
 		
 		<cfif NOT structKeyExists(request, object_name)>
 			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
 			<cfset request[object_name].init(variables.dsn) />
 		</cfif>
 		
+		<cfset collection_name = request[object_name].getTableName() />
 		<cfset object_list.init(request[object_name], QueryNew('')) />
+		<cfset structInsert(this, collection_name, object_list) />
 		
-		<cfset structInsert(this, request[object_name].getTableName(), object_list) />
+		<cfif NOT structKeyExists(variables, 'collections')>
+			<cfset variables.collections = "" />
+		</cfif>
+		
+		<cfset variables.collections = listAppend(variables.collections, collection_name) />
 	</cffunction>
 	
 	<cffunction name="getGroupByColumn" access="public" returntype="string">
@@ -56,6 +63,10 @@
 	
 	<cffunction name="getTableName" access="public" returntype="string">
 		<cfreturn variables.table_name />
+	</cffunction>
+	
+	<cffunction name="getColumns" access="public" returntype="string">
+		<cfreturn variables.database_fields />
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------------- init
@@ -77,6 +88,53 @@
 		<cfset variables.primary_key = 'id' />
 		<cfset configure() />
 		<cfset injectAttributes() />
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------------- load
+
+	Description:
+	
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="load" access="public"  returntype="void">
+		<cfargument	name="data" required="yes" type="any" />
+		<cfargument name="fields"	default="" type="string" />
+		
+		<cfset var params = structNew() />
+		<cfset var query = "" />
+		
+		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
+		<cfset clear() />
+		
+		<!--- If we've received a recordset, we only need a single row right now --->		
+		<cfif isQuery(data)>
+			<cfloop list="#data.columnlist#" index="column">
+				<cfset params[column] = data[column][1] />
+			</cfloop>
+		<cfelse>
+			<cfset params = arguments.data />
+		</cfif>
+		
+		<cfif arguments.fields EQ "">
+			<cfset arguments.fields = StructKeyList(params) />
+		</cfif>
+
+		<!--- 
+			Loop over the list of fields and copy them from the params struct 
+			into the "This" struct 
+		--->
+		<cfloop list="#arguments.fields#" index="key">
+			<cfif StructKeyExists(This, key)>
+				<cfset StructInsert(This, key, StructFind(params, key), "True") />
+			</cfif>
+		</cfloop>
+		
+		<cfif structKeyExists(variables, 'collections')>
+
+			<cfloop list="#variables.collections#" index="collection">			
+				<cfset this[collection].setQuery(data) />
+			</cfloop>
+		</cfif>
 	</cffunction>
 	 
 <!---------------------------------------------------------------------------------------------- save

@@ -160,10 +160,14 @@
 			FROM variables.query
 			WHERE #variables.object.getGroupByColumn()# = #distinct_rows[variables.object.getGroupByColumn()][variables.current_row]#
 		</cfquery>
-		
-		<cfdump var="#subset#">
-		
+				
 		<cfset variables.object.load(subset) />
+	</cffunction>
+	
+	<cffunction name="columns" access="public" returntype="string">
+		<cfset var columns = ListAppend(variables.object.getColumns(),variables.object.getGroupByColumn()) />
+
+		<cfreturn columns />
 	</cffunction>
 	
 	<cffunction name="setQuery" access="public" returntype="void" output="false">

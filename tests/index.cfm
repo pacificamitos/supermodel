@@ -7,9 +7,9 @@
 
 <cfquery name="masterQuery" datasource="supermodel">
 	SELECT 
-		users.id AS user_id,
+		positions.manager_id,
+		positions.process_id,
 		positions.id AS position_id,
-		processes.id AS process_id,
 		name,
 		number,
 		title
@@ -47,12 +47,12 @@
 			<tr>
 				<td>#process.number#</td>
 			</tr>
-			<!---<cfloop condition="#process.positions.next()#">
+			<cfloop condition="#process.positions.next()#">
 				<cfset position = process.positions.current() />
 				<tr>
-					<td>#positions.title#</td>
+					<td>#position.title#</td>
 				</tr>
-			</cfloop>--->
+			</cfloop>
 		</cfloop>
 	</table>
 </cfloop>
