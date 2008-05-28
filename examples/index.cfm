@@ -16,23 +16,7 @@
 	<br />
 	<cfset title = ReReplace(title, "<[^>]*>", "", "all")>
 	<cfoutput>#title#</cfoutput>
-	
-	<!--- <cfset user = application.supermodelFactory.getInstance('supermodel.examples.User') />
-	<cfset user.read(1) />
-	
-	<cfset positionGateway = createObject('component', 'hr_staffing.model.positions.positiongateway') />
-	<cfset positionGateway.configure() />
-	<cfset positionGateway.init('hr_staffing') />
-	<cfset wtf = positionGateway.select() />
-	<cfdump var="#wtf#"> --->
-	
-<!--- 	<cfset positionServic<cfset positionService = createObject('component', 'hr_staffing.model.positions.positionService') />
-	<cfset userService = createObject('component', 'hr_staffing.model.users.userService') />
-	<cfset positions = positionService.getPositions() />
-	<cfdump var="#positions#">
-	<cfset user = userService.getUser('soltysa') />
-	<cfdump var="#user#"> --->
-	
+		
 	<cfset positionService = createObject('component', 'hr_staffing.model.positions.positionService') />
 	<cfset position = createObject('component', 'hr_staffing.model.positions.position') />
 	<cfset position.configure() />

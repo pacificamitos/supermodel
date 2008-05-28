@@ -41,7 +41,7 @@
 		<tr>
 			<th>Processes</th>
 		</tr>
-		<cfdump var="#manager.processes.toQuery()#">
+
 		<cfloop condition="#manager.processes.next()#">
 			<cfset process = manager.processes.current() />
 			<tr>

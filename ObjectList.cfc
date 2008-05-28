@@ -6,13 +6,19 @@
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
-		<cfif variables.object.getGroupByColumn() neq '' and variables.query.recordcount gt 0>
+		
+		<cfif variables.query.recordcount gt 0 AND variables.object.getGroupByColumn() neq ''>
+
 			<cfquery name="variables.distinct_rows" dbtype="query">
-				SELECT user_id
+				SELECT #variables.object.getGroupByColumn()#
 				FROM variables.query
 				GROUP BY #variables.object.getGroupByColumn()#
 			</cfquery>
+			
+			<cfset variables.length = variables.distinct_rows.recordcount />
+			
 		</cfif>
+		
 		<cfset reset() />
 	</cffunction>
 	
@@ -143,13 +149,21 @@
 	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">
 		
 		<cfset var row_values = StructNew() />
+		<cfset var subset = "" />
 		
 		<cfloop list="#query.columnlist#" index="column">
 			<cfset row_values[column] = query[column][variables.current_row] />
 		</cfloop>
 		
-	
-		<cfset variables.object.load(row_values) />
+		<cfquery name="subset" dbtype="query">
+			SELECT *
+			FROM variables.query
+			WHERE #variables.object.getGroupByColumn()# = #distinct_rows[variables.object.getGroupByColumn()][variables.current_row]#
+		</cfquery>
+		
+		<cfdump var="#subset#">
+		
+		<cfset variables.object.load(subset) />
 	</cffunction>
 	
 	<cffunction name="setQuery" access="public" returntype="void" output="false">
