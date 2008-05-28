@@ -7,6 +7,53 @@
 
 <cfcomponent name="DataModel" extends="supermodel.SuperModel">
 
+<!-------------------------------------------------------------------------------------------- hasMany
+
+	Description:	Takes in a component path (the type of component that this component has many of) and 
+	sets up an objectList of those components in a variable called 'this.components'
+	
+	For example, if you were to say manager.hasMany('supermodel.tests.process') then manager.processes
+	would give you an objectList of processes belonging to the manager.
+	
+	The function re-uses the same process object by putting it in the request scope and registering it
+	like so:
+	
+	request.process = createObject('component', 'supermodel.tests.process')
+	this.processes = objectList(request.process, blank_query) <-- query gets set during load()
+	
+	
+			
+----------------------------------------------------------------------------------------------------->	
+	<cffunction name="hasMany" access="private" returntype="void">
+		<cfargument name="component" type="string" required="yes" />
+
+		<cfset var object_name = ListLast(arguments.component, '.') />
+		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
+		<cfset
+		
+		<cfif NOT structKeyExists(request, object_name)>
+			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
+			<cfset request[object_name].init(variables.dsn) />
+		</cfif>
+		
+		<cfset object_list.init(request[object_name], QueryNew('')) />
+		
+		<cfset structInsert(this, request[object_name].getTableName(), object_list) />
+		<cfset this.processes = BlankObjectList />
+	</cffunction>
+	
+	<!--- Coming soon --->
+	<cffunction name="hasManyThrough" access="private" returntype="void">
+	</cffunction>
+	
+	<!--- Coming soon --->
+	<cffunction name="belongsTo" access="private" returntype="void">
+	</cffunction>
+	
+	<cffunction name="getTableName" access="public" returntype="string">
+		<cfreturn variables.table_name />
+	</cffunction>
+	
 <!---------------------------------------------------------------------------------------------- init
 
 	Description:	Constructs the object by reading all the columns from the database and creating 
@@ -17,10 +64,14 @@
 	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
 
-		<cfset configure() />
+		<cfif NOT structKeyExists(request, 'component_registry')>
+			<cfset request.component_registry = StructNew() />
+		</cfif>
+
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
+		<cfset configure() />
 		<cfset injectAttributes() />
 	</cffunction>
 	 
@@ -84,7 +135,7 @@
  		<cfset load(params) />
 	</cffunction>
 	
-<!-------------------------------------------------------------------------------------------- update
+<!--------------------------------------------------------------------------------------------- update
 
 	Description: Saves the content of the current object into the database.
 				
