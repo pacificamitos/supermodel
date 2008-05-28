@@ -1,12 +1,18 @@
 <cfcomponent>
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void" output="true">
 		<cfargument name="object" type="supermodel" required="yes" />
 		<cfargument name="query" type="query" required="yes" />
 		
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
-		
+		<cfif variables.object.getGroupByColumn() neq '' and variables.query.recordcount gt 0>
+			<cfquery name="variables.distinct_rows" dbtype="query">
+				SELECT user_id
+				FROM variables.query
+				GROUP BY #variables.object.getGroupByColumn()#
+			</cfquery>
+		</cfif>
 		<cfset reset() />
 	</cffunction>
 	
@@ -71,8 +77,7 @@
 	</cffunction>
 	
 	<cffunction name="next" access="public" returntype="boolean" output="false">
-		<cfset var row_values = StructNew() />
-
+		
 		<cfif variables.current_row EQ variables.length>
 			<cfreturn false />
 		</cfif>
@@ -136,10 +141,14 @@
 	</cffunction>
 		
 	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">
+		
+		<cfset var row_values = StructNew() />
+		
 		<cfloop list="#query.columnlist#" index="column">
 			<cfset row_values[column] = query[column][variables.current_row] />
 		</cfloop>
 		
+	
 		<cfset variables.object.load(row_values) />
 	</cffunction>
 	

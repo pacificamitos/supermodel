@@ -25,28 +25,8 @@
 <cfset managers = createObject('component', 'supermodel.objectlist') />
 <cfset managers.init(manager_object, masterQuery) />
 
-<cfquery name="managers_query" dbtype="query">
-	SELECT DISTINCT
-		user_id, name
-	FROM masterQuery
-</cfquery>
-
-<cfquery name="dans_positions" dbtype="query">
-	SELECT position_id, title
-	FROM masterQuery
-	WHERE user_id = 2
-</cfquery>
-
-<cfquery name="dans_processes" dbtype="query">
-	SELECT process_id, number
-	FROM masterQuery
-	WHERE user_id = 2
-</cfquery>
 
 <cfdump var="#masterQuery#">
-<cfdump var="#managers_query#">
-<cfdump var="#dans_positions#">
-<cfdump var="#dans_processes#">
 
 <cfoutput>
 
@@ -61,17 +41,18 @@
 		<tr>
 			<th>Processes</th>
 		</tr>
+		<cfdump var="#manager.processes.toQuery()#">
 		<cfloop condition="#manager.processes.next()#">
 			<cfset process = manager.processes.current() />
 			<tr>
 				<td>#process.number#</td>
 			</tr>
-			<cfloop condition="#process.positions.next()#">
+			<!---<cfloop condition="#process.positions.next()#">
 				<cfset position = process.positions.current() />
 				<tr>
 					<td>#positions.title#</td>
 				</tr>
-			</cfloop>
+			</cfloop>--->
 		</cfloop>
 	</table>
 </cfloop>

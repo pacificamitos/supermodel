@@ -29,7 +29,6 @@
 
 		<cfset var object_name = ListLast(arguments.component, '.') />
 		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
-		<cfset
 		
 		<cfif NOT structKeyExists(request, object_name)>
 			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
@@ -39,7 +38,12 @@
 		<cfset object_list.init(request[object_name], QueryNew('')) />
 		
 		<cfset structInsert(this, request[object_name].getTableName(), object_list) />
-		<cfset this.processes = BlankObjectList />
+	</cffunction>
+	
+	<cffunction name="getGroupByColumn" access="public" returntype="string">
+		
+		<cfreturn variables.group_by_column />	
+		
 	</cffunction>
 	
 	<!--- Coming soon --->
