@@ -146,22 +146,18 @@
 		<cfreturn result />
 	</cffunction>
 		
-	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">
+	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">		
+		<cfset var subquery = variables.query />
 		
-		<cfset var row_values = StructNew() />
-		<cfset var subset = "" />
-		
-		<cfloop list="#query.columnlist#" index="column">
-			<cfset row_values[column] = query[column][variables.current_row] />
-		</cfloop>
-		
-		<cfquery name="subset" dbtype="query">
-			SELECT *
-			FROM variables.query
-			WHERE #variables.object.getGroupByColumn()# = #distinct_rows[variables.object.getGroupByColumn()][variables.current_row]#
-		</cfquery>
+		<cfif variables.object.getGroupByColumn() NEQ "">
+			<cfquery name="subquery" dbtype="query">
+				SELECT *
+				FROM variables.query
+				WHERE #variables.object.getGroupByColumn()# = #distinct_rows[variables.object.getGroupByColumn()][variables.current_row]#
+			</cfquery>
+		</cfif>
 				
-		<cfset variables.object.load(subset) />
+		<cfset variables.object.load(subquery) />
 	</cffunction>
 	
 	<cffunction name="columns" access="public" returntype="string">

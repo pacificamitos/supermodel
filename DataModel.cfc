@@ -48,9 +48,11 @@
 	</cffunction>
 	
 	<cffunction name="getGroupByColumn" access="public" returntype="string">
-		
-		<cfreturn variables.group_by_column />	
-		
+		<cfif structKeyExists(variables, 'group_by_column')>
+			<cfreturn variables.group_by_column />	
+		<cfelse>
+			<cfreturn '' />
+		</cfif>
 	</cffunction>
 	
 	<!--- Coming soon --->

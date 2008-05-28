@@ -25,9 +25,6 @@
 <cfset managers = createObject('component', 'supermodel.objectlist') />
 <cfset managers.init(manager_object, masterQuery) />
 
-
-<cfdump var="#masterQuery#">
-
 <cfoutput>
 
 <h1>Managers</h1>
@@ -37,24 +34,19 @@
 	
 	<h2>#manager.name#</h2>
 
-	<table>
-		<tr>
-			<th>Processes</th>
-		</tr>
-
-		<cfloop condition="#manager.processes.next()#">
-			<cfset process = manager.processes.current() />
-			<tr>
-				<td>#process.number#</td>
-			</tr>
-			<cfloop condition="#process.positions.next()#">
-				<cfset position = process.positions.current() />
-				<tr>
-					<td>#position.title#</td>
-				</tr>
-			</cfloop>
-		</cfloop>
-	</table>
+	<cfloop condition="#manager.processes.next()#">
+		<cfset process = manager.processes.current() />
+		<p>
+			#process.number#
+	
+			<ul>
+				<cfloop condition="#process.positions.next()#">
+					<cfset position = process.positions.current() />
+					<li>#position.title#</li>
+				</cfloop>
+			</ul>
+		</p>
+	</cfloop>
 </cfloop>
 
 </cfoutput>
