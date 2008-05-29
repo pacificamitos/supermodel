@@ -218,6 +218,7 @@
 ----------------------------------------------------------------------------------------------------->
 	
 	<cffunction name="clear" access="public" returntype="void">		
+		
 		<cfloop list="#StructKeyList(variables.lazy_variables)#" index="property">
 			<cfset StructDelete(variables, property) />
 		</cfloop>

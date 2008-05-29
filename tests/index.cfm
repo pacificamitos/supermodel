@@ -76,11 +76,13 @@
 <cfset dan = createObject('component','manager') />
 <cfset dan.init('supermodel') />
 <cfset dan.read(2) />
+<cfset vince = createObject('component','manager') />
+<cfset vince.init('supermodel') />
+<cfset vince.read(3) />
 
 <cfset dan.positions.next() />
 <cfset george.positions.next() />
 
-<cfdump var="#dan.positions.toQuery()#">
 Dan's first position: #dan.positions.current().title#
 <br />
 George's first position: #george.positions.current().title#

@@ -30,15 +30,13 @@
 		<cfset var object_name = ListLast(arguments.component, '.') />
 		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
 		<cfset var collection_name = "" />
+		<cfset var object =  createObject('component', arguments.component) />
 		
-		<cfif NOT structKeyExists(request, object_name)>
-			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
-			<cfset request[object_name].init(variables.dsn) />
-			<cfset request[object_name].filter_key = object_name & '_id' />
-		</cfif>
+		<cfset object.init(variables.dsn) />
+		<cfset object.filter_key = object_name & '_id' />
 		
-		<cfset collection_name = request[object_name].getTableName() />
-		<cfset object_list.init(request[object_name], QueryNew('')) />
+		<cfset collection_name = object.getTableName() />
+		<cfset object_list.init(object, QueryNew('')) />
 		<cfset structInsert(this, collection_name, object_list) />
 		
 		<cfif NOT structKeyExists(variables, 'collections')>
@@ -96,6 +94,7 @@
 		<cfset variables.primary_key = 'id' />
 		<cfset configure() />
 		<cfset injectAttributes() />
+
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------------- load
@@ -225,8 +224,8 @@
 			
 		<cfset this.id = arguments.id />
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
-	
- 		<cfset load(rowToStruct(query)) />
+		
+ 		<cfset load(query) />
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------- rowToStruct
@@ -305,7 +304,10 @@
 		<cfset var query  = "" />
 
 		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT *
+			SELECT *,
+			<cfloop list="#variables.collections#" index="collection">
+				#collection#.id as #this[collection].getObject().filter_key#
+			</cfloop>
 			FROM #arguments.tables#
 			<cfloop list="#variables.collections#" index="collection">
 			JOIN #collection#
@@ -318,7 +320,7 @@
 			ORDER BY #arguments.ordering#
 			</cfif>
 		</cfquery>
-		
+
 		<cfreturn query />
 	</cffunction>
 

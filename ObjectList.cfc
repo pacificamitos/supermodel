@@ -63,6 +63,7 @@
 	</cffunction>
 	
 	<cffunction name="reset" access="public" returntype="void">
+		<cfset variables.object.clear() />
 		<cfset variables.current_row = 0 />
 	</cffunction>
 	
