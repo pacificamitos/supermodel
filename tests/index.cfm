@@ -5,6 +5,8 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
+<cfoutput>
+
 <cfquery name="masterQuery" datasource="supermodel">
 	SELECT 
 		positions.manager_id,
@@ -26,10 +28,10 @@
 <cfset managers = createObject('component', 'supermodel.objectlist') />
 <cfset managers.init(manager_object, masterQuery) />
 
-<cfoutput>
+
 
 <h1>Manager Processes</h1>
-<!--- 
+
 <cfloop condition="#managers.next()#">
 	<cfset manager = managers.current() />
 	
@@ -48,7 +50,7 @@
 			</ul>
 		</p>
 	</cfloop>
-</cfloop> --->
+</cfloop>
 
 <h1>Manager Positions</h1>
 
@@ -69,22 +71,5 @@
 </cfloop>
 
 
-<cfset george = createObject('component','manager') />
-<cfset george.init('supermodel') />
-<cfset george.read(1) />
-
-<cfset dan = createObject('component','manager') />
-<cfset dan.init('supermodel') />
-<cfset dan.read(2) />
-<cfset vince = createObject('component','manager') />
-<cfset vince.init('supermodel') />
-<cfset vince.read(3) />
-
-<cfset dan.positions.next() />
-<cfset george.positions.next() />
-
-Dan's first position: #dan.positions.current().title#
-<br />
-George's first position: #george.positions.current().title#
-
+	
 </cfoutput>

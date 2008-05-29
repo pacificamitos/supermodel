@@ -9,18 +9,7 @@
 
 <!-------------------------------------------------------------------------------------------- hasMany
 
-	Description:	Takes in a component path and sets up an objectList of those components in a variable 
-	called 'this.components'
-	
-	For example, if you were to say manager.hasMany('supermodel.tests.process') then manager.processes
-	would represent a list of processes belonging to the manager.
-	
-	The function re-uses the same process object by putting it in the request scope and registering it
-	like so:
-	
-	request.process = createObject('component', 'supermodel.tests.process')
-	this.processes = objectList(request.process, blank_query)  (query gets set on load)
-	variables.collections += 'processes'
+	Description:	Takes in a component path and sets up an objectList of those components
 			
 ----------------------------------------------------------------------------------------------------->
 
@@ -46,7 +35,12 @@
 		<cfset variables.collections = listAppend(variables.collections, collection_name) />
 	</cffunction>
 
-	<!--- Coming soon --->
+<!------------------------------------------------------------------------------------------ belongsTo
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
 	<cffunction name="belongsTo" access="private" returntype="void">
 		<cfargument name="component" type="string" required="yes" />
 
@@ -226,7 +220,7 @@
 		<cfset this.id = arguments.id />
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 		
- 		<cfset load(query) />
+ 		<cfset load(rowToStruct(query)) />
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------- rowToStruct
@@ -305,15 +299,8 @@
 		<cfset var query  = "" />
 
 		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT *
-			<cfloop list="#variables.collections#" index="collection">
-				,#collection#.id as #this[collection].getObject().filter_key#
-			</cfloop>
+			SELECT #arguments.columns#
 			FROM #arguments.tables#
-			<cfloop list="#variables.collections#" index="collection">
-			JOIN #collection#
-			ON #collection#.#this.filter_key# = #variables.table_name#.id
-			</cfloop>
 			<cfif arguments.conditions NEQ "">
 			WHERE #PreserveSingleQuotes(arguments.conditions)#
 			</cfif>
@@ -491,6 +478,12 @@
 
 		<cfreturn value />
 	</cffunction>
+	
+<!------------------------------------------------------------------------------------------- makeDate
+
+	Description:	Tries to convert a string into a date that can be inserted into the database
+			
+----------------------------------------------------------------------------------------------------->	
 	
 	<cffunction name="makeDate" access="private" returntype="string">
 		<cfargument name="value" type="string" required="yes" />
