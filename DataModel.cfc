@@ -89,6 +89,7 @@
 			<cfset request.component_registry = StructNew() />
 		</cfif>
 
+		<cfset variables.collections = '' />
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
@@ -304,9 +305,9 @@
 		<cfset var query  = "" />
 
 		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT *,
+			SELECT *
 			<cfloop list="#variables.collections#" index="collection">
-				#collection#.id as #this[collection].getObject().filter_key#
+				,#collection#.id as #this[collection].getObject().filter_key#
 			</cfloop>
 			FROM #arguments.tables#
 			<cfloop list="#variables.collections#" index="collection">
