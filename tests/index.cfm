@@ -22,6 +22,7 @@
 
 <cfset manager_object = createObject('component','manager') />
 <cfset manager_object.init('supermodel') />
+<cfset manager_object.filter_key = 'manager_id' />
 <cfset managers = createObject('component', 'supermodel.objectlist') />
 <cfset managers.init(manager_object, masterQuery) />
 

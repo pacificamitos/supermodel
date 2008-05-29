@@ -9,21 +9,21 @@
 
 <!-------------------------------------------------------------------------------------------- hasMany
 
-	Description:	Takes in a component path (the type of component that this component has many of) and 
-	sets up an objectList of those components in a variable called 'this.components'
+	Description:	Takes in a component path and sets up an objectList of those components in a variable 
+	called 'this.components'
 	
 	For example, if you were to say manager.hasMany('supermodel.tests.process') then manager.processes
-	would give you an objectList of processes belonging to the manager.
+	would represent a list of processes belonging to the manager.
 	
 	The function re-uses the same process object by putting it in the request scope and registering it
 	like so:
 	
 	request.process = createObject('component', 'supermodel.tests.process')
-	this.processes = objectList(request.process, blank_query) <-- query gets set during load()
-	
-	
+	this.processes = objectList(request.process, blank_query)  (query gets set on load)
+	variables.collections += 'processes'
 			
------------------------------------------------------------------------------------------------------>	
+----------------------------------------------------------------------------------------------------->
+
 	<cffunction name="hasMany" access="private" returntype="void">
 		<cfargument name="component" type="string" required="yes" />
 
@@ -34,6 +34,7 @@
 		<cfif NOT structKeyExists(request, object_name)>
 			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
 			<cfset request[object_name].init(variables.dsn) />
+			<cfset request[object_name].filter_key = object_name & '_id' />
 		</cfif>
 		
 		<cfset collection_name = request[object_name].getTableName() />
@@ -45,14 +46,6 @@
 		</cfif>
 		
 		<cfset variables.collections = listAppend(variables.collections, collection_name) />
-	</cffunction>
-	
-	<cffunction name="getGroupByColumn" access="public" returntype="string">
-		<cfif structKeyExists(variables, 'group_by_column')>
-			<cfreturn variables.group_by_column />	
-		<cfelse>
-			<cfreturn '' />
-		</cfif>
 	</cffunction>
 	
 	<!--- Coming soon --->
