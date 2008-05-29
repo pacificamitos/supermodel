@@ -127,15 +127,17 @@
 		<cfif arguments.fields EQ "">
 			<cfset arguments.fields = structKeyList(params) />
 		</cfif>
-
+		
 		<!--- 
 			Loop over the list of fields and copy them from the params struct 
 			into the "This" struct 
 		--->
 		<cfloop list="#arguments.fields#" index="key">
-			<cfif structKeyExists(this, key) AND this[key] NEQ params[key]>
-				<cfset structInsert(this, key, structFind(params, key), true) />
-				<cfset num_updated_fields = num_updated_fields + 1 />
+			<cfif structKeyExists(this, key)>
+				<cfif NOT isObject(params[key]) AND this[key] NEQ params[key]>
+					<cfset structInsert(this, key, structFind(params, key), true) />
+					<cfset num_updated_fields = num_updated_fields + 1 />
+				</cfif>
 			</cfif>
 		</cfloop>
 		
@@ -224,7 +226,25 @@
 		<cfset this.id = arguments.id />
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 	
- 		<cfset load(query) />
+ 		<cfset load(rowToStruct(query)) />
+	</cffunction>
+	
+<!---------------------------------------------------------------------------------------- rowToStruct
+
+	Description:	
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="rowToStruct" access="private" returntype="struct">
+		<cfargument name="query" type="query" required="yes" />
+		
+		<cfset var struct = structNew() />
+		
+		<cfloop list="#query.columnlist#" index="column">
+			<cfset struct[column] = query[column][query.currentrow] />
+		</cfloop>
+		
+		<cfreturn struct />
 	</cffunction>
 	
 <!--------------------------------------------------------------------------------------------- update
@@ -285,8 +305,12 @@
 		<cfset var query  = "" />
 
 		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT #arguments.columns#
+			SELECT *
 			FROM #arguments.tables#
+			<cfloop list="#variables.collections#" index="collection">
+			JOIN #collection#
+			ON #collection#.#this.filter_key# = #variables.table_name#.id
+			</cfloop>
 			<cfif arguments.conditions NEQ "">
 			WHERE #PreserveSingleQuotes(arguments.conditions)#
 			</cfif>

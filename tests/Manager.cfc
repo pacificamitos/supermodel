@@ -2,7 +2,7 @@
 
 	<cffunction name="configure" access="private" returntype="void">
 		<cfset super.configure() />
-		<cfset hasMany('supermodel.tests.process') />
+		<cfset this.filter_key = 'manager_id' />
 		<cfset hasMany('supermodel.tests.position') />
 	</cffunction>
 	

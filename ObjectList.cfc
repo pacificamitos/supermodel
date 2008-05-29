@@ -50,6 +50,10 @@
 		<cfset reset() />
 	</cffunction>
 	
+	<cffunction name="getObject" access="public" returntype="supermodel.datamodel">
+		<cfreturn variables.object />
+	</cffunction>
+	
 	<cffunction name="paginate" access="public" returntype="void">
 		<cfargument name="page" type="numeric" required="yes" />
 		<cfargument name="offset" type="numeric" required="yes" />
@@ -159,7 +163,7 @@
 			<cfset variables.object.clear() />
 			<cfset variables.object.load(subquery) />
 		<cfelse>
-			<cfset variables.object.load(variables.query) />
+			<cfset variables.object.load(rowToStruct(variables.query)) />
 		</cfif>
 	</cffunction>
 	
@@ -167,5 +171,17 @@
 		<cfargument name="query" type="query" required="yes" />
 		
 		<cfset init(variables.object,arguments.query) />
+	</cffunction>
+	
+	<cffunction name="rowToStruct" access="private" returntype="struct">
+		<cfargument name="query" type="query" required="yes" />
+		
+		<cfset var struct = structNew() />
+		
+		<cfloop list="#query.columnlist#" index="column">
+			<cfset struct[column] = query[column][variables.current_row] />
+		</cfloop>
+		
+		<cfreturn struct />
 	</cffunction>
 </cfcomponent>

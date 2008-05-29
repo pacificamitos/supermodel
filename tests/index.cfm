@@ -29,7 +29,7 @@
 <cfoutput>
 
 <h1>Manager Processes</h1>
-
+<!--- 
 <cfloop condition="#managers.next()#">
 	<cfset manager = managers.current() />
 	
@@ -48,7 +48,7 @@
 			</ul>
 		</p>
 	</cfloop>
-</cfloop>
+</cfloop> --->
 
 <h1>Manager Positions</h1>
 
@@ -61,8 +61,8 @@
 	<p>	
 		<ul>
 			<cfloop condition="#manager.positions.next()#">
-				<cfset position = process.positions.current() />
-				<li>#position.title# #position.id# #position.manager.positions.current().manager.positions.current().manager.name#</li>
+				<cfset position = manager.positions.current() />
+				<li>#position.title# #position.id# #position.manager.name#</li>
 			</cfloop>
 		</ul>
 	</p>
@@ -77,15 +77,12 @@
 <cfset dan.init('supermodel') />
 <cfset dan.read(2) />
 
-#dan.name#
-#george.name#
-#dan.name#
+<cfset dan.positions.next() />
+<cfset george.positions.next() />
 
-#dan.positions.next()#
-#george.positions.next()#
-
-#dan.positions.current().title#
-#george.positions.current().title#
-#dan.positions.current().title#
+<cfdump var="#dan.positions.toQuery()#">
+Dan's first position: #dan.positions.current().title#
+<br />
+George's first position: #george.positions.current().title#
 
 </cfoutput>
