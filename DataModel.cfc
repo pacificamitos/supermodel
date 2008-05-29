@@ -47,13 +47,26 @@
 		
 		<cfset variables.collections = listAppend(variables.collections, collection_name) />
 	</cffunction>
-	
-	<!--- Coming soon --->
-	<cffunction name="hasManyThrough" access="private" returntype="void">
-	</cffunction>
-	
+
 	<!--- Coming soon --->
 	<cffunction name="belongsTo" access="private" returntype="void">
+		<cfargument name="component" type="string" required="yes" />
+
+		<cfset var object_name = ListLast(arguments.component, '.') />
+		
+		<cfif NOT structKeyExists(request, object_name)>
+			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
+			<cfset request[object_name].init(variables.dsn) />
+			<cfset request[object_name].filter_key = object_name & '_id' />
+		</cfif>
+		
+		<cfset structInsert(this, object_name, request[object_name]) />
+		
+		<cfif NOT structKeyExists(variables, 'objects')>
+			<cfset variables.objects = "" />
+		</cfif>
+		
+		<cfset variables.objects = listAppend(variables.objects, object_name) />
 	</cffunction>
 	
 	<cffunction name="getTableName" access="public" returntype="string">
@@ -97,7 +110,8 @@
 		
 		<cfset var params = structNew() />
 		<cfset var query = "" />
-		
+		<cfset var num_updated_fields = 0 />
+				
 		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
 		<cfset clear() />
 		
@@ -111,7 +125,7 @@
 		</cfif>
 		
 		<cfif arguments.fields EQ "">
-			<cfset arguments.fields = StructKeyList(params) />
+			<cfset arguments.fields = structKeyList(params) />
 		</cfif>
 
 		<!--- 
@@ -119,13 +133,40 @@
 			into the "This" struct 
 		--->
 		<cfloop list="#arguments.fields#" index="key">
-			<cfif StructKeyExists(This, key)>
-				<cfset StructInsert(This, key, StructFind(params, key), "True") />
+			<cfif structKeyExists(this, key) AND this[key] NEQ params[key]>
+				<cfset structInsert(this, key, structFind(params, key), true) />
+				<cfset num_updated_fields = num_updated_fields + 1 />
 			</cfif>
 		</cfloop>
 		
-		<cfif structKeyExists(variables, 'collections')>
-
+		<!--- 
+			If the load had no effect, we stop now to prevent an infinite loop
+		 --->
+		<cfif num_updated_fields EQ 0>
+			<cfreturn />
+		</cfif>
+		
+		<!--- 
+			The id column may not be called 'id' in the dataset, it might be something like 'position_id'
+			We can check and see if any of the columns look like our 'filter_key' and set the id to that
+		--->
+		<cfif structKeyExists(this, 'filter_key') AND structKeyExists(params, this.filter_key)>
+		 	<cfset this.id = params[this.filter_key] />
+		</cfif>
+		
+		<!--- 
+			Load all the single objects
+		 --->
+		<cfif structKeyExists(variables, 'objects')>
+			<cfloop list="#variables.objects#" index="object">			
+				<cfset this[object].load(data) />
+			</cfloop>
+		</cfif>
+		
+		<!--- 
+			Load all the object lists 
+		--->
+		<cfif structKeyExists(variables, 'collections') AND isQuery(data)>
 			<cfloop list="#variables.collections#" index="collection">			
 				<cfset this[collection].setQuery(data) />
 			</cfloop>
@@ -182,14 +223,8 @@
 			
 		<cfset this.id = arguments.id />
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
-
-		<cfif query.recordcount EQ 1>
-			<cfloop list="#query.columnlist#" index="column">
-				<cfset StructInsert(params, column, Evaluate("query.#column#"), true) />
-			</cfloop>
-		</cfif>
 	
- 		<cfset load(params) />
+ 		<cfset load(query) />
 	</cffunction>
 	
 <!--------------------------------------------------------------------------------------------- update
@@ -250,7 +285,7 @@
 		<cfset var query  = "" />
 
 		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT #arguments.columns# 
+			SELECT #arguments.columns#
 			FROM #arguments.tables#
 			<cfif arguments.conditions NEQ "">
 			WHERE #PreserveSingleQuotes(arguments.conditions)#

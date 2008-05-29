@@ -28,7 +28,7 @@
 
 <cfoutput>
 
-<h1>Managers</h1>
+<h1>Manager Processes</h1>
 
 <cfloop condition="#managers.next()#">
 	<cfset manager = managers.current() />
@@ -49,5 +49,43 @@
 		</p>
 	</cfloop>
 </cfloop>
+
+<h1>Manager Positions</h1>
+
+<cfset managers.reset() />
+<cfloop condition="#managers.next()#">
+	<cfset manager = managers.current() />
+	
+	<h2>#manager.name#</h2>
+
+	<p>	
+		<ul>
+			<cfloop condition="#manager.positions.next()#">
+				<cfset position = process.positions.current() />
+				<li>#position.title# #position.id# #position.manager.positions.current().manager.positions.current().manager.name#</li>
+			</cfloop>
+		</ul>
+	</p>
+</cfloop>
+
+
+<cfset george = createObject('component','manager') />
+<cfset george.init('supermodel') />
+<cfset george.read(1) />
+
+<cfset dan = createObject('component','manager') />
+<cfset dan.init('supermodel') />
+<cfset dan.read(2) />
+
+#dan.name#
+#george.name#
+#dan.name#
+
+#dan.positions.next()#
+#george.positions.next()#
+
+#dan.positions.current().title#
+#george.positions.current().title#
+#dan.positions.current().title#
 
 </cfoutput>

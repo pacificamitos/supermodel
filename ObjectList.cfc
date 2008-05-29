@@ -156,6 +156,7 @@
 				FROM variables.query
 				WHERE #variables.object.filter_key# = #variables.distinct_rows[variables.object.filter_key][variables.current_row]#
 			</cfquery>
+			<cfset variables.object.clear() />
 			<cfset variables.object.load(subquery) />
 		<cfelse>
 			<cfset variables.object.load(variables.query) />

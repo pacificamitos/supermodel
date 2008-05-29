@@ -16,6 +16,7 @@
 		hint="Initializes the object">
 		<cfset variables.errors  = StructNew() />
 		<cfset variables.lazy_variables = StructNew() />
+		<cfset variables.loaded = false />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -212,14 +213,16 @@
 	
 <!---------------------------------------------------------------------------------------------- clear
 
-	Description:	Check if the given property is stale or not
+	Description:	Get rid of all lazy-loaded variables
 			
 ----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="clear" access="private" returntype="void">		
+	<cffunction name="clear" access="public" returntype="void">		
 		<cfloop list="#StructKeyList(variables.lazy_variables)#" index="property">
 			<cfset StructDelete(variables, property) />
 		</cfloop>
+		
+		<cfset variables.loaded = false />
 	</cffunction>
 	
 <!--------------------------------------------------------------------------------------------- define
