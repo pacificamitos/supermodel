@@ -1,5 +1,12 @@
 <cfcomponent>
-	<cffunction name="init" access="public" returntype="void" output="true">
+
+<!----------------------------------------------------------------------------------------------- init
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="init" access="public" returntype="void" output="false">
 		<cfargument name="object" type="supermodel" required="yes" />
 		<cfargument name="query" type="query" required="yes" />
 		
@@ -22,7 +29,13 @@
 		<cfset reset() />
 	</cffunction>
 	
-	<cffunction name="filter" access="public" returntype="supermodel.objectlist">
+<!--------------------------------------------------------------------------------------------- filter
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="filter" access="public" returntype="supermodel.objectlist" output="false">
 		<cfargument name="condition" type="string" required="yes" />
 		<cfset var list = createObject('component', 'supermodel.objectlist') />
 		<cfset var query = "" />
@@ -38,7 +51,13 @@
 		<cfreturn list />
 	</cffunction>
 	
-	<cffunction name="setOrder" access="public" returntype="void">
+<!------------------------------------------------------------------------------------------- setOrder
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="setOrder" access="public" returntype="void" output="false">
 		<cfargument name="fields" type="string" required="yes" />
 		
 		<cfquery name="variables.query" dbtype="query">
@@ -50,10 +69,22 @@
 		<cfset reset() />
 	</cffunction>
 	
-	<cffunction name="getObject" access="public" returntype="supermodel.datamodel">
+<!------------------------------------------------------------------------------------------ getObject
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="getObject" access="public" returntype="supermodel.datamodel" output="false">
 		<cfreturn variables.object />
 	</cffunction>
 	
+<!------------------------------------------------------------------------------------------- paginate
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
 	<cffunction name="paginate" access="public" returntype="void">
 		<cfargument name="page" type="numeric" required="yes" />
 		<cfargument name="offset" type="numeric" required="yes" />
@@ -62,31 +93,67 @@
 		<cfset variables.length = min(variables.query.recordcount, arguments.offset) />
 	</cffunction>
 	
-	<cffunction name="reset" access="public" returntype="void">
+<!---------------------------------------------------------------------------------------------- reset
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="reset" access="public" returntype="void" output="false">
 		<cfset variables.current_row = 0 />
 	</cffunction>
 	
-	<cffunction name="length" access="public" returntype="numeric">
+<!--------------------------------------------------------------------------------------------- length
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="length" access="public" returntype="numeric" output="false">
 		<cfreturn variables.length />
 	</cffunction>
+
+<!-------------------------------------------------------------------------------------------- current
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="current" access="public" returntype="supermodel">
+	<cffunction name="current" access="public" returntype="supermodel" output="false">
 		<cfreturn variables.object />
 	</cffunction>
+
+<!--------------------------------------------------------------------------------------- currentIndex
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="currentIndex" access="public" returntype="numeric">
+	<cffunction name="currentIndex" access="public" returntype="numeric" output="false">
 		<cfreturn variables.current_row />
 	</cffunction>
+
+<!-------------------------------------------------------------------------------------------- jump_to
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="jump_to" access="public" returntype="void">
+	<cffunction name="jump_to" access="public" returntype="void" output="false">
 		<cfargument name="row" type="numeric" required="yes" />
 		
 		<cfset current_row = arguments.row />
 		
 		<cfset loadCurrentValues() />
 	</cffunction>
+
+<!----------------------------------------------------------------------------------------------- next
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="next" access="public" returntype="boolean">
+	<cffunction name="next" access="public" returntype="boolean" output="false">
 		
 		<cfif variables.current_row EQ variables.length>
 			<cfreturn false />
@@ -98,8 +165,14 @@
 		
 		<cfreturn true />
 	</cffunction>
+
+<!----------------------------------------------------------------------------------------------- prev
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="prev" access="public" returntype="boolean">
+	<cffunction name="prev" access="public" returntype="boolean" output="false">
 		<cfset var row_values = StructNew() />
 		
 		<cfif variables.current_row EQ 0>
@@ -112,8 +185,14 @@
 		
 		<cfreturn true />
 	</cffunction>
+
+<!-------------------------------------------------------------------------------------------- toArray
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="toArray" access="public" returntype="array">
+	<cffunction name="toArray" access="public" returntype="array" output="false">
 		<cfset var array = ArrayNew(1) />
 		<cfset var saved_current_row = variables.current_row />
 		<cfset var i = 1 />
@@ -130,11 +209,23 @@
 		<cfreturn array />
 	</cffunction>
 	
-	<cffunction name="toQuery" access="public" returntype="query">
+<!-------------------------------------------------------------------------------------------- toQuery
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="toQuery" access="public" returntype="query" output="false">
 		<cfreturn variables.query />
 	</cffunction>
+
+<!------------------------------------------------------------------------------------------ toOptions
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="toOptions" access="public" returntype="query">
+	<cffunction name="toOptions" access="public" returntype="query" output="false">
 		<cfargument name="value_field" type="string" required="yes" />
 		<cfargument name="label_field" type="string" required="yes" />
 		
@@ -149,8 +240,14 @@
 		
 		<cfreturn result />
 	</cffunction>
+
+<!---------------------------------------------------------------------------------- loadCurrentValues
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 		
-	<cffunction name="loadCurrentValues" access="private" returntype="void">		
+	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">		
 		<cfset var subquery = "" />
 		
 		<cfif structKeyExists(variables.object, 'filter_key')>
@@ -166,14 +263,20 @@
 			<cfset variables.object.load(rowToStruct(variables.query)) />
 		</cfif>
 	</cffunction>
+
+<!------------------------------------------------------------------------------------------- setQuery
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
 	
-	<cffunction name="setQuery" access="public" returntype="void">
+	<cffunction name="setQuery" access="public" returntype="void" output="false">
 		<cfargument name="query" type="query" required="yes" />
 		
 		<cfset init(variables.object,arguments.query) />
 	</cffunction>
 	
-	<cffunction name="rowToStruct" access="private" returntype="struct">
+	<cffunction name="rowToStruct" access="private" returntype="struct" output="false">
 		<cfargument name="query" type="query" required="yes" />
 		
 		<cfset var struct = structNew() />
