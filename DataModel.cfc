@@ -195,7 +195,7 @@
 			hint="A params struct can be used to load new values into the object before inserting it" />
 		
 		<cfif structKeyExists(arguments, 'params')>
-			<cfinvoke method="load" params="#params#" />
+			<cfset load(arguments.params) />
 		</cfif>
 		
 		<cfif valid()>		
@@ -248,11 +248,10 @@
 ----------------------------------------------------------------------------------------------------->	
 	
 	<cffunction name="update" access="public" returntype="void">
-		<cfargument name="params" required="no" type="struct"
-			hint="A params struct can be used to load new values into the object before update it" />
+		<cfargument name="params" required="no" type="struct" />
 		
 		<cfif structKeyExists(arguments, 'params')>
-			<cfset load(params) />
+			<cfset load(arguments.params) />
 		</cfif>
 		
 		<cfif valid()>
