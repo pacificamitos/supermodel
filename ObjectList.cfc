@@ -89,8 +89,8 @@
 		<cfargument name="page" type="numeric" required="yes" />
 		<cfargument name="offset" type="numeric" required="yes" />
 		
-		<cfset variables.current_row = (arguments.page - 1) />
-		<cfset variables.length = min(variables.query.recordcount, arguments.offset) />
+		<cfset variables.current_row = (arguments.page - 1) * (arguments.offset) />
+		<cfset variables.length = min(variables.query.recordcount, (arguments.offset) * (arguments.page)) />
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------------- reset
