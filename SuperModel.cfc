@@ -76,6 +76,18 @@
 		<cfreturn  thisIsValid />
 	</cffunction>	
 	
+<!--------------------------------------------------------------------------------------------- isValid
+
+	Description: Validates the object's attributes
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="isVerified" access="public" returntype="boolean">
+		
+		<cfreturn structIsEmpty(variables.errors) />
+
+	</cffunction>
+	
 <!---------------------------------------------------------------------------------------------- help
 
 	Description:	Given a field name, returns the corresponding help message if one exists.
