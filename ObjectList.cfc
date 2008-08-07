@@ -14,16 +14,15 @@
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
 		
-		<cfif variables.query.recordcount GT 0 AND structKeyExists(variables.object, 'filter_key')>
+		<cfif variables.query.recordcount GT 0 AND structKeyExists(variables.object, 'prefix')>
 
 			<cfquery name="variables.distinct_rows" dbtype="query">
-				SELECT #variables.object.filter_key#
+				SELECT #variables.object.prefix#id
 				FROM variables.query
-				GROUP BY #variables.object.filter_key#
+				GROUP BY #variables.object.prefix#id
 			</cfquery>
 			
 			<cfset variables.length = variables.distinct_rows.recordcount />
-			
 		</cfif>
 		
 		<cfset reset() />
@@ -250,14 +249,15 @@
 	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">		
 		<cfset var subquery = "" />
 		
-		<cfif structKeyExists(variables.object, 'filter_key')>
+		<cfif structKeyExists(variables.object, 'prefix')>
 		
 			<cfquery name="subquery" dbtype="query">
 				SELECT *
 				FROM variables.query
-				WHERE #variables.object.filter_key# = #variables.distinct_rows[variables.object.filter_key][variables.current_row]#
+				WHERE #variables.object.prefix#id = 
+				#variables.distinct_rows[variables.object.prefix & 'id'][variables.current_row]#
 			</cfquery>
-			<cfset variables.object.clear() />
+			
 			<cfset variables.object.load(subquery) />
 		<cfelse>
 			<cfset variables.object.load(rowToStruct(variables.query)) />

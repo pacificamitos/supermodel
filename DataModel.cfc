@@ -6,68 +6,6 @@
 ----------------------------------------------------------------------------------------------------->	
 
 <cfcomponent name="DataModel" extends="supermodel.SuperModel">
-
-<!-------------------------------------------------------------------------------------------- hasMany
-
-	Description:	Takes in a component path and sets up an objectList of those components
-			
------------------------------------------------------------------------------------------------------>
-
-	<cffunction name="hasMany" access="private" returntype="void">
-		<cfargument name="component" type="string" required="yes" />
-
-		<cfset var object_name = ListLast(arguments.component, '.') />
-		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
-		<cfset var collection_name = "" />
-		<cfset var object =  createObject('component', arguments.component) />
-		
-		<cfset object.init(variables.dsn) />
-		<cfset object.filter_key = object_name & '_id' />
-		
-		<cfset collection_name = object.getTableName() />
-		<cfset object_list.init(object, QueryNew('')) />
-		<cfset structInsert(this, collection_name, object_list) />
-		
-		<cfif NOT structKeyExists(variables, 'collections')>
-			<cfset variables.collections = "" />
-		</cfif>
-		
-		<cfset variables.collections = listAppend(variables.collections, collection_name) />
-	</cffunction>
-
-<!------------------------------------------------------------------------------------------ belongsTo
-
-	Description:
-			
------------------------------------------------------------------------------------------------------>
-
-	<cffunction name="belongsTo" access="private" returntype="void">
-		<cfargument name="component" type="string" required="yes" />
-
-		<cfset var object_name = ListLast(arguments.component, '.') />
-		
-		<cfif NOT structKeyExists(request, object_name)>
-			<cfset structInsert(request, object_name, createObject('component', arguments.component)) />
-			<cfset request[object_name].init(variables.dsn) />
-			<cfset request[object_name].filter_key = object_name & '_id' />
-		</cfif>
-		
-		<cfset structInsert(this, object_name, request[object_name]) />
-		
-		<cfif NOT structKeyExists(variables, 'objects')>
-			<cfset variables.objects = "" />
-		</cfif>
-		
-		<cfset variables.objects = listAppend(variables.objects, object_name) />
-	</cffunction>
-	
-	<cffunction name="getTableName" access="public" returntype="string">
-		<cfreturn variables.table_name />
-	</cffunction>
-	
-	<cffunction name="getColumns" access="public" returntype="string">
-		<cfreturn variables.database_fields />
-	</cffunction>
 	
 <!---------------------------------------------------------------------------------------------- init
 
@@ -78,10 +16,6 @@
 
 	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
-
-		<cfif NOT structKeyExists(request, 'component_registry')>
-			<cfset request.component_registry = StructNew() />
-		</cfif>
 
 		<cfset variables.collections = '' />
 		<cfset super.init() />
@@ -102,7 +36,9 @@
 		<cfargument	name="data" required="yes" type="any" />
 		<cfargument name="fields"	default="" type="string" />
 		
+		<cfset var key = "" />
 		<cfset var params = structNew() />
+		<cfset var params_key = "" />
 		<cfset var query = "" />
 		<cfset var num_updated_fields = 0 />
 				
@@ -124,12 +60,25 @@
 		
 		<!--- 
 			Loop over the list of fields and copy them from the params struct 
-			into the "This" struct 
+			into the "this" struct 
 		--->
-		<cfloop list="#arguments.fields#" index="key">
+		<cfloop list="#arguments.fields#" index="params_key">
+			<cfset params_key = LCase(params_key) />
+			
+			<!--- 
+				The columns may be prefixed if they are part of a JOIN in which case 'id' might be something 
+				like 'position_id' or 'name' might be 'position_name' in the query.  In this case, the key
+				we use to index the object must have the prefix stripped off.
+			--->
+			<cfif structKeyExists(this, 'prefix')>
+				<cfset key = Replace(params_key, this.prefix, "") />
+			<cfelse>
+				<cfset key = params_key />
+			</cfif>
+			
 			<cfif structKeyExists(this, key)>
-				<cfif NOT isObject(params[key]) AND this[key] NEQ params[key]>
-					<cfset structInsert(this, key, structFind(params, key), true) />
+				<cfif NOT isObject(params[params_key]) AND this[key] NEQ params[params_key]>
+					<cfset structInsert(this, key, structFind(params, params_key), true) />
 					<cfset num_updated_fields = num_updated_fields + 1 />
 				</cfif>
 			</cfif>
@@ -141,17 +90,9 @@
 		<cfif num_updated_fields EQ 0>
 			<cfreturn />
 		</cfif>
-		
+
 		<!--- 
-			The id column may not be called 'id' in the dataset, it might be something like 'position_id'
-			We can check and see if any of the columns look like our 'filter_key' and set the id to that
-		--->
-		<cfif structKeyExists(this, 'filter_key') AND structKeyExists(params, this.filter_key)>
-		 	<cfset this.id = params[this.filter_key] />
-		</cfif>
-		
-		<!--- 
-			Load all the single objects
+			Load all the single objects from belongTo relations
 		 --->
 		<cfif structKeyExists(variables, 'objects')>
 			<cfloop list="#variables.objects#" index="object">			
@@ -160,7 +101,7 @@
 		</cfif>
 		
 		<!--- 
-			Load all the object lists 
+			Load all the object lists from hasMany relations
 		--->
 		<cfif structKeyExists(variables, 'collections') AND isQuery(data)>
 			<cfloop list="#variables.collections#" index="collection">			
@@ -221,26 +162,17 @@
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 		
  		<cfset load(rowToStruct(query)) />
+		
+		<!--- 
+			Read all the single objects from belongTo relations
+		 --->
+		<cfif structKeyExists(variables, 'objects')>
+			<cfloop list="#variables.objects#" index="object">			
+				<cfset this[object].read(this[this[object].prefix & 'id']) />
+			</cfloop>
+		</cfif>
 	</cffunction>
-	
-<!---------------------------------------------------------------------------------------- rowToStruct
-
-	Description:	
-			
------------------------------------------------------------------------------------------------------>	
-	
-	<cffunction name="rowToStruct" access="private" returntype="struct">
-		<cfargument name="query" type="query" required="yes" />
 		
-		<cfset var struct = structNew() />
-		
-		<cfloop list="#query.columnlist#" index="column">
-			<cfset struct[column] = query[column][query.currentrow] />
-		</cfloop>
-		
-		<cfreturn struct />
-	</cffunction>
-	
 <!--------------------------------------------------------------------------------------------- update
 
 	Description: Saves the content of the current object into the database.
@@ -268,6 +200,66 @@
 	<cffunction name="delete" access="public" returntype="void">
 		<cfinvoke method="deleteQuery" />
 	</cffunction>
+		
+<!-------------------------------------------------------------------------------------------------->
+<!------------------------------------- Relationship Helpers --------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
+	
+<!-------------------------------------------------------------------------------------------- hasMany
+
+	Description:	Takes in a component path and sets up an objectList of those components
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="hasMany" access="private" returntype="void">
+		<cfargument name="name" type="string" required="yes" />
+		<cfargument name="component" type="string" required="yes" />
+
+		<cfset var object_name = ListLast(arguments.component, '.') />
+		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
+		<cfset var object =  createObject('component', arguments.component) />
+		
+		<cfset object.init(variables.dsn) />
+		<cfset object.prefix = arguments.name />
+		
+		<cfset object_list.init(object, QueryNew('')) />
+		<cfset structInsert(this, arguments.name, object_list) />
+		
+		<cfif NOT structKeyExists(variables, 'collections')>
+			<cfset variables.collections = "" />
+		</cfif>
+		
+		<cfset variables.collections = listAppend(variables.collections, arguments.name) />
+	</cffunction>
+
+<!------------------------------------------------------------------------------------------ belongsTo
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="belongsTo" access="private" returntype="void">
+		<cfargument name="name" type="string" required="yes" />
+		<cfargument name="component" type="string" required="yes" />
+				
+		<cfif NOT structKeyExists(request, arguments.name)>
+			<cfset structInsert(request, arguments.name, createObject('component', arguments.component)) />
+			<cfset request[arguments.name].init(variables.dsn) />
+			<cfset request[arguments.name].prefix = arguments.name & '_' />
+		</cfif>
+		
+		<cfset structInsert(this, arguments.name, request[arguments.name]) />
+		
+		<cfif NOT structKeyExists(variables, 'objects')>
+			<cfset variables.objects = "" />
+		</cfif>
+		
+		<cfset variables.objects = listAppend(variables.objects, arguments.name) />
+	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------------->
+<!------------------------------------------- Accessors -------------------------------------------->
+<!-------------------------------------------------------------------------------------------------->
 	
 <!------------------------------------------------------------------------------------------ persisted
 
@@ -277,6 +269,26 @@
 
 	<cffunction name="persisted" access="public" returntype="boolean">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "" AND this.id NEQ 0>
+	</cffunction>
+	
+<!--------------------------------------------------------------------------------------- getTableName
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="getTableName" access="public" returntype="string">
+		<cfreturn variables.table_name />
+	</cffunction>
+	
+<!----------------------------------------------------------------------------------------- getColumns
+
+	Description:
+			
+----------------------------------------------------------------------------------------------------->
+	
+	<cffunction name="getColumns" access="public" returntype="string">
+		<cfreturn variables.database_fields />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->
@@ -592,4 +604,22 @@
 			</cfdefaultcase>
 		</cfswitch>
 	</cffunction>	
+	
+<!---------------------------------------------------------------------------------------- rowToStruct
+
+	Description:	
+			
+----------------------------------------------------------------------------------------------------->	
+	
+	<cffunction name="rowToStruct" access="private" returntype="struct">
+		<cfargument name="query" type="query" required="yes" />
+		
+		<cfset var struct = structNew() />
+		
+		<cfloop list="#query.columnlist#" index="column">
+			<cfset struct[column] = query[column][query.currentrow] />
+		</cfloop>
+		
+		<cfreturn struct />
+	</cffunction>
 </cfcomponent>

@@ -8,8 +8,9 @@
 ----------------------------------------------------------------------------------------------------->	
 	
 	<cffunction name="configure" access="public" returntype="void">
-		<cfset variables.object_path = 'supermodel.examples.user' />
 		<cfset variables.table_name = 'users' />
+		<cfset belongsTo('supermodel.examples.Company') />
+		<cfset hasMany('supermodel.examples.Weapon') />
 	</cffunction>
 
 </cfcomponent>
