@@ -22,6 +22,7 @@
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
 		<cfset configure() />
+
 		<cfset injectAttributes() />
 
 	</cffunction>
@@ -80,6 +81,7 @@
 				<cfif NOT isObject(params[params_key]) AND this[key] NEQ params[params_key]>
 					<cfset structInsert(this, key, structFind(params, params_key), true) />
 					<cfset num_updated_fields = num_updated_fields + 1 />
+					<cfset structDelete(params, key) />
 				</cfif>
 			</cfif>
 		</cfloop>
@@ -92,11 +94,11 @@
 		</cfif>
 
 		<!--- 
-			Load all the single objects from belongTo relations
+			Load all the single objects from belongsTo relations
 		 --->
 		<cfif structKeyExists(variables, 'objects')>
 			<cfloop list="#variables.objects#" index="object">			
-				<cfset this[object].load(data) />
+				<cfset this[object].load(params) />
 			</cfloop>
 		</cfif>
 		
@@ -241,15 +243,21 @@
 	<cffunction name="belongsTo" access="private" returntype="void">
 		<cfargument name="name" type="string" required="yes" />
 		<cfargument name="component" type="string" required="yes" />
-				
+		
+			<cfset structInsert(this, arguments.name, createObject('component', arguments.component), true) />
+			<cfset this[arguments.name].init(variables.dsn) />
+			<cfset this[arguments.name].prefix = arguments.name & '_' />
+			<cfset this[arguments.name].parent = this />
+
+<!--- 
 		<cfif NOT structKeyExists(request, arguments.name)>
 			<cfset structInsert(request, arguments.name, createObject('component', arguments.component)) />
 			<cfset request[arguments.name].init(variables.dsn) />
 			<cfset request[arguments.name].prefix = arguments.name & '_' />
-		</cfif>
-		
+		</cfif> 
+
 		<cfset structInsert(this, arguments.name, request[arguments.name]) />
-		
+ --->
 		<cfif NOT structKeyExists(variables, 'objects')>
 			<cfset variables.objects = "" />
 		</cfif>
