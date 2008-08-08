@@ -21,6 +21,7 @@
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
+		<cfset this.group_by = 'id' />
 		<cfset configure() />
 
 		<cfset injectAttributes() />
@@ -101,6 +102,7 @@
 		<!--- 
 			Load all the single objects from belongsTo relations
 		 --->
+
 		<cfif structKeyExists(variables, 'objects')>
 			<cfloop list="#variables.objects#" index="object">			
 				<cfset this[object].load(params) />
@@ -110,8 +112,9 @@
 		<!--- 
 			Load all the object lists from hasMany relations
 		--->
-		<cfif structKeyExists(variables, 'collections') AND isQuery(data)>
-			<cfloop list="#variables.collections#" index="collection">			
+		
+		<cfif structKeyExists(variables, 'collections') AND isQuery(data)>							
+			<cfloop list="#variables.collections#" index="collection">
 				<cfset this[collection].setQuery(data) />
 			</cfloop>
 		</cfif>
@@ -180,6 +183,16 @@
 				<cfset this[object].read(this[this[object].prefix & 'id']) />
 			</cfloop>
 		</cfif>
+		
+		<!--- 
+			Read all the collections from the hasMany relations
+		 --->
+		 
+		 <cfif structKeyExists(variables, 'collections')>
+		 	<cfloop list="#variables.collections#" index="collection">			
+				<cfset this[collection].setQuery(query) />
+			</cfloop>
+		 </cfif>
 	</cffunction>
 		
 <!--------------------------------------------------------------------------------------------- update
@@ -223,6 +236,7 @@
 	<cffunction name="hasMany" access="private" returntype="void">
 		<cfargument name="name" type="string" required="yes" />
 		<cfargument name="component" type="string" required="yes" />
+		<cfargument name="prefix" type="string" required="yes" />
 
 		<cfset var object_name = ListLast(arguments.component, '.') />
 		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
@@ -230,8 +244,9 @@
 		
 		<cfset object.parent = this />
 		<cfset object.init(variables.dsn) />
-		<cfset object.prefix = arguments.name />
-		
+		<cfset object.prefix = arguments.prefix & '_' />
+		<cfset object.group_by = object.prefix & 'id' />
+
 		<cfset object_list.init(object, QueryNew('')) />
 		<cfset structInsert(this, arguments.name, object_list) />
 		
@@ -327,6 +342,10 @@
 		<cfargument name="ordering" default="" />
 		
 		<cfset var query  = "" />
+		
+		<cfif structKeyExists(variables, 'collections')>
+			<cfthrow message="You have to write your own selectQuery when you specify a hasMany relation" />
+		</cfif>
 
 		<cfquery name="query" datasource="#variables.dsn#">
 			SELECT #arguments.columns#

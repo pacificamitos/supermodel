@@ -6,20 +6,20 @@
 			
 ----------------------------------------------------------------------------------------------------->
 
-	<cffunction name="init" access="public" returntype="void" output="false">
+	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="object" type="supermodel" required="yes" />
 		<cfargument name="query" type="query" required="yes" />
 		
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
-		
-		<cfif variables.query.recordcount GT 0 AND structKeyExists(variables.object, 'prefix')>
+		<cfdump var="#variables.query#">
+		<cfif variables.query.recordcount GT 0 AND structKeyExists(variables.object, 'group_by')>
 
 			<cfquery name="variables.distinct_rows" dbtype="query">
-				SELECT #variables.object.prefix#id
+				SELECT #variables.object.group_by#
 				FROM variables.query
-				GROUP BY #variables.object.prefix#id
+				GROUP BY #variables.object.group_by#
 			</cfquery>
 			
 			<cfset variables.length = variables.distinct_rows.recordcount />
@@ -249,13 +249,15 @@
 	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">		
 		<cfset var subquery = "" />
 		
-		<cfif structKeyExists(variables.object, 'prefix')>
+		<cfif structKeyExists(variables.object, 'group_by')>
 		
 			<cfquery name="subquery" dbtype="query">
 				SELECT *
 				FROM variables.query
-				WHERE #variables.object.prefix#id = 
-				#variables.distinct_rows[variables.object.prefix & 'id'][variables.current_row]#
+				<cfif variables.distinct_rows[variables.object.group_by][variables.current_row] NEQ "">
+				WHERE #variables.object.group_by# = 
+				#variables.distinct_rows[variables.object.group_by][variables.current_row]#
+				</cfif>
 			</cfquery>
 			
 			<cfset variables.object.load(subquery) />
