@@ -108,25 +108,6 @@
 		<cfreturn help_message />
 	</cffunction>
 	
-<!---------------------------------------------------------------------------------------------- clone
-
-	Description:	Returns a shallow copy of this object
-			
------------------------------------------------------------------------------------------------------>	
-
-	<cffunction name="clone" access="public" returntype="supermodel.supermodel">
-		<cfset var copy = createObject('component', LCase(getMetaData(this).name)) />
-		
-		<!--- Copy all attributes/keys from the current object into the copy --->
-		<cfloop list="#structKeyList(this)#" index="attribute">
-			<cfset copy[attribute] = this[attribute] />
-		</cfloop>
-		
-		<cfset copy.deepCopy() />
-		
-		<cfreturn copy />
-	</cffunction>
-	
 <!------------------------------------------------------------------------------------------- toStruct
 
 	Description:	Returns a shallow copy of this object
@@ -160,16 +141,6 @@
 	
 	<cffunction name="getErrors" access="public" returntype="struct">
 		<cfreturn variables.errors />
-	</cffunction>
-	
-<!------------------------------------------------------------------------------------------- deepCopy
-
-	Description:	Creates deep copies (i.e. clones) of all complex member variables
-			
------------------------------------------------------------------------------------------------------>	
-	
-	<cffunction name="deepCopy" access="public" returntype="void">
-		<!--- Only implemented in child classes --->
 	</cffunction>
 		
 <!-------------------------------------------------------------------------------------------------->

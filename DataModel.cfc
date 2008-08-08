@@ -40,6 +40,7 @@
 		<cfset var key = "" />
 		<cfset var params = structNew() />
 		<cfset var params_key = "" />
+		<cfset var prefix_stripped = true />
 		<cfset var query = "" />
 		<cfset var num_updated_fields = 0 />
 				
@@ -64,6 +65,7 @@
 			into the "this" struct 
 		--->
 		<cfloop list="#arguments.fields#" index="params_key">
+			<cfset prefix_stripped = true />
 			<cfset params_key = LCase(params_key) />
 			
 			<!--- 
@@ -73,15 +75,18 @@
 			--->
 			<cfif structKeyExists(this, 'prefix')>
 				<cfset key = Replace(params_key, this.prefix, "") />
+				
+				<cfif key EQ params_key>
+					<cfset prefix_stripped = false />
+				</cfif>
 			<cfelse>
 				<cfset key = params_key />
 			</cfif>
 			
-			<cfif structKeyExists(this, key)>
+			<cfif structKeyExists(this, key) AND prefix_stripped>
 				<cfif NOT isObject(params[params_key]) AND this[key] NEQ params[params_key]>
 					<cfset structInsert(this, key, structFind(params, params_key), true) />
 					<cfset num_updated_fields = num_updated_fields + 1 />
-					<cfset structDelete(params, key) />
 				</cfif>
 			</cfif>
 		</cfloop>
@@ -111,6 +116,7 @@
 			</cfloop>
 		</cfif>
 	</cffunction>
+
 	 
 <!---------------------------------------------------------------------------------------------- save
 
@@ -168,6 +174,7 @@
 		<!--- 
 			Read all the single objects from belongTo relations
 		 --->
+		 		
 		<cfif structKeyExists(variables, 'objects')>
 			<cfloop list="#variables.objects#" index="object">			
 				<cfset this[object].read(this[this[object].prefix & 'id']) />
@@ -221,6 +228,7 @@
 		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
 		<cfset var object =  createObject('component', arguments.component) />
 		
+		<cfset object.parent = this />
 		<cfset object.init(variables.dsn) />
 		<cfset object.prefix = arguments.name />
 		
@@ -244,10 +252,13 @@
 		<cfargument name="name" type="string" required="yes" />
 		<cfargument name="component" type="string" required="yes" />
 		
-			<cfset structInsert(this, arguments.name, createObject('component', arguments.component), true) />
-			<cfset this[arguments.name].init(variables.dsn) />
-			<cfset this[arguments.name].prefix = arguments.name & '_' />
-			<cfset this[arguments.name].parent = this />
+			<cfif structKeyExists(this, 'parent')>
+				<cfset this[arguments.name] = this.parent />
+			<cfelse>
+				<cfset structInsert(this, arguments.name, createObject('component', arguments.component), true) />
+				<cfset this[arguments.name].init(variables.dsn) />
+				<cfset this[arguments.name].prefix = arguments.name & '_' />
+			</cfif>
 
 <!--- 
 		<cfif NOT structKeyExists(request, arguments.name)>
