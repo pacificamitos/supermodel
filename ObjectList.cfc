@@ -13,7 +13,6 @@
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
-		<cfdump var="#variables.query#">
 		<cfif variables.query.recordcount GT 0 AND structKeyExists(variables.object, 'group_by')>
 
 			<cfquery name="variables.distinct_rows" dbtype="query">
