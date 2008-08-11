@@ -239,22 +239,27 @@
 		<cfargument name="prefix" type="string" required="yes" />
 
 		<cfset var object_name = ListLast(arguments.component, '.') />
-		<cfset var object_list = createObject('component', 'supermodel.objectlist') />
-		<cfset var object =  createObject('component', arguments.component) />
-		
-		<cfset object.parent = this />
-		<cfset object.init(variables.dsn) />
-		<cfset object.prefix = arguments.prefix & '_' />
-		<cfset object.group_by = object.prefix & 'id' />
+		<cfset var object_list = '' />
+		<cfset var object = '' />
 
-		<cfset object_list.init(object, QueryNew('')) />
-		<cfset structInsert(this, arguments.name, object_list) />
-		
-		<cfif NOT structKeyExists(variables, 'collections')>
-			<cfset variables.collections = "" />
+		<cfif not (structKeyExists(this,'parent') and getMetaData(this['parent']).fullname eq arguments.component)>
+			<cfset object_list = createObject('component', 'supermodel.objectlist') />
+			<cfset object =  createObject('component', arguments.component) />
+			
+			<cfset object.parent = this />
+			<cfset object.init(variables.dsn) />
+			<cfset object.prefix = arguments.prefix & '_' />
+			<cfset object.group_by = object.prefix & 'id' />
+	
+			<cfset object_list.init(object, QueryNew('')) />
+			<cfset structInsert(this, arguments.name, object_list) />
+			
+			<cfif NOT structKeyExists(variables, 'collections')>
+				<cfset variables.collections = "" />
+			</cfif>
+			
+			<cfset variables.collections = listAppend(variables.collections, arguments.name) />
 		</cfif>
-		
-		<cfset variables.collections = listAppend(variables.collections, arguments.name) />
 	</cffunction>
 
 <!------------------------------------------------------------------------------------------ belongsTo
