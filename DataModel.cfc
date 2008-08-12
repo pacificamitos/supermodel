@@ -347,10 +347,6 @@
 		<cfargument name="ordering" default="" />
 		
 		<cfset var query  = "" />
-		
-		<cfif structKeyExists(variables, 'collections')>
-			<cfthrow message="You have to write your own selectQuery when you specify a hasMany relation" />
-		</cfif>
 
 		<cfquery name="query" datasource="#variables.dsn#">
 			SELECT #arguments.columns#
