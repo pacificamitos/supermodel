@@ -244,21 +244,16 @@
 
 		<cfset var object_name = ListLast(arguments.component, '.') />
 		<cfset var object_list = '' />
-		<cfset var object = '' />
-
-		<cfif structKeyExists(this['parents'], arguments.component)>
-			<cfset object = structFind(this['parents'], arguments.component) />
-		<cfelse>
-			<cfset object =  createObject('component', arguments.component) />
-			<cfset structInsert(object['parents'], getMetaData(this).name, this, true) />
+		
+		<cfif not structKeyExists(request, arguments.component)>
+			<cfset structInsert(request, arguments.component, createObject('component', arguments.component)) />
+			<cfset request[arguments.component].init(variables.dsn) />
+			<cfset request[arguments.component].prefix = arguments.prefix & '_' />
+			<cfset request[arguments.component].group_by = request[arguments.component].prefix & 'id' />
 		</cfif>
-	
+		
 		<cfset object_list = createObject('component', 'supermodel.objectlist') />
-		<cfset object.init(variables.dsn) />
-		<cfset object.prefix = arguments.prefix & '_' />
-		<cfset object.group_by = object.prefix & 'id' />
-
-		<cfset object_list.init(object, QueryNew('')) />
+		<cfset object_list.init(request[arguments.component], QueryNew('')) />
 		<cfset structInsert(this, arguments.name, object_list) />
 		
 		<cfif NOT structKeyExists(variables, 'collections')>

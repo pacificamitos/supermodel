@@ -4,6 +4,10 @@
 <cfset company.init('supermodel') />
 <cfset company.group_by = 'company_id' />
 
+<cfset someBody = createObject('component', 'hr_staffing.model.users.user') />
+<cfset someBody.init('human_resources') />
+<!--- <cfdump var="#someBody#"> --->
+
 <cfquery name="companies" datasource="supermodel">
 	SELECT 
 		companies.id,
