@@ -42,6 +42,4 @@
 	</cfloop>
 </cfloop>
 
-<!--- <cfdump var="#McDonalds.users.current().company.users.current().company#"> --->
-
 </cfoutput>

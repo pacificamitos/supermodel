@@ -163,6 +163,17 @@
 <!-------------------------------------------------------------------------------------------------->
 <!--------------------------------------- Helper Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
+
+
+<!------------------------------------------------------------------------------------- getIncludePath
+
+	Description:	Returns the dot-separated path of the component
+			
+----------------------------------------------------------------------------------------------------->	
+
+	<cffunction name="getObjectPath" access="private" returntype="string">
+		<cfreturn getMetaData(this).name />
+	</cffunction>
 	
 <!------------------------------------------------------------------------------------- getIncludePath
 
@@ -173,7 +184,7 @@
 	
 	<cffunction name="getIncludePath" access="private" returntype="string">
 		<cfset var include_path = "/" />
-		<cfset include_path = include_path & Replace(variables.object_path, ".", "/", "all") />
+		<cfset include_path = include_path & Replace(getObjectPath(), ".", "/", "all") />
 		<cfset include_path = ListDeleteAt(include_path, ListLen(include_path, "/"), "/") />
 		
 		<cfreturn include_path />

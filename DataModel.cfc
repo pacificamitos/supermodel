@@ -6,6 +6,7 @@
 ----------------------------------------------------------------------------------------------------->	
 
 <cfcomponent name="DataModel" extends="supermodel.SuperModel">
+	<cfset this.parents = structNew() />
 	
 <!---------------------------------------------------------------------------------------------- init
 
@@ -21,11 +22,8 @@
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
-		<cfset this.group_by = 'id' />
 		<cfset configure() />
-
 		<cfset injectAttributes() />
-
 	</cffunction>
 	
 <!---------------------------------------------------------------------------------------------- load
@@ -104,7 +102,7 @@
 		 --->
 
 		<cfif structKeyExists(variables, 'objects')>
-			<cfloop list="#variables.objects#" index="object">			
+			<cfloop list="#variables.objects#" index="object">		
 				<cfset this[object].load(params) />
 			</cfloop>
 		</cfif>
@@ -168,8 +166,10 @@
 		
 		<cfset var query = "" />
 		<cfset var params = StructNew() />
+		<cfset var child_id = "" />
 			
 		<cfset this.id = arguments.id />
+		<cfset structDelete(this, 'prefix') />
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 		
  		<cfset load(rowToStruct(query)) />
@@ -180,7 +180,11 @@
 		 		
 		<cfif structKeyExists(variables, 'objects')>
 			<cfloop list="#variables.objects#" index="object">			
-				<cfset this[object].read(this[this[object].prefix & 'id']) />
+						
+				<cfset child_id = this[this[object].prefix & 'id'] />
+				<cfif isNumeric(child_id)>
+					<cfset this[object].read(child_id) />
+				</cfif>
 			</cfloop>
 		</cfif>
 		
@@ -242,24 +246,26 @@
 		<cfset var object_list = '' />
 		<cfset var object = '' />
 
-		<cfif not (structKeyExists(this,'parent') and getMetaData(this['parent']).fullname eq arguments.component)>
-			<cfset object_list = createObject('component', 'supermodel.objectlist') />
+		<cfif structKeyExists(this['parents'], arguments.component)>
+			<cfset object = structFind(this['parents'], arguments.component) />
+		<cfelse>
 			<cfset object =  createObject('component', arguments.component) />
-			
-			<cfset object.parent = this />
-			<cfset object.init(variables.dsn) />
-			<cfset object.prefix = arguments.prefix & '_' />
-			<cfset object.group_by = object.prefix & 'id' />
-	
-			<cfset object_list.init(object, QueryNew('')) />
-			<cfset structInsert(this, arguments.name, object_list) />
-			
-			<cfif NOT structKeyExists(variables, 'collections')>
-				<cfset variables.collections = "" />
-			</cfif>
-			
-			<cfset variables.collections = listAppend(variables.collections, arguments.name) />
+			<cfset structInsert(object['parents'], getMetaData(this).name, this, true) />
 		</cfif>
+	
+		<cfset object_list = createObject('component', 'supermodel.objectlist') />
+		<cfset object.init(variables.dsn) />
+		<cfset object.prefix = arguments.prefix & '_' />
+		<cfset object.group_by = object.prefix & 'id' />
+
+		<cfset object_list.init(object, QueryNew('')) />
+		<cfset structInsert(this, arguments.name, object_list) />
+		
+		<cfif NOT structKeyExists(variables, 'collections')>
+			<cfset variables.collections = "" />
+		</cfif>
+		
+		<cfset variables.collections = listAppend(variables.collections, arguments.name) />
 	</cffunction>
 
 <!------------------------------------------------------------------------------------------ belongsTo
@@ -272,23 +278,17 @@
 		<cfargument name="name" type="string" required="yes" />
 		<cfargument name="component" type="string" required="yes" />
 		
-			<cfif structKeyExists(this, 'parent')>
-				<cfset this[arguments.name] = this.parent />
+			<cfif structKeyExists(this['parents'], arguments.component)>
+				<cfset this[arguments.name] = structFind(this['parents'], arguments.component) />
 			<cfelse>
 				<cfset structInsert(this, arguments.name, createObject('component', arguments.component), true) />
 				<cfset this[arguments.name].init(variables.dsn) />
 				<cfset this[arguments.name].prefix = arguments.name & '_' />
+				<cfif NOT structKeyExists(this[arguments.name]['parents'], getMetaData(this).name)>
+					<cfset structInsert(this[arguments.name]['parents'], getMetaData(this).name, this, true) />
+				</cfif>
 			</cfif>
 
-<!--- 
-		<cfif NOT structKeyExists(request, arguments.name)>
-			<cfset structInsert(request, arguments.name, createObject('component', arguments.component)) />
-			<cfset request[arguments.name].init(variables.dsn) />
-			<cfset request[arguments.name].prefix = arguments.name & '_' />
-		</cfif> 
-
-		<cfset structInsert(this, arguments.name, request[arguments.name]) />
- --->
 		<cfif NOT structKeyExists(variables, 'objects')>
 			<cfset variables.objects = "" />
 		</cfif>
