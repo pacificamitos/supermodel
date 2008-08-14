@@ -101,8 +101,8 @@
 			Load all the single objects from belongsTo relations
 		 --->
 
-		<cfif structKeyExists(variables, 'objects')>
-			<cfloop list="#variables.objects#" index="object">		
+		<cfif structKeyExists(variables, 'children')>
+			<cfloop list="#variables.children#" index="object">		
 				<cfset this[object].load(params) />
 			</cfloop>
 		</cfif>
@@ -178,8 +178,8 @@
 			Read all the single objects from belongTo relations
 		 --->
 		 		
-		<cfif structKeyExists(variables, 'objects')>
-			<cfloop list="#variables.objects#" index="object">			
+		<cfif structKeyExists(variables, 'children')>
+			<cfloop list="#variables.children#" index="object">			
 						
 				<cfset child_id = this[this[object].prefix & 'id'] />
 				<cfif isNumeric(child_id)>
@@ -248,9 +248,10 @@
 		<cfif not structKeyExists(request, arguments.component)>
 			<cfset structInsert(request, arguments.component, createObject('component', arguments.component)) />
 			<cfset request[arguments.component].init(variables.dsn) />
-			<cfset request[arguments.component].prefix = arguments.prefix & '_' />
-			<cfset request[arguments.component].group_by = request[arguments.component].prefix & 'id' />
 		</cfif>
+		
+		<cfset request[arguments.component].prefix = arguments.prefix & '_' />
+		<cfset request[arguments.component].group_by = request[arguments.component].prefix & 'id' />
 		
 		<cfset object_list = createObject('component', 'supermodel.objectlist') />
 		<cfset object_list.init(request[arguments.component], QueryNew('')) />
@@ -284,11 +285,11 @@
 				</cfif>
 			</cfif>
 
-		<cfif NOT structKeyExists(variables, 'objects')>
-			<cfset variables.objects = "" />
+		<cfif NOT structKeyExists(variables, 'children')>
+			<cfset variables.children = "" />
 		</cfif>
 		
-		<cfset variables.objects = listAppend(variables.objects, arguments.name) />
+		<cfset variables.children = listAppend(variables.children, arguments.name) />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------------------->

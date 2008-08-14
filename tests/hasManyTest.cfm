@@ -6,7 +6,7 @@
 
 <cfset someBody = createObject('component', 'hr_staffing.model.users.user') />
 <cfset someBody.init('human_resources') />
-<!--- <cfdump var="#someBody#"> --->
+<cfdump var="#someBody#">
 
 <cfquery name="companies" datasource="supermodel">
 	SELECT 

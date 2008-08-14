@@ -13,10 +13,8 @@
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
-		<cfif 
-			variables.query.recordcount GT 0 AND 
-			structKeyExists(variables.object, 'group_by') AND
-			structKeyExists(variables.query, variables.object.group_by)>
+		<cfif variables.query.recordcount GT 0 AND structKeyExists(variables.object, 'group_by') AND structKeyExists(variables.query, variables.object.group_by)>
+
 			<cfquery name="variables.distinct_rows" dbtype="query">
 				SELECT #variables.object.group_by#
 				FROM variables.query
@@ -250,7 +248,7 @@
 	<cffunction name="loadCurrentValues" access="private" returntype="void" output="false">		
 		<cfset var subquery = "" />
 		
-		<cfif structKeyExists(variables.object, 'group_by')>
+		<cfif structKeyExists(variables.object, 'group_by') AND structKeyExists(variables, 'distinct_rows')>
 		
 			<cfquery name="subquery" dbtype="query">
 				SELECT *
