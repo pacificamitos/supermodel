@@ -167,12 +167,28 @@
 		<cfset var query = "" />
 		<cfset var params = StructNew() />
 		<cfset var child_id = "" />
-			
+		<cfset var temp_prefix = '' />
+		
+		<!---
+			prefix needs to be deleted for the load function. because the load function will try to 
+			load, for example id not process_id.
+		--->
+		<cfif structKeyExists(this,'prefix')>
+			<cfset temp_prefix = this.prefix />
+		</cfif>
+		
 		<cfset this.id = arguments.id />
-		
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
-		
+		<cfset structDelete(this,'prefix') />
  		<cfset load(rowToStruct(query)) />
+		
+		<!--- 
+			if there was a prefix to begin with, put it back in the object, now that
+			the load function has finished executing
+		--->
+		<cfif temp_prefix neq ''>
+			<cfset structInsert(this,'prefix',temp_prefix) />
+		</cfif>
 		
 		<!--- 
 			Read all the single objects from belongTo relations
@@ -180,14 +196,17 @@
 		 		
 		<cfif structKeyExists(variables, 'children')>
 			<cfloop list="#variables.children#" index="object">			
-						
 				<cfset child_id = this[this[object].prefix & 'id'] />
 				<cfif isNumeric(child_id)>
 					<cfset this[object].read(child_id) />
 				</cfif>
+				<cfif object eq 'role'>
+					
+				</cfif>
 			</cfloop>
+			
 		</cfif>
-		
+
 		<!--- 
 			Read all the collections from the hasMany relations
 		 --->
