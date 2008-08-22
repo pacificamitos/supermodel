@@ -200,11 +200,7 @@
 				<cfif isNumeric(child_id)>
 					<cfset this[object].read(child_id) />
 				</cfif>
-				<cfif object eq 'role'>
-					
-				</cfif>
 			</cfloop>
-			
 		</cfif>
 
 		<!--- 

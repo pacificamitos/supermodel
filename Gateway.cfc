@@ -39,8 +39,13 @@
 		
 		
 		<cfset var query  = "" />
+		<cfset var cache_time = CreateTimespan(0,0,0,0) />
+		
+		<cfif structKeyExists(variables, 'cache')>
+			<cfset cache_time = CreateTimeSpan(1,0,0,0) />
+		</cfif>
 
-		<cfquery name="query" datasource="#variables.dsn#">
+		<cfquery name="query" datasource="#variables.dsn#" cachedwithin="#cache_time#">
 			SELECT #arguments.columns# 
 			FROM #arguments.tables#
 			<cfif arguments.conditions NEQ "">
