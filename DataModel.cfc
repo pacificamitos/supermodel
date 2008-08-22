@@ -169,7 +169,7 @@
 		<cfset var child_id = "" />
 			
 		<cfset this.id = arguments.id />
-		<cfset structDelete(this, 'prefix') />
+		
 		<cfset query = selectQuery(conditions = "#table_name#.id = #this.id#") />
 		
  		<cfset load(rowToStruct(query)) />
