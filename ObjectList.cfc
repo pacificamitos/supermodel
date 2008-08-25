@@ -23,6 +23,7 @@
 			<cfquery name="variables.chunks" dbtype="query">
 				SELECT DISTINCT #variables.object.group_by#
 				FROM variables.query
+				WHERE #variables.object.group_by# IS NOT NULL
 				<cfif structKeyExists(variables, 'order_by')>
 				ORDER BY #variables.order_by#
 				</cfif>

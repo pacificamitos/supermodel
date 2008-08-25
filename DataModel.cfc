@@ -272,6 +272,10 @@
 		<cfset object_list.init(request[arguments.component], QueryNew('')) />
 		<cfset structInsert(this, arguments.name, object_list) />
 		
+		<cfif NOT structKeyExists(this, 'group_by')>
+			<cfset structInsert(this, 'group_by', 'id') />
+		</cfif>
+		
 		<cfif NOT structKeyExists(variables, 'collections')>
 			<cfset variables.collections = "" />
 		</cfif>
