@@ -246,4 +246,28 @@
 		
 		<cfreturn structKeyExists(variables, arguments.property) />
 	</cffunction>
+	
+<!-------------------------------------------------------------------------------------------- getPath
+
+	Description:	returns this_path_prefix
+			
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="getPath" access="private" returntype="string">
+		<cfset var component = getMetaData(this) />
+		<cfset var this_path_prefix = "" />
+		<cfset var i = 1 />
+		
+		<cfloop condition="#FindNoCase('modules.common_login.model', component.name)# EQ 0">
+			<cfset component = component.extends />
+		</cfloop>
+		
+		<cfset this_path_prefix = 
+			ListDeleteAt(
+				component.name, 
+				ListLen(component.name, "."), 
+				".") & "." />
+				
+		<cfreturn this_path_prefix />
+	</cffunction>
 </cfcomponent>
