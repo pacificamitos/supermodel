@@ -17,7 +17,7 @@
 		<cfset variables.object = arguments.object />
 		<cfset variables.query = arguments.query/>
 		<cfset variables.length = arguments.query.recordcount />
-		
+
 		<cfif queryIsComplex()>
 
 			<cfquery name="variables.chunks" dbtype="query">
@@ -34,7 +34,7 @@
 
 		<cfset reset() />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------------->
 <!------------------------------------- Basic List Functions --------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
@@ -48,7 +48,7 @@
 	<cffunction name="current" access="public" returntype="supermodel" output="false">
 		<cfreturn variables.object />
 	</cffunction>
-	
+
 <!----------------------------------------------------------------------------------------------- next
 
 	Description:
@@ -85,7 +85,7 @@
 
 		<cfreturn true />
 	</cffunction>
-	
+
 <!---------------------------------------------------------------------------------------------- reset
 
 	Description:
@@ -95,7 +95,7 @@
 	<cffunction name="reset" access="public" returntype="void" output="false">
 		<cfset variables.current_row = 0 />
 	</cffunction>
-	
+
 <!--------------------------------------------------------------------------------------------- length
 
 	Description:
@@ -105,7 +105,7 @@
 	<cffunction name="length" access="public" returntype="numeric" output="false">
 		<cfreturn variables.length />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------- isEmpty
 
 	Description:
@@ -115,7 +115,7 @@
 	<cffunction name="isEmpty" access="public" returntype="numeric" output="false">
 		<cfreturn variables.length eq 0 />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------- copy
 
 	Description:
@@ -127,7 +127,7 @@
 		<cfset list.init(variables.object, Duplicate(variables.query)) />
 		<cfreturn list />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------------->
 <!--------------------------------- Query Manipulation Functions ----------------------------------->
 <!-------------------------------------------------------------------------------------------------->
@@ -139,7 +139,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="filter" access="public" returntype="void">
-		<cfargument name="condition" type="string" required="yes" />		
+		<cfargument name="condition" type="string" required="yes" />
 		<cfquery name="variables.query" dbtype="query">
 			SELECT *
 			FROM variables.query
@@ -157,9 +157,9 @@
 	<cffunction name="order" access="public" returntype="void" output="false">
 		<cfargument name="order_by" type="string" required="yes" />
 		<cfargument name="direction" type="string" default="" />
-		
+
 		<cfset variables.order_by = arguments.order_by />
-		
+
 		<cfquery name="variables.query" dbtype="query">
 			SELECT * FROM variables.query
 			ORDER BY #variables.order_by#
@@ -167,10 +167,10 @@
 			#direction#
 			</cfif>
 		</cfquery>
-		
+
 		<cfset setQuery(variables.query) />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------------->
 <!------------------------------------------- Accessors -------------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
@@ -184,7 +184,7 @@
 	<cffunction name="getObject" access="public" returntype="supermodel.datamodel" output="false">
 		<cfreturn variables.object />
 	</cffunction>
-	
+
 <!------------------------------------------------------------------------------------------- setQuery
 
 	Description:
@@ -196,7 +196,7 @@
 
 		<cfset init(variables.object,arguments.query) />
 	</cffunction>
-	
+
 <!------------------------------------------------------------------------------------------ setObject
 
 	Description:
@@ -208,7 +208,7 @@
 
 		<cfset init(arguments.object,variables.query) />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------------->
 <!------------------------------------------ Pagination -------------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
@@ -226,7 +226,18 @@
 		<cfset variables.current_row = (arguments.page - 1) * (arguments.offset) />
 		<cfset variables.length = min(variables.query.recordcount, (arguments.offset) * (arguments.page)) />
 	</cffunction>
-	
+
+<!--------------------------------------------------------------------------------------- currentIndex
+
+	Description:
+
+----------------------------------------------------------------------------------------------------->
+
+	<cffunction name="currentIndex" access="public" returntype="numeric" output="false">
+		<cfreturn variables.current_row />
+	</cffunction>
+
+
 <!-------------------------------------------------------------------------------------------------->
 <!------------------------------------- Conversion Functions --------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
@@ -285,7 +296,7 @@
 
 		<cfreturn result />
 	</cffunction>
-	
+
 <!-------------------------------------------------------------------------------------------------->
 <!---------------------------------------- Private Helpers ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
@@ -318,7 +329,7 @@
 			<cfset variables.object.load(rowToStruct(variables.query)) />
 		</cfif>
 	</cffunction>
-	
+
 <!---------------------------------------------------------------------------------------- rowToStruct
 
 	Description:
@@ -336,7 +347,7 @@
 
 		<cfreturn struct />
 	</cffunction>
-	
+
 <!------------------------------------------------------------------------------------- queryIsComplex
 
 	Description:
@@ -344,7 +355,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 <cffunction name="queryIsComplex" access="private" returntype="boolean">
-		<cfreturn structKeyExists(variables.object, 'group_by') AND 
+		<cfreturn structKeyExists(variables.object, 'group_by') AND
 			structKeyExists(variables.query, variables.object.group_by) />
 	</cffunction>
 </cfcomponent>
