@@ -478,6 +478,10 @@
 		<cfset variables[arguments.field_list] = "" />
 		<cfset variables['field_types'] = StructNew() />
 		
+		<cfif Find('..', table_name)>
+			<cfset table_name = Right(table_name, Len(table_name) - (Find('..', table_name) + 1)) />
+		</cfif>
+
 		<!--- Get the column names and column types for the table --->
 		<cfquery name="table_columns" datasource="#arguments.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
 			SELECT 
