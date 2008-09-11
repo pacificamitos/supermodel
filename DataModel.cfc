@@ -150,6 +150,7 @@
 		
 		<cfif valid()>		
 				<cfset insertQuery() />
+				<cfset read(this.id) />
 		</cfif>
 
 		<cfreturn this />
