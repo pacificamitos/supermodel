@@ -125,7 +125,11 @@
 	<cffunction name="copy" access="public" returntype="supermodel.objectlist" output="false">
 		<cfset var list = createObject('component', 'supermodel.objectlist') />
 		<cfset list.init(variables.object, Duplicate(variables.query)) />
-		<cfset list.order(variables.order_by, variables.direction) />
+	
+		<cfif structKeyExists(variables, 'order_by')>
+			<cfset list.order(variables.order_by, variables.direction) />
+		</cfif>
+		
 		<cfreturn list />
 	</cffunction>
 
@@ -167,7 +171,7 @@
 
 		<cfquery name="variables.query" dbtype="query">
 			SELECT * FROM variables.query
-			ORDER BY #variables.order_by#
+			ORDER BY #variables.order_by# #variables.direction#
 		</cfquery>
 
 		<cfset setQuery(variables.query) />
