@@ -25,7 +25,7 @@
 				FROM variables.query
 				WHERE #variables.object.group_by# IS NOT NULL
 				<cfif structKeyExists(variables, 'order_by')>
-				ORDER BY #variables.order_by#
+				ORDER BY #variables.order_by# #variables.direction#
 				</cfif>
 			</cfquery>
 
@@ -125,6 +125,7 @@
 	<cffunction name="copy" access="public" returntype="supermodel.objectlist" output="false">
 		<cfset var list = createObject('component', 'supermodel.objectlist') />
 		<cfset list.init(variables.object, Duplicate(variables.query)) />
+		<cfset list.order(variables.order_by, variables.direction) />
 		<cfreturn list />
 	</cffunction>
 
@@ -144,6 +145,9 @@
 			SELECT *
 			FROM variables.query
 			WHERE #preserveSingleQuotes(arguments.condition)#
+			<cfif structKeyExists(variables, 'order_by')>
+			ORDER BY #variables.order_by#
+			</cfif>
 		</cfquery>
 		<cfset init(variables.object, variables.query) />
 	</cffunction>
@@ -159,13 +163,11 @@
 		<cfargument name="direction" type="string" default="" />
 
 		<cfset variables.order_by = arguments.order_by />
+		<cfset variables.direction = arguments.direction />
 
 		<cfquery name="variables.query" dbtype="query">
 			SELECT * FROM variables.query
 			ORDER BY #variables.order_by#
-			<cfif arguments.direction NEQ "">
-			#direction#
-			</cfif>
 		</cfquery>
 
 		<cfset setQuery(variables.query) />
