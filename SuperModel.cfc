@@ -258,7 +258,7 @@
 		<cfset var this_path_prefix = "" />
 		<cfset var i = 1 />
 		
-		<cfloop condition="#FindNoCase('modules.common_login.model', component.name)# EQ 0">
+		<cfloop condition="#component.extends.name# NEQ 'supermodel.datamodel'">
 			<cfset component = component.extends />
 		</cfloop>
 		
