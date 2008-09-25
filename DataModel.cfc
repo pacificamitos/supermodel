@@ -150,7 +150,9 @@
 		
 		<cfif valid()>		
 				<cfset insertQuery() />
+			<cfif structKeyExists(this,'id')>
 				<cfset read(this.id) />
+			</cfif>
 		</cfif>
 
 		<cfreturn this />
@@ -407,8 +409,9 @@
 			
 			SELECT SCOPE_IDENTITY() as id;
 		</cfquery> 
-		
-		<cfset this.id = InsertData.id />
+		<cfif structKeyExists(this,'id')>
+			<cfset this.id = InsertData.id />
+		</cfif>
 	</cffunction>
 
 

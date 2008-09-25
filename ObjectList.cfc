@@ -145,6 +145,7 @@
 
 	<cffunction name="filter" access="public" returntype="void">
 		<cfargument name="condition" type="string" required="yes" />
+
 		<cfquery name="variables.query" dbtype="query">
 			SELECT *
 			FROM variables.query
