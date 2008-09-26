@@ -128,8 +128,10 @@
 
   <cffunction name="save" access="public" returntype="numeric">
   	<cfset var ok = 0 />
+  	<cfset var minion = "" />
 	<cfif NOT persisted()>
-    	<cfif create() eq 'null'>
+		<cfset minion = create() />
+    	<cfif not IsDefined('minion.id') or minion.id eq ''>
     		<cfset ok = 1 />
     	</cfif>
     <cfelse>
