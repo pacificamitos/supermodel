@@ -23,7 +23,9 @@
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
 		<cfset configure() />
-		<cfset injectAttributes() />
+		<cfif NOT structKeyExists(variables,'database_fields')>
+			<cfset injectAttributes() />
+		</cfif>
 	</cffunction>
 
 <!---------------------------------------------------------------------------------------------- load
@@ -318,8 +320,7 @@
 			<cfset variables.children = "" />
 		</cfif>
 
-		<cfset variables.children = listAppend(variables.children, arguments.name) />
-	</cffunction>
+		<cfset variables.children = listAppend(variables.children, arguments.name) /> </cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
 <!------------------------------------------- Accessors -------------------------------------------->
@@ -479,6 +480,37 @@
 <!--------------------------------------- Helper Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
 
+<!--------------------------------------------------------------------------------------- addProperty 
+
+	Description:  This function is used to manually add properties to a model rather than 
+                introspecting them from the database information_schema.
+
+---------------------------------------------------------------------------------------------------->
+
+  <cffunction name="addProperty" access="private" returntype="void">
+    <cfargument name="name" type="string" required="yes" />
+    <cfargument name="type" type="string" required="yes" />
+
+    <cfset structInsert(this, arguments.name, "", true) />
+
+    <cfif not structKeyExists(variables, 'field_types')>
+      <cfset variables['field_types'] = structNew() />
+    </cfif>
+
+    <cfset structInsert(
+      variables.field_types, 
+      arguments.name, 
+      cf_sql_type(arguments.type), 
+      true) />
+
+    <cfif not structKeyExists(variables, 'database_fields')>
+      <cfset variables['database_fields'] = "" />
+    </cfif>
+
+    <cfset variables['database_fields'] = 
+      listAppend(variables['database_fields'], arguments.name) />
+  </cffunction>
+
 <!---------------------------------------------------------------------------------- injectAttributes
 
 	Description:	Uses the information_schema table to determine the name and data type of each
@@ -496,7 +528,6 @@
 		<cfset var table_columns = "" />
 		<cfset variables[arguments.field_list] = "" />
 		<cfset variables['field_types'] = StructNew() />
-
 		<cfif Find('..', table_name)>
 			<cfset table_name = Right(table_name, Len(table_name) - (Find('..', table_name) + 1)) />
 		</cfif>
