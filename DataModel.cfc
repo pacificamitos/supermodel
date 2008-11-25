@@ -507,8 +507,10 @@
       <cfset variables['database_fields'] = "" />
     </cfif>
 
-    <cfset variables['database_fields'] = 
-      listAppend(variables['database_fields'], arguments.name) />
+    <cfif arguments.name NEQ "id">
+      <cfset variables['database_fields'] = 
+        listAppend(variables['database_fields'], arguments.name) />
+    </cfif>
   </cffunction>
 
 <!---------------------------------------------------------------------------------- injectAttributes
