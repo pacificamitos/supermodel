@@ -1,368 +1,368 @@
 <cfcomponent>
 
-<!-------------------------------------------------------------------------------------------------->
-<!-------------------------------- Parameters and Initialization ----------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+<!----------------------------- Parameters and Initialization -------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
-<!----------------------------------------------------------------------------------------------- init
+<!---------------------------------------------------------------------------------------- init
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="init" access="public" returntype="void">
-		<cfargument name="object" type="supermodel" required="yes" />
-		<cfargument name="query" type="query" required="yes" />
+  <cffunction name="init" access="public" returntype="void">
+    <cfargument name="object" type="supermodel" required="yes" />
+    <cfargument name="query" type="query" required="yes" />
 
-		<cfset variables.object = arguments.object />
-		<cfset variables.query = arguments.query/>
-		<cfset variables.length = arguments.query.recordcount />
+    <cfset variables.object = arguments.object />
+    <cfset variables.query = arguments.query/>
+    <cfset variables.length = arguments.query.recordcount />
 
-		<cfif queryIsComplex()>
+    <cfif queryIsComplex()>
 
-			<cfquery name="variables.chunks" dbtype="query">
-				SELECT DISTINCT #variables.object.group_by#
-				FROM variables.query
-				WHERE #variables.object.group_by# IS NOT NULL
-				<cfif structKeyExists(variables, 'order_by')>
-				ORDER BY #variables.order_by# #variables.direction#
-				</cfif>
-			</cfquery>
+      <cfquery name="variables.chunks" dbtype="query">
+        SELECT DISTINCT #variables.object.group_by#
+        FROM variables.query
+        WHERE #variables.object.group_by# IS NOT NULL
+        <cfif structKeyExists(variables, 'order_by')>
+        ORDER BY #variables.order_by# #variables.direction#
+        </cfif>
+      </cfquery>
 
-			<cfset variables.length = variables.chunks.recordcount />
-		</cfif>
+      <cfset variables.length = variables.chunks.recordcount />
+    </cfif>
 
-		<cfset reset() />
-	</cffunction>
+    <cfset reset() />
+  </cffunction>
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------- Basic List Functions --------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+<!---------------------------------- Basic List Functions ------------------------------------>
+<!-------------------------------------------------------------------------------------------->
 
-<!-------------------------------------------------------------------------------------------- current
+<!------------------------------------------------------------------------------------- current
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="current" access="public" returntype="supermodel" output="false">
-		<cfreturn variables.object />
-	</cffunction>
+  <cffunction name="current" access="public" returntype="supermodel" output="false">
+    <cfreturn variables.object />
+  </cffunction>
 
-<!----------------------------------------------------------------------------------------------- next
+<!---------------------------------------------------------------------------------------- next
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="next" access="public" returntype="boolean" output="false">
+  <cffunction name="next" access="public" returntype="boolean" output="false">
 
-		<cfif variables.current_row EQ variables.length>
-			<cfreturn false />
-		</cfif>
+    <cfif variables.current_row EQ variables.length>
+      <cfreturn false />
+    </cfif>
 
-		<cfset variables.current_row = variables.current_row + 1 />
+    <cfset variables.current_row = variables.current_row + 1 />
 
-		<cfset loadCurrentValues() />
+    <cfset loadCurrentValues() />
 
-		<cfreturn true />
-	</cffunction>
+    <cfreturn true />
+  </cffunction>
 
-<!----------------------------------------------------------------------------------------------- prev
+<!---------------------------------------------------------------------------------------- prev
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="prev" access="public" returntype="boolean" output="false">
-		<cfif variables.current_row EQ 0>
-			<cfreturn false />
-		</cfif>
+  <cffunction name="prev" access="public" returntype="boolean" output="false">
+    <cfif variables.current_row EQ 0>
+      <cfreturn false />
+    </cfif>
 
-		<cfset variables.current_row = variables.current_row - 1 />
+    <cfset variables.current_row = variables.current_row - 1 />
 
-		<cfset loadCurrentValues() />
+    <cfset loadCurrentValues() />
 
-		<cfreturn true />
-	</cffunction>
+    <cfreturn true />
+  </cffunction>
 
-<!---------------------------------------------------------------------------------------------- reset
+<!--------------------------------------------------------------------------------------- reset
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="reset" access="public" returntype="void" output="false">
-		<cfset variables.current_row = 0 />
-	</cffunction>
+  <cffunction name="reset" access="public" returntype="void" output="false">
+    <cfset variables.current_row = 0 />
+  </cffunction>
 
-<!--------------------------------------------------------------------------------------------- length
+<!-------------------------------------------------------------------------------------- length
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="length" access="public" returntype="numeric" output="false">
-		<cfreturn variables.length />
-	</cffunction>
+  <cffunction name="length" access="public" returntype="numeric" output="false">
+    <cfreturn variables.length />
+  </cffunction>
 
-<!-------------------------------------------------------------------------------------------- isEmpty
+<!------------------------------------------------------------------------------------- isEmpty
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="isEmpty" access="public" returntype="numeric" output="false">
-		<cfreturn variables.length eq 0 />
-	</cffunction>
+  <cffunction name="isEmpty" access="public" returntype="numeric" output="false">
+    <cfreturn variables.length eq 0 />
+  </cffunction>
 
-<!-------------------------------------------------------------------------------------------- copy
+<!---------------------------------------------------------------------------------------- copy
 
-	Description:
+  Description:
 
------------------------------------------------------------------------------------------------------>
+---------------------------------------------------------------------------------------------->
 
-	<cffunction name="copy" access="public" returntype="supermodel.objectlist" output="false">
-		<cfset var list = createObject('component', 'supermodel.objectlist') />
-		<cfset list.init(variables.object, Duplicate(variables.query)) />
-	
-		<cfif structKeyExists(variables, 'order_by')>
-			<cfset list.order(variables.order_by, variables.direction) />
-		</cfif>
-		
-		<cfreturn list />
-	</cffunction>
+  <cffunction name="copy" access="public" returntype="supermodel.objectlist" output="false">
+    <cfset var list = createObject('component', 'supermodel.objectlist') />
+    <cfset list.init(variables.object, Duplicate(variables.query)) />
 
-<!-------------------------------------------------------------------------------------------------->
-<!--------------------------------- Query Manipulation Functions ----------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+    <cfif structKeyExists(variables, 'order_by')>
+      <cfset list.order(variables.order_by, variables.direction) />
+    </cfif>
 
-<!--------------------------------------------------------------------------------------------- filter
+    <cfreturn list />
+  </cffunction>
 
-	Description:
+<!-------------------------------------------------------------------------------------------->
+<!------------------------------ Query Manipulation Functions -------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
------------------------------------------------------------------------------------------------------>
+<!-------------------------------------------------------------------------------------- filter
 
-	<cffunction name="filter" access="public" returntype="void">
-		<cfargument name="condition" type="string" required="yes" />
+  Description:
 
-		<cfquery name="variables.query" dbtype="query">
-			SELECT *
-			FROM variables.query
-			WHERE #preserveSingleQuotes(arguments.condition)#
-			<cfif structKeyExists(variables, 'order_by')>
-			ORDER BY #variables.order_by#
-			</cfif>
-		</cfquery>
-		<cfset init(variables.object, variables.query) />
-	</cffunction>
+---------------------------------------------------------------------------------------------->
 
-<!---------------------------------------------------------------------------------------------- order
+  <cffunction name="filter" access="public" returntype="void">
+    <cfargument name="condition" type="string" required="yes" />
 
-	Description:
+    <cfquery name="variables.query" dbtype="query">
+      SELECT *
+      FROM variables.query
+      WHERE #preserveSingleQuotes(arguments.condition)#
+      <cfif structKeyExists(variables, 'order_by')>
+      ORDER BY #variables.order_by#
+      </cfif>
+    </cfquery>
+    <cfset init(variables.object, variables.query) />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!--------------------------------------------------------------------------------------- order
 
-	<cffunction name="order" access="public" returntype="void" output="false">
-		<cfargument name="order_by" type="string" required="yes" />
-		<cfargument name="direction" type="string" default="" />
+  Description:
 
-		<cfset variables.order_by = arguments.order_by />
-		<cfset variables.direction = arguments.direction />
+---------------------------------------------------------------------------------------------->
 
-		<cfquery name="variables.query" dbtype="query">
-			SELECT * FROM variables.query
-			ORDER BY #variables.order_by# #variables.direction#
-		</cfquery>
+  <cffunction name="order" access="public" returntype="void" output="false">
+    <cfargument name="order_by" type="string" required="yes" />
+    <cfargument name="direction" type="string" default="" />
 
-		<cfset setQuery(variables.query) />
-	</cffunction>
+    <cfset variables.order_by = arguments.order_by />
+    <cfset variables.direction = arguments.direction />
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------------- Accessors -------------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+    <cfquery name="variables.query" dbtype="query">
+      SELECT * FROM variables.query
+      ORDER BY #variables.order_by# #variables.direction#
+    </cfquery>
 
-<!------------------------------------------------------------------------------------------ getObject
+    <cfset setQuery(variables.query) />
+  </cffunction>
 
-	Description:
+<!-------------------------------------------------------------------------------------------->
+<!---------------------------------------- Accessors ----------------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
------------------------------------------------------------------------------------------------------>
+<!----------------------------------------------------------------------------------- getObject
 
-	<cffunction name="getObject" access="public" returntype="supermodel.datamodel" output="false">
-		<cfreturn variables.object />
-	</cffunction>
+  Description:
 
-<!------------------------------------------------------------------------------------------- setQuery
+---------------------------------------------------------------------------------------------->
 
-	Description:
+  <cffunction name="getObject" access="public" returntype="supermodel.datamodel" output="false">
+    <cfreturn variables.object />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!------------------------------------------------------------------------------------ setQuery
 
-	<cffunction name="setQuery" access="public" returntype="void" output="false">
-		<cfargument name="query" type="query" required="yes" />
+  Description:
 
-		<cfset init(variables.object,arguments.query) />
-	</cffunction>
+---------------------------------------------------------------------------------------------->
 
-<!------------------------------------------------------------------------------------------ setObject
+  <cffunction name="setQuery" access="public" returntype="void" output="false">
+    <cfargument name="query" type="query" required="yes" />
 
-	Description:
+    <cfset init(variables.object,arguments.query) />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!----------------------------------------------------------------------------------- setObject
 
-	<cffunction name="setObject" access="public" returntype="void" output="false">
-		<cfargument name="object" type="supermodel.datamodel" required="yes" />
+  Description:
 
-		<cfset init(arguments.object,variables.query) />
-	</cffunction>
+---------------------------------------------------------------------------------------------->
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------------ Pagination -------------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+  <cffunction name="setObject" access="public" returntype="void" output="false">
+    <cfargument name="object" type="supermodel.datamodel" required="yes" />
 
-<!------------------------------------------------------------------------------------------- paginate
+    <cfset init(arguments.object,variables.query) />
+  </cffunction>
 
-	Description:
+<!-------------------------------------------------------------------------------------------->
+<!--------------------------------------- Pagination ----------------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
------------------------------------------------------------------------------------------------------>
+<!------------------------------------------------------------------------------------ paginate
 
-	<cffunction name="paginate" access="public" returntype="void">
-		<cfargument name="page" type="numeric" required="yes" />
-		<cfargument name="offset" type="numeric" required="yes" />
+  Description:
 
-		<cfset variables.current_row = (arguments.page - 1) * (arguments.offset) />
-		<cfset variables.length = min(variables.query.recordcount, (arguments.offset) * (arguments.page)) />
-	</cffunction>
+---------------------------------------------------------------------------------------------->
 
-<!--------------------------------------------------------------------------------------- currentIndex
+  <cffunction name="paginate" access="public" returntype="void">
+    <cfargument name="page" type="numeric" required="yes" />
+    <cfargument name="offset" type="numeric" required="yes" />
 
-	Description:
+    <cfset variables.current_row = (arguments.page - 1) * (arguments.offset) />
+    <cfset variables.length = min(variables.query.recordcount, (arguments.offset) * (arguments.page)) />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!-------------------------------------------------------------------------------- currentIndex
 
-	<cffunction name="currentIndex" access="public" returntype="numeric" output="false">
-		<cfreturn variables.current_row />
-	</cffunction>
+  Description:
 
+---------------------------------------------------------------------------------------------->
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------- Conversion Functions --------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+  <cffunction name="currentIndex" access="public" returntype="numeric" output="false">
+    <cfreturn variables.current_row />
+  </cffunction>
 
-<!-------------------------------------------------------------------------------------------- toArray
 
-	Description:
+<!-------------------------------------------------------------------------------------------->
+<!---------------------------------- Conversion Functions ------------------------------------>
+<!-------------------------------------------------------------------------------------------->
 
------------------------------------------------------------------------------------------------------>
+<!------------------------------------------------------------------------------------- toArray
 
-	<cffunction name="toArray" access="public" returntype="array" output="false">
-		<cfset var array = ArrayNew(1) />
-		<cfset var saved_current_row = variables.current_row />
-		<cfset var i = 1 />
+  Description:
 
-		<cfset variables.current_row = 0 />
+---------------------------------------------------------------------------------------------->
 
-		<cfloop condition="#next()#">
-			<cfset array[i] = current().clone() />
-			<cfset i = i + 1 />
-		</cfloop>
+  <cffunction name="toArray" access="public" returntype="array" output="false">
+    <cfset var array = ArrayNew(1) />
+    <cfset var saved_current_row = variables.current_row />
+    <cfset var i = 1 />
 
-		<cfset variables.current_row = saved_current_row />
+    <cfset variables.current_row = 0 />
 
-		<cfreturn array />
-	</cffunction>
+    <cfloop condition="#next()#">
+      <cfset array[i] = current().clone() />
+      <cfset i = i + 1 />
+    </cfloop>
 
-<!-------------------------------------------------------------------------------------------- toQuery
+    <cfset variables.current_row = saved_current_row />
 
-	Description:
+    <cfreturn array />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!------------------------------------------------------------------------------------- toQuery
 
-	<cffunction name="toQuery" access="public" returntype="query" output="false">
-		<cfreturn variables.query />
-	</cffunction>
+  Description:
 
-<!------------------------------------------------------------------------------------------ toOptions
+---------------------------------------------------------------------------------------------->
 
-	Description:
+  <cffunction name="toQuery" access="public" returntype="query" output="false">
+    <cfreturn variables.query />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!----------------------------------------------------------------------------------- toOptions
 
-	<cffunction name="toOptions" access="public" returntype="query" output="false">
-		<cfargument name="value_field" type="string" required="yes" />
-		<cfargument name="label_field" type="string" required="yes" />
+  Description:
 
-		<cfset var result = "" />
+---------------------------------------------------------------------------------------------->
 
-		<cfquery name="result" dbtype="query">
-			SELECT
-				#arguments.value_field# as [value],
-				#arguments.label_field# as [label]
-			FROM variables.query
-		</cfquery>
+  <cffunction name="toOptions" access="public" returntype="query" output="false">
+    <cfargument name="value_field" type="string" required="yes" />
+    <cfargument name="label_field" type="string" required="yes" />
 
-		<cfreturn result />
-	</cffunction>
+    <cfset var result = "" />
 
-<!-------------------------------------------------------------------------------------------------->
-<!---------------------------------------- Private Helpers ----------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+    <cfquery name="result" dbtype="query">
+      SELECT
+        #arguments.value_field# as [value],
+        #arguments.label_field# as [label]
+      FROM variables.query
+    </cfquery>
 
-<!---------------------------------------------------------------------------------- loadCurrentValues
+    <cfreturn result />
+  </cffunction>
 
-	Description:
+<!-------------------------------------------------------------------------------------------->
+<!------------------------------------- Private Helpers -------------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
------------------------------------------------------------------------------------------------------>
+<!--------------------------------------------------------------------------- loadCurrentValues
 
-	<cffunction name="loadCurrentValues" access="private" returntype="void">
-		<cfset var subquery = "" />
+  Description:
 
-		<cfif queryIsComplex()>
+---------------------------------------------------------------------------------------------->
 
-			<cfquery name="subquery" dbtype="query">
-				SELECT *
-				FROM variables.query
-				<cfif variables.chunks[variables.object.group_by][variables.current_row] NEQ "">
-				WHERE #variables.object.group_by# =
-				#variables.chunks[variables.object.group_by][variables.current_row]#
-				</cfif>
-				<cfif structKeyExists(variables, 'order_by')>
-				ORDER BY #variables.order_by#
-				</cfif>
-			</cfquery>
+  <cffunction name="loadCurrentValues" access="private" returntype="void">
+    <cfset var subquery = "" />
 
-			<cfset variables.object.load(subquery) />
-		<cfelse>
-			<cfset variables.object.load(rowToStruct(variables.query)) />
-		</cfif>
-	</cffunction>
+    <cfif queryIsComplex()>
 
-<!---------------------------------------------------------------------------------------- rowToStruct
+      <cfquery name="subquery" dbtype="query">
+        SELECT *
+        FROM variables.query
+        <cfif variables.chunks[variables.object.group_by][variables.current_row] NEQ "">
+        WHERE #variables.object.group_by# =
+        #variables.chunks[variables.object.group_by][variables.current_row]#
+        </cfif>
+        <cfif structKeyExists(variables, 'order_by')>
+        ORDER BY #variables.order_by#
+        </cfif>
+      </cfquery>
 
-	Description:
+      <cfset variables.object.load(subquery) />
+    <cfelse>
+      <cfset variables.object.load(rowToStruct(variables.query)) />
+    </cfif>
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!--------------------------------------------------------------------------------- rowToStruct
 
-	<cffunction name="rowToStruct" access="private" returntype="struct" output="false">
-		<cfargument name="query" type="query" required="yes" />
+  Description:
 
-		<cfset var struct = structNew() />
+---------------------------------------------------------------------------------------------->
 
-		<cfloop list="#query.columnlist#" index="column">
-			<cfset struct[column] = query[column][variables.current_row] />
-		</cfloop>
+  <cffunction name="rowToStruct" access="private" returntype="struct" output="false">
+    <cfargument name="query" type="query" required="yes" />
 
-		<cfreturn struct />
-	</cffunction>
+    <cfset var struct = structNew() />
 
-<!------------------------------------------------------------------------------------- queryIsComplex
+    <cfloop list="#query.columnlist#" index="column">
+      <cfset struct[column] = query[column][variables.current_row] />
+    </cfloop>
 
-	Description:
+    <cfreturn struct />
+  </cffunction>
 
------------------------------------------------------------------------------------------------------>
+<!------------------------------------------------------------------------------ queryIsComplex
+
+  Description:
+
+---------------------------------------------------------------------------------------------->
 
 <cffunction name="queryIsComplex" access="private" returntype="boolean">
-		<cfreturn structKeyExists(variables.object, 'group_by') AND
-			structKeyExists(variables.query, variables.object.group_by) />
-	</cffunction>
+    <cfreturn structKeyExists(variables.object, 'group_by') AND
+      structKeyExists(variables.query, variables.object.group_by) />
+  </cffunction>
 </cfcomponent>
