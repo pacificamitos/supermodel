@@ -128,18 +128,16 @@
 
 ---------------------------------------------------------------------------------------------------->
 
-  <cffunction name="save" access="public" returntype="numeric">
-  	<cfset var ok = 0 />
-  	<cfset var minion = "" />
-	<cfif NOT persisted()>
-		<cfset minion = create() />
-    	<cfif not IsDefined('minion.id') or minion.id eq ''>
-    		<cfset ok = 1 />
-    	</cfif>
-    <cfelse>
-    	<cfset ok = update()>
+  <cffunction name="save" access="public" returntype="boolean">
+		<cfset var proceed = true />
+		<cfif NOT persisted()>
+			<cfset create() />
+			<cfset proceed = this.isVerified() />
+  	<cfelse>
+    	<cfset proceed = update()>
     </cfif>
-    <cfreturn ok />
+		
+		<cfreturn proceed />
   </cffunction>
 
 <!-------------------------------------------------------------------------------------------- create
@@ -229,19 +227,19 @@
 
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="update" access="public" returntype="numeric">
+	<cffunction name="update" access="public" returntype="boolean">
 		<cfargument name="params" required="no" type="struct" />
-		<cfset var ok = 0 />
+		<cfset var proceed = true />
 
 		<cfif structKeyExists(arguments, 'params')>
 			<cfset load(arguments.params) />
 		</cfif>
 
 		<cfif valid()>
-			<cfset ok = updateQuery() />
+			<cfset proceed = updateQuery() />
 		</cfif>
 
-		<cfreturn ok />
+		<cfreturn proceed />
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------- delete
@@ -430,33 +428,26 @@
 
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="updateQuery" access="private" returntype="numeric">
+	<cffunction name="updateQuery" access="private" returntype="void">
 		<cfargument name="table" default="#variables.table_name#" />
 		<cfargument name="fields" default="#variables.database_fields#" />
 		<cfargument name="primary_key" default="#variables.primary_key#" />
 
 		<cfset var delimiter = "" />
-		<cfset var ok = 0 />
 
-		<cftry>
-			<cfquery datasource="#variables.dsn#">
-				UPDATE #table#
-				SET
-				<cfloop list="#fields#" index="field_name">
-						#delimiter#[#field_name#] =
-						<cfqueryparam
-							value="#value(field_name)#"
-							null="#null(field_name)#"
-							cfsqltype="#type(field_name)#" />
-						<cfset delimiter = ",">
-				</cfloop>
-				WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
-			</cfquery>
-			<cfcatch>
-				<cfset ok = 1 />
-			</cfcatch>
-		</cftry>
-		<cfreturn ok />
+		<cfquery datasource="#variables.dsn#">
+			UPDATE #table#
+			SET
+			<cfloop list="#fields#" index="field_name">
+					#delimiter#[#field_name#] =
+					<cfqueryparam
+						value="#value(field_name)#"
+						null="#null(field_name)#"
+						cfsqltype="#type(field_name)#" />
+					<cfset delimiter = ",">
+			</cfloop>
+			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+		</cfquery>
 	</cffunction>
 
 <!--------------------------------------------------------------------------------------- deleteQuery
