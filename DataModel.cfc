@@ -229,6 +229,7 @@
 
 	<cffunction name="update" access="public" returntype="boolean">
 		<cfargument name="params" required="no" type="struct" />
+		
 		<cfset var proceed = true />
 
 		<cfif structKeyExists(arguments, 'params')>
@@ -236,7 +237,8 @@
 		</cfif>
 
 		<cfif valid()>
-			<cfset proceed = updateQuery() />
+			<cfset updateQuery() />
+			<cfset proceed = isVerified() />
 		</cfif>
 
 		<cfreturn proceed />
