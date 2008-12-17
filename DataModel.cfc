@@ -481,6 +481,7 @@
   <cffunction name="addProperty" access="private" returntype="void">
     <cfargument name="name" type="string" required="yes" />
     <cfargument name="type" type="string" required="yes" />
+		<cfargument name="list" type="string" default="database_fields" />
 
     <cfset structInsert(this, arguments.name, "", true) />
 
@@ -494,13 +495,13 @@
       cf_sql_type(arguments.type), 
       true) />
 
-    <cfif not structKeyExists(variables, 'database_fields')>
-      <cfset variables['database_fields'] = "" />
+    <cfif not structKeyExists(variables, arguments.list)>
+      <cfset variables[arguments.list] = "" />
     </cfif>
 
     <cfif arguments.name NEQ "id">
-      <cfset variables['database_fields'] = 
-        listAppend(variables['database_fields'], arguments.name) />
+      <cfset variables[arguments.list] = 
+        listAppend(variables[arguments.list], arguments.name) />
     </cfif>
   </cffunction>
 
