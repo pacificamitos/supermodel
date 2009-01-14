@@ -30,7 +30,7 @@
 
 <!---------------------------------------------------------------------------------------------- load
 
-	Description:
+	Description: Loads values from the given data structure into corresponding fields in the object
 
 ---------------------------------------------------------------------------------------------------->
 
