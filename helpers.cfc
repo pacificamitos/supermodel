@@ -22,7 +22,7 @@
 
 	Description:	This function is called at the beginning of every form control.
 	
-	Arguments:		The argument collection passed to the form control
+	arguments:		The argument collection passed to the form control
 				
 	Return Value:	A structure containing attributes to be added to the HTML tag
 			
@@ -30,14 +30,14 @@
 	
 	<cffunction name="preamble">	
 		<!--- Display the label for the form field --->	
-		<cfinvoke method="displayLabel" argumentcollection="#Arguments#" />
+		<cfinvoke method="displayLabel" argumentcollection="#arguments#" />
 		
 		<!--- Create an attributes object to store the HTML attributes for the form contol --->
 		<cfobject name="attributes" component="egd_billing.cfc.attributes" />
 		
 		<!--- Initialize the attributes with the passed-in arguments excluding the reserved ones --->
 		<cfset attributes.init(
-			argumentcollection = Arguments, 
+			argumentcollection = arguments, 
 			reserved_arguments = variables.reserved_arguments) />
 			
 		<!--- Add some default attributes if they aren't provided as arguments --->
@@ -63,60 +63,8 @@
 ----------------------------------------------------------------------------------------------------->
 	
 	<cffunction name="postamble">
-		<cfif arguments.label EQ "">
-			<cfset arguments.position = "none">
-		</cfif>	
-
-		<cfinvoke method="displayHelp" argumentcollection="#Arguments#" />
-		<cfif IsDefined("arguments.addtype") AND arguments.addtype NEQ "">
-			<cfinvoke method="displayAddTYpe" argumentcollection="#Arguments#" />
-		</cfif>
-		<!--- Display the validation errors for this form field --->
-		<cfinvoke method="displayError" argumentcollection="#Arguments#" />
+		<cfinvoke method="displayError" argumentcollection="#arguments#" />
 		<br />
-	</cffunction>
-	
-<!---------------------------------------------------------------------------------------- displayAddType
-
-	Description:	Outputs a + icon which, when clicked, opens the add data_types page for a specified data type
-			
------------------------------------------------------------------------------------------------------>
-	
-	<cffunction name="displayAddType" access="public" output="true">
-		<cfargument name="addtype" type="string" required="yes" />
-		
-		<cfinvoke component="egd_billing.app.type_categories.typecategory"
-					method="select"
-					conditions="name = '#addtype#'"
-					returnvariable="type" />
-		<cfset link = "#request.path#app/types/create_popup.cfm?category_id=#type.id#" />
-		<img src="#request.path#images/plus.gif" alt="" onclick="window.open('#link#','_blank','height=160,width=330,toolbar=no,scrollbars=no,resizable=no');" />
-		
-
-	</cffunction>
-<!---------------------------------------------------------------------------------------- displayHelp
-
-	Description:	Outputs a question mark icon which, when clicked, displays a help message for the
-								given form field.
-			
------------------------------------------------------------------------------------------------------>
-	
-	<cffunction name="displayHelp" access="public" output="true">
-		<cfargument name="field" type="string" required="yes" />
-		<cfargument name="position" type="string" default="side">
-		<cfif IsDefined("request.data_object")>
-			<cfset message = request.data_object.help(field) />
-		<cfelse>
-			<cfset message = "">
-		</cfif>
-		
-		<img src="#request.path#images/question.gif" id="help_img_#arguments.field#" class="helpIcon" alt="" onclick="showhide('#arguments.field#');" />
-
-		<div class="help" id="help_msg_#arguments.field#" <cfif position EQ "side">style="margin-left:95px;"</cfif>> #message# </div>
-
-		<CFIF FindNoCase("Netscape", CGI.HTTP_USER_AGENT)><div style="clear:both;"></div></CFIF>
-		
-
 	</cffunction>
 	
 <!--------------------------------------------------------------------------------------- displayLabel
@@ -172,7 +120,7 @@
 
 	Description: Outputs an error for a given field of a model.
 	
-	Arguments: The model field of interest
+	arguments: The model field of interest
 				
 	Description: 
 				The error will be set in the Request variable only if it is meant to be displayed.  
@@ -202,7 +150,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="textfield" access="public" output="true">
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 		
 		<cfset variables.value = "" />
 		<cfif isDefined("request.data_object.#arguments.field#")>
@@ -218,7 +166,7 @@
 		</cfif>
 		<input #attributes.string()# />
 		
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 	
 <!-------------------------------------------------------------------------------------- decimalfield
@@ -229,7 +177,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="decimalfield" access="public" output="true">
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 		
 		<cfset variables.value = "" />
 		<cfif isDefined("request.data_object.#arguments.field#") AND isNumeric(Evaluate('request.data_object.#arguments.field#'))>
@@ -245,7 +193,7 @@
 		
 		<input #attributes.string()# />
 		
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 	
 <!----------------------------------------------------------------------------------------- datefield
@@ -256,7 +204,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="datefield" access="public" output="true">
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 		
 		<cfset field = attributes.get('id') />
 		
@@ -333,7 +281,7 @@
 		</cfif>
 		<input #attributes.string()# />
 
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 	
 <!----------------------------------------------------------------------------------------- timefield
@@ -344,7 +292,7 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="timefield" access="public" output="true">
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 		
 		<cfset field = attributes.get('id') />
 
@@ -405,7 +353,7 @@
 		<input #attributes.string()# />
 		</span>
 		
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 
 	
@@ -423,7 +371,7 @@
 		<cfargument name="empty_value" default="Select One" />
 		<cfargument name="expandable" default="yes" />
 		
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 		<cfset multiple_size = '' />
 		<cfif arguments.multiple eq 'false'>
 			<cfset is_multiple = "" />
@@ -457,7 +405,7 @@
 				</option>
 			</cfloop>
 		</select>
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 	
 <!----------------------------------------------------------------------------------------- textarea
@@ -468,22 +416,16 @@
 
 	<cffunction name="textarea" access="public" output="true">
 	
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 				
 		<cfset variables.value = "" />
 		<cfif isDefined("request.data_object.#arguments.field#")>
 			<cfset variables.value = Evaluate('request.data_object.#arguments.field#') />
 		</cfif>
 		
-		<!---<cfset attributes.add("rows", 5) />
-		<cfset attributes.add("cols", 26) />--->
-		<cfif StructKeyExists(request.data_object.field_lengths, arguments.field)>
-			<cfset attributes.set("maxlength", StructFind(request.data_object.field_lengths, arguments.field)) />
-		</cfif>
-	
 		<textarea #attributes.string()#>#variables.value#</textarea>
 		
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 
 <!--------------------------------------------------------------------------------------- radiobutton
@@ -502,7 +444,7 @@
 
 	<cfset option_index = 1 />
 	
-	<cfinvoke method="preamble" argumentcollection="#Arguments#" returnvariable="attributes" />
+	<cfinvoke method="preamble" argumentcollection="#arguments#" returnvariable="attributes" />
 	<cfset attributes.set("type", "radio")>
 	<cfif StructKeyExists(request.model_errors, arguments.field)>
 		<cfset attributes.add("class", "radio invalid_field") />
@@ -522,7 +464,7 @@
 	  <cfset option_index = option_index+1 />
 	</cfloop>
 	</div>
-	<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+	<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 
 <!--------------------------------------------------------------------------------------- checkbox
@@ -537,7 +479,7 @@
     	<cfargument name="required" default="false" />
 
 
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" />
 
 		<cfif isDefined("request.data_object.#arguments.field#") AND (Evaluate('request.data_object.#arguments.field#') OR Evaluate('request.data_object.#arguments.field#') EQ 1) >
 			<cfset attributes.set("checked", "checked") />
@@ -555,13 +497,13 @@
 
 		<input #attributes.string()# />
 			
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 	
 <!--------------------------------------------------------------------------------------- checkbox_group
 
 	Description:	Outputs a group of dynamic <input type="checkbox"> buttons based on the given query argument.
-	Arguments: 		Field is a dummy value for the preamble, etc to use. values is the list of fields. label is the label for the group, Options are the labels 
+	arguments: 		Field is a dummy value for the preamble, etc to use. values is the list of fields. label is the label for the group, Options are the labels 
 					for the individual boxes
 			
 ----------------------------------------------------------------------------------------------------->
@@ -574,7 +516,7 @@
     	<cfargument name="required" default="false" />
 
 		
-		<cfinvoke method="preamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="preamble" argumentcollection="#arguments#" />
 
 		<cfset attributes.set("type", "checkbox") />
 		<cfif StructKeyExists(request.model_errors, arguments.field)>
@@ -603,7 +545,7 @@
 	  		<cfset option_index = option_index+1 />
 		</cfloop>
 		</div>
-		<cfinvoke method="postamble" argumentcollection="#Arguments#" />
+		<cfinvoke method="postamble" argumentcollection="#arguments#" />
 	</cffunction>
 
 </cfcomponent>

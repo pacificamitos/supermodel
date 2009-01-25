@@ -6,6 +6,8 @@
     <cfset name = left(component, find('_', component) - 1) />
     <cfset path = "#request.path#views/#name#/#arguments.view#.cfm" />
 
+    <cfinclude template="/supermodel/helpers.cfc" />
+
     <cfinclude template="#path#" />
   </cffunction>
 </cfcomponent>

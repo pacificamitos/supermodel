@@ -5,7 +5,7 @@
 
 ---------------------------------------------------------------------------------------------------->
 
-<cfcomponent name="DataModel" extends="supermodel.SuperModel">
+<cfcomponent name="DataModel" extends="supermodel.object">
 	<cfset this.parents = structNew() />
 
 <!---------------------------------------------------------------------------------------------- init
