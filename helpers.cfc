@@ -1,23 +1,7 @@
 <cfcomponent>
+  <!--- These are reserved form control arguments that will not be treated as HTML attributes --->
+  <cfset variables.reserved_arguments = "field,label,required,values,options" />
 
-<!--- These are reserved form control arguments that will not be treated as HTML attributes --->
-<cfparam name="variables.reserved_arguments" default="" />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "field") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "label") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "required") />
-
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "query") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "value_field") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "display_field") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "jump_to") />
-
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "position") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "empty_value") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "expandable") />
-
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "values") />
-<cfset variables.reserved_arguments = ListAppend(variables.reserved_arguments, "options") />
-		
 <!------------------------------------------------------------------------------------------ preamble
 
 	Description:	This function is called at the beginning of every form control.
@@ -33,7 +17,7 @@
 		<cfinvoke method="displayLabel" argumentcollection="#arguments#" />
 		
 		<!--- Create an attributes object to store the HTML attributes for the form contol --->
-		<cfobject name="attributes" component="egd_billing.cfc.attributes" />
+		<cfobject name="attributes" component="supermodel.attributes" />
 		
 		<!--- Initialize the attributes with the passed-in arguments excluding the reserved ones --->
 		<cfset attributes.init(
