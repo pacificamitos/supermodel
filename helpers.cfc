@@ -1,6 +1,6 @@
 <cfcomponent>
   <!--- These are reserved form control arguments that will not be treated as HTML attributes --->
-  <cfset variables.reserved_arguments = "field,label,required,values,options" />
+  <cfset variables.reserved_arguments = "field,label,required,value" />
 
 <!----------------------------------------------------------------------------------------- textfield
 
@@ -9,20 +9,11 @@
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="textfield" access="public" output="true">
-		<cfinvoke method="before" argumentcollection="#arguments#" returnvariable="attributes" />
+		<cfinvoke method="before" argumentcollection="#arguments#" />
 		
-		<cfset variables.value = "" />
-		<cfif isDefined("request.data_object.#arguments.field#")>
-			<cfset variables.value = Evaluate('request.data_object.#arguments.field#') />
-		</cfif>
-		
-		<cfset attributes.set("value", variables.value) />
+		<cfset attributes.set("value", object[arguments.field]) />
 		<cfset attributes.add("type", "text") />
-		<cfset attributes.set("autocomplete", "off") />
-		<cfif IsDefined("request.data_object.field_lengths") AND
-			  StructKeyExists(request.data_object.field_lengths, arguments.field)>
-			<cfset attributes.set("maxlength", StructFind(request.data_object.field_lengths, arguments.field)) />
-		</cfif>
+
 		<input #attributes.string()# />
 		
 		<cfinvoke method="after" argumentcollection="#arguments#" />
@@ -30,20 +21,14 @@
 	
 <!----------------------------------------------------------------------------------------- textarea
 
-	Description:	Outputs a <textarea>
+	Description:	Outputs a <textarea> field
 			
 ----------------------------------------------------------------------------------------------------->
 
 	<cffunction name="textarea" access="public" output="true">
-	
-		<cfinvoke method="before" argumentcollection="#arguments#" returnvariable="attributes" />
+		<cfinvoke method="before" argumentcollection="#arguments#" />
 				
-		<cfset variables.value = "" />
-		<cfif isDefined("request.data_object.#arguments.field#")>
-			<cfset variables.value = Evaluate('request.data_object.#arguments.field#') />
-		</cfif>
-		
-		<textarea #attributes.string()#>#variables.value#</textarea>
+		<textarea #attributes.string()#>#object[arguments.field]#</textarea>
 		
 		<cfinvoke method="after" argumentcollection="#arguments#" />
 	</cffunction>
@@ -55,11 +40,13 @@
 ----------------------------------------------------------------------------------------------------->
 	
 	<cffunction name="before" access="private" returntype="void">	
+    <cfset variables.object = request.data_object />
+
 		<!--- Display the label for the form field --->	
 		<cfinvoke method="label" argumentcollection="#arguments#" />
 		
 		<!--- Create an attributes object to store the HTML attributes for the form contol --->
-		<cfobject name="attributes" component="supermodel.attributes" />
+		<cfobject name="variables.attributes" component="supermodel.attributes" />
 		
 		<!--- Initialize the attributes with the passed-in arguments excluding the reserved ones --->
 		<cfset attributes.init(
@@ -77,8 +64,6 @@
 		<cfelse>
 			<cfset attributes.add("class", "text") />
 		</cfif>
-		
-		<cfreturn attributes />
 	</cffunction>
 
 <!---------------------------------------------------------------------------------------- after
@@ -103,34 +88,21 @@
 	<cfargument name="label" default="#arguments.field#" />
 	<cfargument name="required" default="true" />
 	<cfargument name="accesskey" default="" />
-	
+
+  <cfset var pos = 0 />
+
+  <cfif accesskey NEQ "">
+    <cfset pos = findNoCase(accesskey, arguments.label) />
+    <cfset arguments.label = insert('</em>', arguments.label, pos) /> 
+    <cfset arguments.label = insert('<em class="accesskey">', arguments.label, pos - 1) /> 
+  </cfif>
+
 	<cfoutput>
     <label for="#field#" <cfif arguments.required>class="required"</cfif>>
-      <cfinvoke method="hotkey" label="#label#" accesskey="#accesskey#" returnvariable="newlabel">
-      #newlabel#:&nbsp;
+      #arguments.label#:
     </label>
 	</cfoutput>
 </cffunction>
-
-<!-------------------------------------------------------------------------------------- hotkey
-
-	Description:	Takes in a label and if the form field has an associated access key letter then it 
-								underlines all occurences of that letter in the label.								
-			
------------------------------------------------------------------------------------------------------>
-
-	<cffunction name="hotkey" access="private" returntype="void">
-		<cfargument name="label" required="yes" />
-		<cfargument name="accesskey" required="yes" />
-
-		<cfif accesskey NEQ "">
-			<cfset keyPos = FindNoCase(accesskey, label)>
-			<cfset label = Insert("</em>", label, keyPos)>
-			<cfset label = Insert('<em class="hotkey">', label, keyPos-1)>
-		</cfif>
-		
-		<cfreturn label>
-	</cffunction>
 
 <!--------------------------------------------------------------------------------------- error
 
@@ -139,10 +111,12 @@
 ----------------------------------------------------------------------------------------------------->
 	<cffunction name="error" access="private" returntype="void">
 		<cfargument name="field" type="string" required="yes" />
-		<cfargument name="position" type="string" default="side">
 
-    <div id="error_#field#" class="error">
-      #request.data_object.errors[arguments.field]#
-    </div>
+    <cfset var errors = object.getErrors() />
+    <cfset var error = errors[arguments.field] />
+
+    <cfoutput>
+      <div id="error_#field#" class="error">#error#</div>
+    </cfoutput>
 	</cffunction>
 </cfcomponent>

@@ -7,15 +7,14 @@
 <!---------------------------------------------------------------------------------------------- init
 
 	Description:	Sets the name of the object and the filesystem folder that the object's CFC file
-								is stored in.  This function is called implicitly whenever an object
+								is stored in.  this function is called implicitly whenever an object
 								is instantiated or invoked.
 
 ---------------------------------------------------------------------------------------------------->
 
 	<cffunction name="init" access="public" returntype="void"
 		hint="Initializes the object">
-		<cfset variables.errors  = StructNew() />
-		<cfset variables.lazy_variables = StructNew() />
+		<cfset variables.errors  = structNew() />
 		<cfset variables.loaded = false />
 	</cffunction>
 
@@ -37,101 +36,43 @@
 		<cfargument	name="params" required="yes" type="struct" />
 		<cfargument name="fields"	default="" type="string" />
 
-		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
-		<cfset clear() />
-
 		<!---
 			If the list of fields is not provided explicitly then we loop
 			over every field in the provided params structure
 		--->
 		<cfif arguments.fields EQ "">
-			<cfset arguments.fields = StructKeyList(params) />
+			<cfset arguments.fields = structKeyList(params) />
 		</cfif>
 
 		<!---
 			Loop over the list of fields and copy them from the params struct
-			into the "This" struct
+			into the "this" struct
 		--->
 		<cfloop list="#arguments.fields#" index="key">
-			<cfif StructKeyExists(This, key)>
-				<cfset StructInsert(This, key, StructFind(params, key), "True") />
+			<cfif structKeyExists(this, key)>
+				<cfset structInsert(this, key, structFind(params, key), "True") />
 			</cfif>
 		</cfloop>
 	</cffunction>
 
-<!--------------------------------------------------------------------------------------------- valid
+<!----------------------------------------------------------------------------------------- validate
 
-	Description: Validates the object's attributes
+	Description: Runs the object's validation criteria
 
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="valid" access="public" returntype="boolean">
-		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "validation.cfm" />
-
-		<cfset StructClear(variables.errors) />
-
-		<cfif FileExists(validation_file)>
-			<cfinclude template="#getIncludePath()#/validation.cfm" />
-		</cfif>
-		<cfset thisIsValid = StructIsEmpty(variables.errors)>
-		<cfreturn  thisIsValid />
+	<cffunction name="validate" access="public" returntype="void">
+    <!--- Implemented in child --->
 	</cffunction>
 
-<!---------------------------------------------------------------------------------------- isVerified
+<!---------------------------------------------------------------------------------------- hasErrors 
 
 	Description: Validates the object's attributes
 
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="isVerified" access="public" returntype="boolean">
-
+	<cffunction name="hasErrors" access="public" returntype="boolean">
 		<cfreturn structIsEmpty(variables.errors) />
-
-	</cffunction>
-
-<!---------------------------------------------------------------------------------------------- help
-
-	Description:	Given a field name, returns the corresponding help message if one exists.
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="help" access="public" returntype="string">
-		<cfargument name="field" type="string" required="yes" hint="The field we want help for" />
-
-		<cfset var validation_file = GetDirectoryFromPath(GetCurrentTemplatePath()) & "help.cfm" />
-
-		<cfset help_message = "No help available" />
-
-		<cfif FileExists(validation_file)>
-			<cfinclude template="#getIncludePath()#/help.cfm" />
-		</cfif>
-
-		<cfreturn help_message />
-	</cffunction>
-
-<!------------------------------------------------------------------------------------------ toStruct
-
-	Description:	Returns a shallow copy of this object
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="toStruct" access="public" returntype="struct">
-		<cfset var copy = structNew() />
-		<cfset var attribute = "" />
-
-		<!--- Copy all attributes/keys from the current object into the copy --->
-		<cfloop list="#structKeyList(this)#" index="attribute">
-			<cfset attribute = LCase(attribute) />
-			<cfif NOT isCustomFunction(this[attribute])>
-				<cfif isObject(this[attribute])>
-					<cfset copy[attribute] = this[attribute].toStruct() />
-				<cfelse>
-					<cfset copy[attribute] = this[attribute] />
-				</cfif>
-			</cfif>
-		</cfloop>
-
-		<cfreturn copy />
 	</cffunction>
 
 <!----------------------------------------------------------------------------------------- getErrors
@@ -145,95 +86,8 @@
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
-<!-------------------------------------- Accessor Functions ---------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
-
-<!------------------------------------------------------------------------------------- setObjectPath
-
-	Description:	Sets the path to the object's cfc
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="setObjectPath" access="private" returntype="void">
-		<cfargument name="object_path" type="string" required="yes" />
-
-		<cfset variables.object_path = arguments.object_path />
-	</cffunction>
-
-
-<!-------------------------------------------------------------------------------------------------->
 <!--------------------------------------- Helper Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
-
-
-<!------------------------------------------------------------------------------------ getIncludePath
-
-	Description:	Returns the dot-separated path of the component
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="getObjectPath" access="private" returntype="string">
-		<cfreturn getMetaData(this).name />
-	</cffunction>
-
-<!------------------------------------------------------------------------------------ getIncludePath
-
-	Description:	Converts a object_path of the form "folder1.folder2.objectname" to a directory
-								path that can be used by <cfinclude>
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="getIncludePath" access="private" returntype="string">
-		<cfset var include_path = "/" />
-		<cfset include_path = include_path & Replace(getObjectPath(), ".", "/", "all") />
-		<cfset include_path = ListDeleteAt(include_path, ListLen(include_path, "/"), "/") />
-
-		<cfreturn include_path />
-	</cffunction>
-
-<!-------------------------------------------------------------------------------------------- assert
-
-	Description:	Asserts the given condition by throwing an exception if the condition is false
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="assert" access="private" returntype="void">
-		<cfargument name="condition" type="boolean" required="yes" />
-		<cfargument name="message" type="string" default="Assertion Failed" />
-
-		<cfif NOT condition>
-			<cfthrow message="#arguments.message#">
-		</cfif>
-	</cffunction>
-
-<!--------------------------------------------------------------------------------------------- clear
-
-	Description:	Get rid of all lazy-loaded variables
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="clear" access="public" returntype="void">
-
-		<cfloop list="#StructKeyList(variables.lazy_variables)#" index="property">
-			<cfset StructDelete(variables, property) />
-		</cfloop>
-
-		<cfset variables.loaded = false />
-	</cffunction>
-
-<!-------------------------------------------------------------------------------------------- define
-
-	Description:	Indicate that the given property was defined via lazy-loading
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="define" access="private" returntype="void">
-		<cfargument name="property" type="string" required="yes" />
-		<cfargument name="value" type="any" required="yes" />
-
-		<cfset variables.lazy_variables[arguments.property] = true />
-		<cfset variables[arguments.property] = arguments.value />
-	</cffunction>
 
 <!------------------------------------------------------------------------------------------- defined
 
@@ -246,29 +100,5 @@
 		<cfargument name="property" type="string" required="yes" />
 
 		<cfreturn structKeyExists(variables, arguments.property) />
-	</cffunction>
-
-<!------------------------------------------------------------------------------------------- getPath
-
-	Description:	returns this_path_prefix
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="getPath" access="private" returntype="string">
-		<cfset var component = getMetaData(this) />
-		<cfset var this_path_prefix = "" />
-		<cfset var i = 1 />
-
-		<cfloop condition="#component.extends.name# NEQ 'supermodel.datamodel'">
-			<cfset component = component.extends />
-		</cfloop>
-
-		<cfset this_path_prefix =
-			ListDeleteAt(
-				component.name,
-				ListLen(component.name, "."),
-				".") & "." />
-
-		<cfreturn this_path_prefix />
 	</cffunction>
 </cfcomponent>
