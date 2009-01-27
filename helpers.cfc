@@ -59,7 +59,7 @@
 		<cfset attributes.add("onfocus", "this.setAttribute('class', this.type+' focused')") />
 		<cfset attributes.add("onblur", "this.setAttribute('class', this.type)") />
 		
-		<cfif StructKeyExists(request.model_errors, arguments.field)>
+		<cfif structKeyExists(request.data_object.errors, arguments.field)>
 			<cfset attributes.add("class", "text invalid_field") />
 		<cfelse>
 			<cfset attributes.add("class", "text") />
@@ -74,6 +74,7 @@
 	
 	<cffunction name="after" access="private" returntype="void">
 		<cfinvoke method="error" argumentcollection="#arguments#" />
+    <br />
   </cffunction>
 
 <!--------------------------------------------------------------------------------------- label
@@ -112,11 +113,10 @@
 	<cffunction name="error" access="private" returntype="void">
 		<cfargument name="field" type="string" required="yes" />
 
-    <cfset var errors = object.getErrors() />
-    <cfset var error = errors[arguments.field] />
-
-    <cfoutput>
-      <div id="error_#field#" class="error">#error#</div>
-    </cfoutput>
+    <cfif structKeyExists(request.data_object.errors, arguments.field)>
+      <cfoutput>
+        <div id="error_#field#" class="error">#errors[arguments.field]#</div>
+      </cfoutput>
+    </cfif>
 	</cffunction>
 </cfcomponent>

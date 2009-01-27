@@ -1,12 +1,15 @@
-<!--------------------------------------- DataModel -------------------------------------------------
+<!----------------------------------------- model ---------------------------------------------------
 
 	Description:	Adds CRUD (Create/Read/Update/Delete) methods to the object so that each instance
 								of the object is tied to a single record in the database table.
 
 ---------------------------------------------------------------------------------------------------->
 
-<cfcomponent name="DataModel" extends="supermodel.object">
-	<cfset this.parents = structNew() />
+<cfcomponent>
+
+<!-------------------------------------------------------------------------------------------------->
+<!---------------------------------------- Core Functions ------------------------------------------>
+<!-------------------------------------------------------------------------------------------------->
 
 <!---------------------------------------------------------------------------------------------- init
 
@@ -19,13 +22,11 @@
 		<cfargument name="dsn" type="string" required="yes" />
 
 		<cfset variables.collections = '' />
-		<cfset super.init() />
+		<cfset this.errors  = structNew() />
+		<cfset this.parents = structNew() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
 		<cfset configure() />
-		<cfif NOT structKeyExists(variables,'database_fields')>
-			<cfset injectAttributes() />
-		</cfif>
 	</cffunction>
 
 <!---------------------------------------------------------------------------------------------- load
@@ -326,6 +327,26 @@
 <!------------------------------------------- Accessors -------------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
 
+<!----------------------------------------------------------------------------------------- validate
+
+	Description: Runs the object's validation criteria
+
+---------------------------------------------------------------------------------------------------->
+
+	<cffunction name="validate" access="public" returntype="void">
+    <!--- Implemented in child --->
+	</cffunction>
+
+<!---------------------------------------------------------------------------------------- hasErrors 
+
+	Description: Validates the object's attributes
+
+---------------------------------------------------------------------------------------------------->
+
+	<cffunction name="hasErrors" access="public" returntype="boolean">
+		<cfreturn structIsEmpty(this.errors) />
+	</cffunction>
+
 <!----------------------------------------------------------------------------------------- persisted
 
 	Description: Returns true if the object is currently tied to a database record
@@ -506,71 +527,6 @@
         listAppend(variables[arguments.list], arguments.name) />
     </cfif>
   </cffunction>
-
-<!---------------------------------------------------------------------------------- injectAttributes
-
-	Description:	Uses the information_schema table to determine the name and data type of each
-								column in the table associated with this object.  For each column found, a
-								corresponding attribute is added to the object by inserting it into the "this"
-								structure.
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="injectAttributes" access="private" returntype="void">
-		<cfargument name="dsn" type="string" default="#variables.dsn#" />
-		<cfargument name="table_name" type="string" default="#variables.table_name#" />
-		<cfargument name="field_list" type="string" default="database_fields" />
-
-		<cfset var table_columns = "" />
-		<cfset variables[arguments.field_list] = "" />
-		<cfset variables['field_types'] = StructNew() />
-		<cfif Find('..', table_name)>
-			<cfset table_name = Right(table_name, Len(table_name) - (Find('..', table_name) + 1)) />
-		</cfif>
-
-		<!--- Get the column names and column types for the table --->
-		<cfquery name="table_columns" datasource="#arguments.dsn#" cachedwithin="#CreateTimespan(1,0,0,0)#">
-			SELECT
-				column_name,
-				data_type,
-				character_maximum_length,
-				numeric_precision
-			FROM information_schema.columns
-			WHERE
-				table_name = '#arguments.table_name#'
-		</cfquery>
-
-		<!--- Loop over each column in the table --->
-		<cfloop query="table_columns">
-			<!---
-				The default value for an attribute is an empty string except for money
-				and bit atrributes which default to 0 instead
-			--->
-			<cfset column_default = "" />
-			<cfif table_columns.data_type EQ "money" OR table_columns.data_type EQ "bit">
-				<cfset column_default = 0 />
-			</cfif>
-
-			<!--- Insert the column name into the list of database fields --->
-			<cfif table_columns.column_name NEQ "id">
-				<cfset variables[arguments.field_list] = ListAppend(
-					variables[arguments.field_list],
-					table_columns.column_name) />
-			</cfif>
-
-			<!--- Insert the column type structure with the column type --->
-			<cfset StructInsert(
-				field_types,
-				table_columns.column_name,
-				cf_sql_type(table_columns.data_type),
-				"True") />
-
-			<!--- Add the column as an attribute of the object --->
-			<cfif NOT structKeyExists(this, table_columns.column_name)>
-				<cfset structInsert(this, table_columns.column_name, "", true) />
-			</cfif>
-		</cfloop>
-	</cffunction>
 
 <!--------------------------------------------------------------------------------------------- value
 
