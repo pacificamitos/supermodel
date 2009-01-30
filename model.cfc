@@ -494,14 +494,14 @@
 <!--------------------------------------- Helper Functions ----------------------------------------->
 <!-------------------------------------------------------------------------------------------------->
 
-<!--------------------------------------------------------------------------------------- addProperty 
+<!--------------------------------------------------------------------------------------- property 
 
 	Description:  This function is used to manually add properties to a model rather than 
                 introspecting them from the database information_schema.
 
 ---------------------------------------------------------------------------------------------------->
 
-  <cffunction name="addProperty" access="private" returntype="void">
+  <cffunction name="property" access="private" returntype="void">
     <cfargument name="name" type="string" required="yes" />
     <cfargument name="type" type="string" required="yes" />
 		<cfargument name="list" type="string" default="database_fields" />
