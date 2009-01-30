@@ -1,6 +1,5 @@
 <cfcomponent>
   <cfset init() />
-  <cfinclude template="/supermodel/helpers.cfc" />
 
   <cffunction name="init" access="private" returntype="void">
     <cfset variables.model_path = request.path & 'model/' />
