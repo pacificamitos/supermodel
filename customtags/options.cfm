@@ -1,6 +1,6 @@
 <cfoutput>
 
-<cfset query = attributes.query /> 
+<cfset query = caller[attributes.query] /> 
 
 <cfif structKeyExists(attributes, 'default')>
   <option value="">#attributes.default#</option>
