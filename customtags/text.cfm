@@ -1,3 +1,5 @@
+<cfoutput>
+
 <cfswitch expression="#thistag.executionmode#">
   <cfcase value="start">
     <cfinclude template="common.cfm" />
@@ -8,3 +10,5 @@
     <cfinvoke method="after" argumentcollection="#attributes#" />
   </cfcase>
 </cfswitch>
+
+</cfoutput>

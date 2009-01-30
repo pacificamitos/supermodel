@@ -81,5 +81,7 @@
 
 <cffunction name="after" access="private" returntype="void">
   <cfinvoke method="error" argumentcollection="#arguments#" />
-  <br />
+  <cfif NOT structKeyExists(arguments, 'break') OR arguments.break EQ "yes">
+    <br />
+  </cfif>
 </cffunction>
