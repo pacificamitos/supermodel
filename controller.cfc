@@ -13,9 +13,9 @@
   <cffunction name="get" access="public" returntype="supermodel.model">
     <cfargument name="name" type="string" required="yes" />
 
-    <cfset object = createObject('component', model_path & arguments.name) />
-    <cfset object.init(request.dsn) />
-    <cfreturn object />
+    <cfset variables.object = createObject('component', model_path & arguments.name) />
+    <cfset variables.object.init(request.dsn) />
+    <cfreturn variables.object />
   </cffunction>
 
   <cffunction name="render" access="private" returntype="void">

@@ -65,12 +65,6 @@
   <!--- Add some default thistag.attributes if they aren't provided as arguments --->
   <cfset thistag.attributes.set("id", arguments.id) /> <!--- ID MUST be the id name --->
   <cfset thistag.attributes.add("name", arguments.id) />
-  
-  <cfif structKeyExists(request.data_object.errors, arguments.id)>
-    <cfset thistag.attributes.add("class", "text invalid_id") />
-  <cfelse>
-    <cfset thistag.attributes.add("class", "text") />
-  </cfif>
 </cffunction>
 
 <!---------------------------------------------------------------------------------------- after

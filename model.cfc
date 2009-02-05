@@ -46,9 +46,6 @@
 		<cfset var query = "" />
 		<cfset var num_updated_fields = 0 />
 
-		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
-		<cfset clear() />
-
 		<!--- If we've received a recordset, we only need a single row right now --->
 		<cfif isQuery(data)>
 			<cfloop list="#data.columnlist#" index="column">
@@ -355,26 +352,6 @@
 
 	<cffunction name="persisted" access="public" returntype="boolean">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "" AND this.id NEQ 0>
-	</cffunction>
-
-<!-------------------------------------------------------------------------------------- getTableName
-
-	Description:
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="getTableName" access="public" returntype="string">
-		<cfreturn variables.table_name />
-	</cffunction>
-
-<!---------------------------------------------------------------------------------------- getColumns
-
-	Description:
-
----------------------------------------------------------------------------------------------------->
-
-	<cffunction name="getColumns" access="public" returntype="string">
-		<cfreturn variables.database_fields />
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
