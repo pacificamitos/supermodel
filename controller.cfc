@@ -5,27 +5,43 @@
     <cfset variables.model_path = request.path & 'model/' />
     <cfset variables.views_path = request.path & 'views/' />
     <cfset variables.controller_path = request.path & 'controllers/' />
+    <cfset variables.routes_path = request.path & 'app/' />
 
     <cfset fillRequest(url) />
     <cfset fillRequest(form) />
   </cffunction>
 
-  <cffunction name="get" access="public" returntype="supermodel.model">
+  <cffunction name="get" access="public" returntype="supermodel2.model">
     <cfargument name="name" type="string" required="yes" />
 
-    <cfset variables.object = createObject('component', model_path & arguments.name) />
-    <cfset variables.object.init(request.dsn) />
+    <cfif structKeyExists(session, arguments.name)>
+      <cfset variables.object = session[arguments.name] />
+    <cfelse>
+      <cfset variables.object = createObject('component', model_path & arguments.name) />
+      <cfset variables.object.init(request.dsn) />
+    </cfif>
+
     <cfreturn variables.object />
   </cffunction>
 
   <cffunction name="render" access="private" returntype="void">
     <cfargument name="view" type="string" required="yes" />
 
-    <cfset var controller = listLast(getMetaData(this).name, '.') />
-    <cfset var folder = left(controller, find('_', controller) - 1) />
-    <cfset var path = "#views_path##folder#/#arguments.view#.cfm" />
+    <cfset var controller_name = listLast(getMetaData(this).name, '.') />
+    <cfset var folder_name = left(controller_name, find('_', controller_name) - 1) />
+
+    <cfset var path = "#views_path##folder_name#/#arguments.view#.cfm" />
 
     <cfinclude template="#path#" />
+  </cffunction>
+
+  <cffunction name="redirect_to" access="private" returntype="void">
+    <cfargument name="action" type="string" required="yes" />
+
+    <cfset var controller_name = listLast(getMetaData(this).name, '.') />
+    <cfset var folder_name = left(controller_name, find('_', controller_name) - 1) />
+
+    <cflocation url="#routes_path##folder_name#/#arguments.action#.cfm" addtoken="no" />
   </cffunction>
 
 	<cffunction name="fillRequest" access="private" returntype="void">
