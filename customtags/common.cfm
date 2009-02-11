@@ -13,6 +13,10 @@
 
   <cfset var pos = 0 />
 
+  <cfif arguments.label EQ "">
+    <cfreturn />
+  </cfif>
+
   <cfif accesskey NEQ "">
     <cfset pos = findNoCase(accesskey, arguments.label) />
     <cfset arguments.label = insert('</em>', arguments.label, pos) /> 
@@ -34,7 +38,7 @@
 <cffunction name="error" access="private" returntype="void">
   <cfargument name="id" type="string" required="yes" />
 
-  <cfif structKeyExists(request.data_object.errors, arguments.id)>
+  <cfif structKeyExists(request, 'data_object') AND structKeyExists(request.data_object.errors, arguments.id)>
     <cfoutput>
       <div id="error_#id#" class="error">#request.data_object.errors[arguments.id]#</div>
     </cfoutput>
@@ -48,8 +52,7 @@
 ----------------------------------------------------------------------------------------------------->
 	
 <cffunction name="before" access="private" returntype="void">	
-  <cfset variables.reserved_arguments = "id,label,required,value" />
-  <cfset variables.object = request.data_object />
+  <cfset variables.reserved_arguments = "id,label,required,value,break" />
 
   <!--- Display the label for the form id --->	
   <cfinvoke method="label" argumentcollection="#arguments#" />
