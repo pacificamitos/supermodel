@@ -16,6 +16,7 @@
 
     <cfif structKeyExists(session, arguments.name)>
       <cfset variables.object = session[arguments.name] />
+      <cfset structDelete(session, arguments.name) />
     <cfelse>
       <cfset variables.object = createObject('component', model_path & arguments.name) />
       <cfset variables.object.init(request.dsn) />
