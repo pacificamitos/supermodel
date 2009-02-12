@@ -10,7 +10,7 @@
     <cfset fillRequest(form) />
   </cffunction>
 
-  <cffunction name="get" access="public" returntype="supermodel.model">
+  <cffunction name="get" access="public" returntype="model">
     <cfargument name="name" type="string" required="yes" />
 
     <cfset variables.object = createObject('component', model_path & arguments.name) />
