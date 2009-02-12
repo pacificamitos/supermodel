@@ -144,7 +144,7 @@
 
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="create" access="public" returntype="supermodel.DataModel">
+	<cffunction name="create" access="public" returntype="supermodel2.DataModel">
 		<cfargument name="params" required="no" type="struct"
 			hint="A params struct can be used to load new values into the object before inserting it" />
 
@@ -278,7 +278,7 @@
 		<cfset request[arguments.component].prefix = arguments.prefix & '_' />
 		<cfset request[arguments.component].group_by = request[arguments.component].prefix & 'id' />
 
-		<cfset object_list = createObject('component', 'supermodel.objectlist') />
+		<cfset object_list = createObject('component', 'supermodel2.objectlist') />
 		<cfset object_list.init(request[arguments.component], QueryNew('')) />
 		<cfset structInsert(this, arguments.name, object_list) />
 
@@ -341,6 +341,16 @@
 ---------------------------------------------------------------------------------------------------->
 
 	<cffunction name="hasErrors" access="public" returntype="boolean">
+		<cfreturn not valid() />
+	</cffunction>
+
+<!----------------------------------------------------------------------------------------     valid 
+
+	Description: Validates the object's attributes
+
+---------------------------------------------------------------------------------------------------->
+
+	<cffunction name="valid" access="public" returntype="boolean">
 		<cfreturn structIsEmpty(this.errors) />
 	</cffunction>
 
