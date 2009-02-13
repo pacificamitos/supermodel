@@ -515,6 +515,12 @@
     </cfif>
   </cffunction>
 
+  <cffunction name="table" access="private" returntype="void">
+    <cfargument name="name" type="string" required="yes" />
+
+    <cfset variables.table_name = arguments.name />
+  </cffunction>
+
 <!--------------------------------------------------------------------------------------------- value
 
 	Description:	Given a field name this function returns the corresponding value for the
