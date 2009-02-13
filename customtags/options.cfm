@@ -7,9 +7,9 @@
 </cfif>
 
 <cfloop query="query">
-  <cfset value = evaluate("query.#attributes.value#") />
-  <cfset display = evaluate("query.#attributes.display#") />
-  <option value="#value#">#display#</option>
+  <option value="#query[attributes.value][query.currentrow]#">
+    #query[attributes.display][query.currentrow]#
+  </option>
 </cfloop>
 
 </cfoutput>
