@@ -7,7 +7,6 @@
     <cfset variables.controller_path = request.path & 'controllers/' />
     <cfset variables.routes_path = request.path & 'app/' />
 
-    <cfset fillRequest(url) />
     <cfset fillRequest(form) />
   </cffunction>
 
