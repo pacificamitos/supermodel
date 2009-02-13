@@ -11,7 +11,7 @@
     <cfset fillRequest(form) />
   </cffunction>
 
-  <cffunction name="get" access="public" returntype="supermodel2.model">
+  <cffunction name="get" access="public" returntype="model">
     <cfargument name="name" type="string" required="yes" />
 
     <cfif structKeyExists(session, arguments.name)>
