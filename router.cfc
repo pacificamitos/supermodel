@@ -1,54 +1,66 @@
-<cfcomponent displayname="router">
+<cfcomponent>
+  <cfset init() />
 
-	<cfset variables.patterns ='' />
-<!-----------------------------------------------------------------------------------
-	
-	add: 
-		adds a pattern to the router, seperates each entry with |
-		
------------------------------------------------------------------------------------>
+  <cffunction name="init" access="private" returntype="void">
+    <cfset variables.routes = arrayNew(1) />
+  </cffunction>
+
 	<cffunction name="add" access="public" output="false" returntype="void">
-		<cfargument name="route" required="yes" type="string">
+		<cfargument name="pattern" type="string" required="yes">
+		<cfargument name="name" type="string" required="no">
 
-		<cfset variables.patterns = listAppend(variables.patterns,arguments.route,'|') />
-
+		<cfset arrayAppend(routes, structCopy(arguments)) />
 	</cffunction>
 
-<!-----------------------------------------------------------------------------------
-	
-	getController: 
-		Goes through the available patterns, finds the matching pattern and fills the
-		Request struct with key-value pairs. Then populates a controller structure
-		with name and method, and returns it.
+	<cffunction name="route" access="public" returntype="void">
+    <cfset var url = right(cgi.path_info, len(cgi.path_info) - 1) />
+
+    <cfset add(':controller/:action') />
+
+    <cfloop from="1" to="#arrayLen(routes)#" index="i">
+      <cfset params = structNew() />
+      <cfset j = 0 />
+      <cfset matches = 0 />
+      <cfset pattern = routes[i]['pattern'] />
+
+      <cfloop list="#pattern#" index="param" delimiters="/">
+        <cfset j = j + 1 />
+        <cfif find(":", param) EQ 1>
+          <cfset params[right(param, len(param)- 1)] = listGetAt(url, j, '/') />
+          <cfset matches = matches + 1 />
+        </cfif>
+      </cfloop>
+
+      <cfif matches EQ count(pattern, ':') 
+      AND structKeyExists(params, 'controller') 
+      AND structKeyExists(params, 'action')>
+        <cfset fillRequest(params) />
+        <cfset fillRequest(form) />
+        <cfinvoke component="egd_billing.controllers.#params['controller']#_controller" method="#params['action']#">
+      </cfif>
+    </cfloop>
+	</cffunction>
+
+	<cffunction name="fillRequest" access="private" returntype="void">
+		<cfargument name="structure" type="struct" required="yes" />
 		
------------------------------------------------------------------------------------>
-	<cffunction name="getController" access="public" output="true" returntype="struct">
-		
-		<cfset var url_params = cgi.PATH_INFO />
-		<cfset var controller = structNew() />
-		<cfset var pattern_found = false />
-		<cfloop list="#variables.patterns#" index="pattern" delimiters="|">
-			#pattern#
-			<!--- If  a matching pattern exists --->
-			<cfif ListLen(pattern,'/') eq listLen(url_params,'/')>
-				<cfset pattern_found = true />
-				<cfset counter = 1 />
-				<cfloop list="#pattern#" index="key" delimiters="/">
-					<cfset structInsert(request,key,listGetAt(url_params,counter,'/')) />
-					<cfset counter = counter + 1 />
-				</cfloop>
-			</cfif>
+		<cfloop list="#structKeyList(arguments.structure)#" index="key">
+			<cfset structInsert(request, key, arguments.structure[key], true) />
 		</cfloop>
-		
-		<!--- if no matchig patterns were found, throw a CF Error --->
-		<cfif not pattern_found>
-			<cfthrow message="Pattern Does Not Exist!" />
-		</cfif>
-		<!--- build the controller structure --->
-		<cfset structInsert(controller,'name',request.controller&'_controller') />
-		<cfset structInsert(controller,'method',request.action) />
-
-		<cfreturn controller />
 	</cffunction>
 
+  <cffunction name="count" access="private" returntype="numeric">
+    <cfargument name="string" type="string" required="yes" />
+    <cfargument name="char" type="string" required="yes" />
+
+    <cfset var count = 0 />
+
+    <cfloop from="1" to="#len(string)#" index="i">
+      <cfif mid(string, i, 1) EQ char>
+        <cfset count = count + 1 />
+      </cfif>
+    </cfloop>
+
+    <cfreturn count />
+  </cffunction>
 </cfcomponent>

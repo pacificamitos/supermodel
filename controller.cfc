@@ -6,8 +6,6 @@
     <cfset variables.views_path = request.path & 'views/' />
     <cfset variables.controller_path = request.path & 'controllers/' />
     <cfset variables.routes_path = request.path & 'app/' />
-
-    <cfset fillRequest(form) />
   </cffunction>
 
   <cffunction name="get" access="public" returntype="model">
@@ -26,13 +24,13 @@
 
   <cffunction name="render" access="private" returntype="void">
     <cfargument name="view" type="string" required="yes" />
+    <cfargument name="layout" type="string" default="main" />
 
     <cfset var controller_name = listLast(getMetaData(this).name, '.') />
     <cfset var folder_name = left(controller_name, find('_', controller_name) - 1) />
 
-    <cfset var path = "#views_path##folder_name#/#arguments.view#.cfm" />
-
-    <cfinclude template="#path#" />
+    <cfset content = "#views_path##folder_name#/#arguments.view#.cfm" />
+    <cfinclude template="#views_path#layouts/#arguments.layout#.cfm" />
   </cffunction>
 
   <cffunction name="redirect_to" access="private" returntype="void">

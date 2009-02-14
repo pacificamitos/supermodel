@@ -58,7 +58,7 @@
   <cfinvoke method="label" argumentcollection="#arguments#" />
   
   <!--- Create an thistag.attributes object to store the HTML thistag.attributes for the form contol --->
-  <cfobject name="thistag.attributes" component="supermodel.attributes" />
+  <cfobject name="thistag.attributes" component="supermodel2.attributes" />
   
   <!--- Initialize the thistag.attributes with the passed-in arguments excluding the reserved ones --->
   <cfset thistag.attributes.init(
