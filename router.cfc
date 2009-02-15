@@ -5,40 +5,40 @@
     <cfset variables.routes = arrayNew(1) />
   </cffunction>
 
-	<cffunction name="add" access="public" output="false" returntype="void">
+	<cffunction name="add" access="public" returntype="void">
 		<cfargument name="pattern" type="string" required="yes">
 		<cfargument name="name" type="string" required="no">
 
-		<cfset arrayAppend(routes, structCopy(arguments)) />
+    <cfset var route = createObject('component', 'route') />
+    <cfinvoke component="#route#" method="init" argumentcollection="#arguments#">
+
+		<cfset arrayAppend(routes, route) />
 	</cffunction>
 
 	<cffunction name="route" access="public" returntype="void">
     <cfset var url = right(cgi.path_info, len(cgi.path_info) - 1) />
+    <cfset var route = "" />
+    <cfset var controller = "" />
+    <cfset var action = "" />
 
     <cfset add(':controller/:action') />
 
     <cfloop from="1" to="#arrayLen(routes)#" index="i">
-      <cfset params = structNew() />
-      <cfset j = 0 />
-      <cfset matches = 0 />
-      <cfset pattern = routes[i]['pattern'] />
+      <cfset route = routes[i] />
 
-      <cfloop list="#pattern#" index="param" delimiters="/">
-        <cfset j = j + 1 />
-        <cfif find(":", param) EQ 1>
-          <cfset params[right(param, len(param)- 1)] = listGetAt(url, j, '/') />
-          <cfset matches = matches + 1 />
-        </cfif>
-      </cfloop>
+      <cfif route.match(url)> 
+        <cfset controller = "egd_billing.controllers.#route.controller()#_controller" />
+        <cfset action = route.action() />
 
-      <cfif matches EQ count(pattern, ':') 
-      AND structKeyExists(params, 'controller') 
-      AND structKeyExists(params, 'action')>
-        <cfset fillRequest(params) />
+        <cfset fillRequest(route.getParams()) />
         <cfset fillRequest(form) />
-        <cfinvoke component="egd_billing.controllers.#params['controller']#_controller" method="#params['action']#">
+
+        <cfinvoke component="#controller#" method="#action#">
+        <cfreturn />
       </cfif>
     </cfloop>
+
+    <cfthrow message="No routes matched the given URL" />
 	</cffunction>
 
 	<cffunction name="fillRequest" access="private" returntype="void">
