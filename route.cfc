@@ -42,14 +42,6 @@
     <cfreturn structKeyExists(params, 'controller') AND structKeyExists(params, 'action') />
   </cffunction>
 
-  <cffunction name="controller" access="public" returntype="string">
-    <cfreturn variables['params']['controller'] />
-  </cffunction>
-
-  <cffunction name="action" access="public" returntype="string">
-    <cfreturn variables['params']['action'] />
-  </cffunction>
-
   <cffunction name="getParams" access="public" returntype="struct">
     <cfreturn variables.params />
   </cffunction>

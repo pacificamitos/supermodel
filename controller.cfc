@@ -41,12 +41,4 @@
 
     <cflocation url="#routes_path##folder_name#/#arguments.action#.cfm" addtoken="no" />
   </cffunction>
-
-	<cffunction name="fillRequest" access="private" returntype="void">
-		<cfargument name="structure" type="struct" required="yes" />
-		
-		<cfloop list="#structKeyList(arguments.structure)#" index="key">
-			<cfset structInsert(request, key, arguments.structure[key], true) />
-		</cfloop>
-	</cffunction>
 </cfcomponent>

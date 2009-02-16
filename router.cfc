@@ -29,6 +29,7 @@
     <cfset var controller = "" />
     <cfset var action = "" />
 
+    <!--- Get the part of the URL that trails index.cfm --->
     <cfif len(cgi.path_info) GT 1>
       <cfset path = right(cgi.path_info, len(cgi.path_info) - 1) />
     </cfif>
@@ -37,11 +38,8 @@
       <cfset route = routes[i] />
 
       <cfif route.match(path)> 
-        <cfset controller = "egd_billing.controllers.#route.controller()#_controller" />
-        <cfset action = route.action() />
-
         <cfset fillRequest(route.getParams()) />
-        <cfinvoke component="#controller#" method="#action#">
+        <cfinvoke component="#request.path#controllers/#request.controller#_controller" method="#request.action#">
         <cfreturn />
       </cfif>
     </cfloop>
