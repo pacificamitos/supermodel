@@ -33,7 +33,6 @@
       <cfset url = right(cgi.path_info, len(cgi.path_info) - 1) />
     </cfif>
 
-
     <cfloop from="1" to="#arrayLen(routes)#" index="i">
       <cfset route = routes[i] />
 
@@ -42,13 +41,12 @@
         <cfset action = route.action() />
 
         <cfset fillRequest(route.getParams()) />
-        <cfset fillRequest(form) />
-
         <cfinvoke component="#controller#" method="#action#">
         <cfreturn />
       </cfif>
     </cfloop>
 
+    <cfset fillRequest(form) />
     <cfinclude template="#arguments.targetPage#" />
 	</cffunction>
 
