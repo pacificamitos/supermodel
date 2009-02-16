@@ -24,19 +24,19 @@
 	<cffunction name="route" access="public" returntype="void">
     <cfargument name="targetPage" type="string" required="yes" />
 
-    <cfset var url = "" />
+    <cfset var path = "" />
     <cfset var route = "" />
     <cfset var controller = "" />
     <cfset var action = "" />
 
     <cfif len(cgi.path_info) GT 1>
-      <cfset url = right(cgi.path_info, len(cgi.path_info) - 1) />
+      <cfset path = right(cgi.path_info, len(cgi.path_info) - 1) />
     </cfif>
 
     <cfloop from="1" to="#arrayLen(routes)#" index="i">
       <cfset route = routes[i] />
 
-      <cfif route.match(url)> 
+      <cfif route.match(path)> 
         <cfset controller = "egd_billing.controllers.#route.controller()#_controller" />
         <cfset action = route.action() />
 
@@ -46,6 +46,7 @@
       </cfif>
     </cfloop>
 
+    <cfset fillRequest(url) />
     <cfset fillRequest(form) />
     <cfinclude template="#arguments.targetPage#" />
 	</cffunction>

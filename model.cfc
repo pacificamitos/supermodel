@@ -127,15 +127,11 @@
 ---------------------------------------------------------------------------------------------------->
 
   <cffunction name="save" access="public" returntype="boolean">
-		<cfset var proceed = true />
 		<cfif NOT persisted()>
-			<cfset create() />
-			<cfset proceed = this.isVerified() />
+			<cfreturn create() />
   	<cfelse>
-    	<cfset proceed = update()>
+    	<cfreturn update()>
     </cfif>
-		
-		<cfreturn proceed />
   </cffunction>
 
 <!-------------------------------------------------------------------------------------------- create
@@ -144,7 +140,7 @@
 
 ---------------------------------------------------------------------------------------------------->
 
-	<cffunction name="create" access="public" returntype="supermodel2.DataModel">
+	<cffunction name="create" access="public" returntype="boolean">
 		<cfargument name="params" required="no" type="struct"
 			hint="A params struct can be used to load new values into the object before inserting it" />
 
@@ -155,9 +151,10 @@
 		<cfif valid()>
 				<cfset insertQuery() />
 				<cfset read(this.id) />
+        <cfreturn true />
 		</cfif>
 
-		<cfreturn this />
+		<cfreturn false />
 	</cffunction>
 
 <!---------------------------------------------------------------------------------------------- read
@@ -228,18 +225,16 @@
 	<cffunction name="update" access="public" returntype="boolean">
 		<cfargument name="params" required="no" type="struct" />
 		
-		<cfset var proceed = true />
-
 		<cfif structKeyExists(arguments, 'params')>
 			<cfset load(arguments.params) />
 		</cfif>
 
 		<cfif valid()>
 			<cfset updateQuery() />
-			<cfset proceed = isVerified() />
+			<cfreturn true />
 		</cfif>
 
-		<cfreturn proceed />
+		<cfreturn false />
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------- delete
