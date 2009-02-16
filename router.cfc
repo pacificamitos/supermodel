@@ -34,6 +34,9 @@
       <cfset path = right(cgi.path_info, len(cgi.path_info) - 1) />
     </cfif>
 
+    <cfset fillRequest(url) />
+    <cfset fillRequest(form) />
+
     <cfloop from="1" to="#arrayLen(routes)#" index="i">
       <cfset route = routes[i] />
 
@@ -44,8 +47,6 @@
       </cfif>
     </cfloop>
 
-    <cfset fillRequest(url) />
-    <cfset fillRequest(form) />
     <cfinclude template="#arguments.targetPage#" />
 	</cffunction>
 

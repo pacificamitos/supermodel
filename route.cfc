@@ -8,7 +8,7 @@
     <cfset variables.pattern = arguments.pattern />
 
     <cfloop list="#structKeyList(arguments)#" index="param">
-      <cfif not listFindNoCase("pattern,name", param)>
+      <cfif not listFindNoCase("pattern", param)>
         <cfset structInsert(variables.params, param, arguments[param], true) />
       </cfif>
     </cfloop>
@@ -32,7 +32,7 @@
         <cfif find(":", expected) EQ 1>
           <cfset variables.params[right(expected, len(expected) - 1)] = found />
         <cfelse>
-          <cfreturn />
+          <cfreturn false />
         </cfif>
       </cfif>
 
