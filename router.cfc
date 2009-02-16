@@ -4,9 +4,13 @@
   <cffunction name="init" access="private" returntype="void">
     <cfset variables.routes = arrayNew(1) />
     <cfset variables.named_routes = structNew() />
+
+    <cfset loadRoutes() />
   </cffunction>
 
 	<cffunction name="add" access="public" returntype="void">
+    <cfargument name="pattern" type="string" required="yes" />
+
     <cfset var route = createObject('component', 'route') />
     <cfinvoke component="#route#" method="init" argumentcollection="#arguments#">
 
@@ -25,11 +29,10 @@
     <cfset var controller = "" />
     <cfset var action = "" />
 
-    <cfif cgi.path_info NEQ "">
+    <cfif len(cgi.path_info) GT 1>
       <cfset url = right(cgi.path_info, len(cgi.path_info) - 1) />
     </cfif>
 
-    <cfset add(':controller/:action') />
 
     <cfloop from="1" to="#arrayLen(routes)#" index="i">
       <cfset route = routes[i] />
@@ -57,18 +60,12 @@
 		</cfloop>
 	</cffunction>
 
-  <cffunction name="count" access="private" returntype="numeric">
-    <cfargument name="string" type="string" required="yes" />
-    <cfargument name="char" type="string" required="yes" />
+  <cffunction name="loadRoutes" access="private" returntype="void">
+    <!--- Application routes --->
+    <cfinclude template="#request.path#routes.cfm" />
 
-    <cfset var count = 0 />
-
-    <cfloop from="1" to="#len(string)#" index="i">
-      <cfif mid(string, i, 1) EQ char>
-        <cfset count = count + 1 />
-      </cfif>
-    </cfloop>
-
-    <cfreturn count />
+    <!--- Default routes --->
+    <cfset add(':controller/:action') />
+    <cfset add(':controller/:action/:id') />
   </cffunction>
 </cfcomponent>

@@ -49,6 +49,4 @@
 			<cfset structInsert(request, key, arguments.structure[key], true) />
 		</cfloop>
 	</cffunction>
-
-  <cffunction name="link"
 </cfcomponent>
