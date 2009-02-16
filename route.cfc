@@ -1,17 +1,11 @@
 <cfcomponent>
   <cffunction name="init" access="public" returntype="void">
 		<cfargument name="pattern" type="string" required="yes">
-		<cfargument name="name" type="string" required="no">
 
     <cfset var param = "" />
 
     <cfset variables.params = structNew() />
-
     <cfset variables.pattern = arguments.pattern />
-
-    <cfif structKeyExists(arguments, 'name')>
-      <cfset variables.name = arguments.name />
-    </cfif>
 
     <cfloop list="#structKeyList(arguments)#" index="param">
       <cfif not listFindNoCase("pattern,name", param)>
@@ -27,16 +21,16 @@
     <cfset var expected = "" />
     <cfset var found = "" />
 
-    <cfif listLen(pattern, '/') NEQ listLen(arguments.url, '/')>
+    <cfif listLen(variables.pattern, '/') NEQ listLen(arguments.url, '/')>
       <cfreturn false />
     </cfif>
 
-    <cfloop list="#pattern#" index="expected" delimiters="/">
+    <cfloop list="#variables.pattern#" index="expected" delimiters="/">
       <cfset found = listGetAt(url, i, '/') /> 
 
       <cfif found NEQ expected>
         <cfif find(":", expected) EQ 1>
-          <cfset params[right(expected, len(expected) - 1)] = found />
+          <cfset variables.params[right(expected, len(expected) - 1)] = found />
         <cfelse>
           <cfreturn />
         </cfif>
@@ -44,7 +38,6 @@
 
       <cfset i = i + 1 />
     </cfloop>
-
 
     <cfreturn structKeyExists(params, 'controller') AND structKeyExists(params, 'action') />
   </cffunction>

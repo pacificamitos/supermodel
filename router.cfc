@@ -3,23 +3,31 @@
 
   <cffunction name="init" access="private" returntype="void">
     <cfset variables.routes = arrayNew(1) />
+    <cfset variables.named_routes = structNew() />
   </cffunction>
 
 	<cffunction name="add" access="public" returntype="void">
-		<cfargument name="pattern" type="string" required="yes">
-		<cfargument name="name" type="string" required="no">
-
     <cfset var route = createObject('component', 'route') />
     <cfinvoke component="#route#" method="init" argumentcollection="#arguments#">
 
 		<cfset arrayAppend(routes, route) />
+
+    <cfif structKeyExists(arguments, 'name')>
+      <cfset named_routes[arguments.name] = route />
+    </cfif>
 	</cffunction>
 
 	<cffunction name="route" access="public" returntype="void">
-    <cfset var url = right(cgi.path_info, len(cgi.path_info) - 1) />
+    <cfargument name="targetPage" type="string" required="yes" />
+
+    <cfset var url = "" />
     <cfset var route = "" />
     <cfset var controller = "" />
     <cfset var action = "" />
+
+    <cfif cgi.path_info NEQ "">
+      <cfset url = right(cgi.path_info, len(cgi.path_info) - 1) />
+    </cfif>
 
     <cfset add(':controller/:action') />
 
@@ -38,7 +46,7 @@
       </cfif>
     </cfloop>
 
-    <cfthrow message="No routes matched the given URL" />
+    <cfinclude template="#arguments.targetPage#" />
 	</cffunction>
 
 	<cffunction name="fillRequest" access="private" returntype="void">
