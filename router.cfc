@@ -37,15 +37,19 @@
     <cfset fillRequest(url) />
     <cfset fillRequest(form) />
 
-    <cfloop from="1" to="#arrayLen(routes)#" index="i">
-      <cfset route = routes[i] />
+    <cfif cgi.script_name EQ "#request.path#index.cfm">
+      <cfloop from="1" to="#arrayLen(routes)#" index="i">
+        <cfset route = routes[i] />
 
-      <cfif route.match(path)> 
-        <cfset fillRequest(route.getParams()) />
-        <cfinvoke component="#request.path#controllers/#request.controller#_controller" method="#request.action#">
-        <cfreturn />
-      </cfif>
-    </cfloop>
+        <cfif route.match(path)> 
+          <cfset fillRequest(route.getParams()) />
+          <cfinvoke component="#request.path#controllers/#request.controller#_controller" method="#request.action#">
+          <cfreturn />
+        </cfif>
+      </cfloop>
+
+      <cfthrow message="Invalid route" />
+    </cfif>
 
     <cfinclude template="#arguments.targetPage#" />
 	</cffunction>
