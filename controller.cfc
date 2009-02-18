@@ -8,37 +8,51 @@
     <cfset variables.routes_path = request.path & 'index.cfm/' />
   </cffunction>
 
-  <cffunction name="get" access="public" returntype="model">
+  <cffunction name="object" access="public" returntype="model">
     <cfargument name="name" type="string" required="yes" />
 
+    <cfset var object = "" />
+
     <cfif structKeyExists(session, arguments.name)>
-      <cfset variables.object = session[arguments.name] />
+      <cfset object = session[arguments.name] />
       <cfset structDelete(session, arguments.name) />
     <cfelse>
-      <cfset variables.object = createObject('component', model_path & arguments.name) />
-      <cfset variables.object.init(request.dsn) />
+      <cfset object = createObject('component', model_path & arguments.name) />
+      <cfset object.init(request.dsn) />
     </cfif>
 
-    <cfreturn variables.object />
+    <cfreturn object />
+  </cffunction>
+
+  <cffunction name="gateway" access="public" returntype="gateway">
+    <cfargument name="name" type="string" required="yes" />
+
+    <cfreturn createObject('component', model_path & arguments.name & '_gateway') />
   </cffunction>
 
   <cffunction name="render" access="private" returntype="void">
     <cfargument name="view" type="string" required="yes" />
     <cfargument name="layout" type="string" default="main" />
 
-    <cfset var controller_name = listLast(getMetaData(this).name, '.') />
-    <cfset var folder_name = left(controller_name, find('_', controller_name) - 1) />
-
-    <cfset content = "#views_path##folder_name#/#arguments.view#.cfm" />
+    <cfset content = "#views_path##prefix()#/#arguments.view#.cfm" />
     <cfinclude template="#views_path#layouts/#arguments.layout#.cfm" />
   </cffunction>
 
   <cffunction name="redirect_to" access="private" returntype="void">
     <cfargument name="action" type="string" required="yes" />
 
-    <cfset var controller_name = listLast(getMetaData(this).name, '.') />
-    <cfset var folder_name = left(controller_name, find('_', controller_name) - 1) />
+    <cflocation url="#routes_path##prefix()#/#arguments.action#" addtoken="no" />
+  </cffunction>
 
-    <cflocation url="#routes_path##folder_name#/#arguments.action#" addtoken="no" />
+  <cffunction name="path_to" access="private" returntype="string">
+    <cfargument name="action" type="string" required="yes" />
+    <cfargument name="controller" type="string" default="#prefix()#" />
+
+    <cfreturn "#routes_path##controller#/#action#" />
+  </cffunction>
+
+  <cffunction name="prefix" access="private" returntype="string">
+    <cfset var controller_name = listLast(getMetaData(this).name, '.') />
+    <cfreturn left(controller_name, find('_', controller_name) - 1) />
   </cffunction>
 </cfcomponent>
