@@ -5,7 +5,7 @@
     <cfset variables.model_path = request.path & 'model/' />
     <cfset variables.views_path = request.path & 'views/' />
     <cfset variables.controller_path = request.path & 'controllers/' />
-    <cfset variables.routes_path = request.path & 'app/' />
+    <cfset variables.routes_path = request.path & 'index.cfm/' />
   </cffunction>
 
   <cffunction name="get" access="public" returntype="model">
@@ -39,6 +39,6 @@
     <cfset var controller_name = listLast(getMetaData(this).name, '.') />
     <cfset var folder_name = left(controller_name, find('_', controller_name) - 1) />
 
-    <cflocation url="#routes_path##folder_name#/#arguments.action#.cfm" addtoken="no" />
+    <cflocation url="#routes_path##folder_name#/#arguments.action#" addtoken="no" />
   </cffunction>
 </cfcomponent>

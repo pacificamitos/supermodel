@@ -63,7 +63,8 @@
     <cfinclude template="#request.path#routes.cfm" />
 
     <!--- Default routes --->
-    <cfset add(':controller/:action') />
     <cfset add(':controller/:action/:id') />
+    <cfset add(':controller/:action') />
+    <cfset add(pattern = ':controller', action = 'index') />
   </cffunction>
 </cfcomponent>
