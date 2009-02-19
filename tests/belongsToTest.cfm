@@ -1,9 +1,9 @@
-<cfset Arash = createObject('component', 'supermodel.tests.User') />
-<cfset Arash.init('supermodel') />
+<cfset Arash = createObject('component', 'supermodel2.tests.User') />
+<cfset Arash.init('supermodel2') />
 <cfset Arash.read(2) />
 
-<cfset Josh = createObject('component', 'supermodel.tests.User') />
-<cfset Josh.init('supermodel') />
+<cfset Josh = createObject('component', 'supermodel2.tests.User') />
+<cfset Josh.init('supermodel2') />
 <cfset Josh.read(4) />
 
 <cfoutput>

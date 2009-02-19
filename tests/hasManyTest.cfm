@@ -1,14 +1,14 @@
 <cfoutput>
 
 <cfset company = createObject('component', 'company') />
-<cfset company.init('supermodel') />
+<cfset company.init('supermodel2') />
 <cfset company.group_by = 'company_id' />
 
 <cfset someBody = createObject('component', 'hr_staffing.model.users.user') />
 <cfset someBody.init('human_resources') />
 <cfdump var="#someBody#">
 
-<cfquery name="companies" datasource="supermodel">
+<cfquery name="companies" datasource="supermodel2">
 	SELECT 
 		companies.id,
 		companies.name,
@@ -24,7 +24,7 @@
 		ON users.id = weapons.user_id
 </cfquery>
 
-<cfset list = createObject('component', 'supermodel.objectlist') />
+<cfset list = createObject('component', 'supermodel2.list') />
 <cfset list.init(company, companies) />
 
 <cfloop condition="#list.next()#">

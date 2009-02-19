@@ -1,13 +1,13 @@
 <!---------------------------------- Comprehensive Example -------------------------------------------
 
-	The following represents a typical view page that will test many of the important DataModel 
+	The following represents a typical view page that will test many of the important model 
 	functions altogether.
 			
 ----------------------------------------------------------------------------------------------------->
 
 <cfoutput>
 
-<cfquery name="masterQuery" datasource="supermodel">
+<cfquery name="masterQuery" datasource="supermodel2">
 	SELECT 
 		positions.manager_id,
 		positions.process_id,
@@ -23,9 +23,9 @@
 </cfquery>
 
 <cfset manager_object = createObject('component','manager') />
-<cfset manager_object.init('supermodel') />
+<cfset manager_object.init('supermodel2') />
 <cfset manager_object.filter_key = 'manager_id' />
-<cfset managers = createObject('component', 'supermodel.objectlist') />
+<cfset managers = createObject('component', 'supermodel2.list') />
 <cfset managers.init(manager_object, masterQuery) />
 
 

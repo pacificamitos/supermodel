@@ -1,7 +1,7 @@
-<cfset arash = createObject('component', 'supermodel.tests.model.thief') />
-<cfset arash.init('supermodel') />
-<cfset adam  = createObject('component', 'supermodel.tests.model.mage') />
-<cfset adam.init('supermodel') />
+<cfset arash = createObject('component', 'supermodel2.tests.model.thief') />
+<cfset arash.init('supermodel2') />
+<cfset adam  = createObject('component', 'supermodel2.tests.model.mage') />
+<cfset adam.init('supermodel2') />
 
 <cfoutput>
 
@@ -28,7 +28,7 @@
 
 <h1>Delete Arash...</h1>
 
-<cfquery name="check_query" datasource="supermodel">
+<cfquery name="check_query" datasource="supermodel2">
   SELECT * 
   FROM characters
 </cfquery>
@@ -37,14 +37,14 @@
 <cfset arash.delete() />
 
 <p>Check that there is no arash between the last adams.</p>
-<cfquery name="check_query" datasource="supermodel">
+<cfquery name="check_query" datasource="supermodel2">
   SELECT * 
   FROM characters
 </cfquery>
 <cfdump var=#check_query# />
 
 <p>Check that arash is removed from the thieves table as well.</p>
-<cfquery name="other_query" datasource="supermodel">
+<cfquery name="other_query" datasource="supermodel2">
   SELECT *
   FROM thieves
 </cfquery>

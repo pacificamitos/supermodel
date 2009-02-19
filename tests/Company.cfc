@@ -1,7 +1,7 @@
-<cfcomponent extends="supermodel.datamodel">
+<cfcomponent extends="supermodel2.model">
 	<cffunction name="configure" access="private" returntype="void">
 		<cfset variables.table_name = "companies" />
-		<cfset hasMany('users', 'supermodel.tests.User', 'user') />
+		<cfset hasMany('users', 'supermodel2.tests.User', 'user') />
 	</cffunction>
 	
 	<cffunction name="selectQuery" access="private" returntype="query">

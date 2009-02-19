@@ -1,5 +1,5 @@
-<cfset lois = createObject('component', 'supermodel.tests.model.druid') />
-<cfset lois.init('supermodel') />
+<cfset lois = createObject('component', 'supermodel2.tests.model.druid') />
+<cfset lois.init('supermodel2') />
 <cfset lois.read(85) />
 
 <cfoutput>

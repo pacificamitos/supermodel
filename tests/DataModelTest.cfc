@@ -1,14 +1,14 @@
 <!-------------------------------------------------------------------------------------- DataModelTest
 	
-	In order to test the DataModel we'll be borrowing a simplified scenario from the HR Staffing project
+	In order to test the model we'll be borrowing a simplified scenario from the HR Staffing project
 	
 	A manager is a user who has many positions
 	A position belongs to a manager
 	A position may belong to a process
 	A process has many positions
 	
-	Since the DataModel object is used for connecting to a database, we have to have some database
-	tables setup in order to test it properly.  The database is called 'supermodel' and resides on
+	Since the model object is used for connecting to a database, we have to have some database
+	tables setup in order to test it properly.  The database is called 'supermodel2' and resides on
 	gtisdev.
 	
 	Here is our users table:
@@ -40,7 +40,7 @@
 <cfcomponent extends="mxunit.framework.TestCase">  
   <cffunction name="testConfigureCanBeCalled" access="public" returntype="void">  
 		<cfscript>  
-			object = createObject('component', 'supermodel.datamodel');
+			object = createObject('component', 'supermodel2.model');
 			object.configure = configure;
 			object.configure();
 		 </cfscript>    

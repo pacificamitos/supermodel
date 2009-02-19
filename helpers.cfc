@@ -92,7 +92,7 @@
 		<cfinvoke method="label" argumentcollection="#arguments#" />
 		
 		<!--- Create an attributes object to store the HTML attributes for the form contol --->
-		<cfobject name="variables.attributes" component="supermodel.attributes" />
+		<cfobject name="variables.attributes" component="supermodel2.attributes" />
 		
 		<!--- Initialize the attributes with the passed-in arguments excluding the reserved ones --->
 		<cfset attributes.init(
