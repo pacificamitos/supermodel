@@ -55,4 +55,19 @@
     <cfset var controller_name = listLast(getMetaData(this).name, '.') />
     <cfreturn left(controller_name, find('_', controller_name) - 1) />
   </cffunction>
+
+  <cffunction name="message" access="private" returntype="void">
+    <cfargument name="message" type="string" required="yes" />
+    <cfargument name="type" type="string" default="notice" />
+
+    <cfif not structKeyExists(session, 'messages')>
+      <cfset session['messages'] = structNew() />
+    </cfif>
+
+    <cfif not structKeyExists(session['messages'], arguments.type)>
+      <cfset session['messages'][arguments.type] = arrayNew(1) />
+    </cfif>
+
+    <cfset arrayAppend(session['messages'][arguments.type], arguments.message) />
+  </cffunction>
 </cfcomponent>

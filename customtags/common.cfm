@@ -40,7 +40,7 @@
 
   <cfif structKeyExists(request, 'data_object') AND structKeyExists(request.data_object.errors, arguments.id)>
     <cfoutput>
-      <div id="error_#id#" class="error">#request.data_object.errors[arguments.id]#</div>
+      <span id="error_#id#" class="error">#request.data_object.errors[arguments.id]#</span>
     </cfoutput>
   </cfif>
 </cffunction>
