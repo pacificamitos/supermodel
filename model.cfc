@@ -516,6 +516,13 @@
     <cfset variables.table_name = arguments.name />
   </cffunction>
 
+  <cffunction name="default" access="private" returntype="void">
+    <cfargument name="property" type="string" required="yes" />
+    <cfargument name="value" type="string" required="yes" />
+
+    <cfset this[arguments.property] = arguments.value />
+  </cffunction>
+
 <!--------------------------------------------------------------------------------------------- value
 
 	Description:	Given a field name this function returns the corresponding value for the
