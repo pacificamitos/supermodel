@@ -372,53 +372,28 @@
 	Description:	Private function that executes a SELECT SQL query
 
 ---------------------------------------------------------------------------------------------------->
+
   <cffunction name="selectQuery" access="private" returntype="query">
-    <cfargument name="columns" default="*" />
-    <cfargument name="tables" />
-    <cfargument name="conditions" default="" />
-    <cfargument name="ordering" default="" />
+		<cfargument name="columns" default="*" />
+		<cfargument name="tables" default="#variables.table_name#" />
+		<cfargument name="conditions" default="" />
+		<cfargument name="ordering" default="" />
 
-    <cfset var query  = "" />
-    <cfset var props = getProperties() />
-    <cfset var props_keys = StructKeyArray(props) />
+		<cfset var query  = "" />
 
-    <cfif arguments.columns eq "*">
-      <!--- If default, create the amalgamated list of column names --->
-      <cfset arguments.columns = "" />
-      <cfloop index="i" from="1" to="#ArrayLen(props_keys)#">
-          <cfset table = props_keys[i] />
-          <cfset list = StructFind(props, table) />
-          <cfloop list="#list#" index="column_name">
-            <cfset arguments.columns = ListAppend(arguments.columns, "#table#.#column_name#") />
-          </cfloop>
-      </cfloop>
-    </cfif>
+		<cfquery name="query" datasource="#variables.dsn#">
+			SELECT #arguments.columns#
+			FROM #arguments.tables#
+			<cfif arguments.conditions NEQ "">
+			WHERE #PreserveSingleQuotes(arguments.conditions)#
+			</cfif>
+			<cfif arguments.ordering NEQ "">
+			ORDER BY #arguments.ordering#
+			</cfif>
+		</cfquery>
 
-    <cfif not IsDefined('arguments.tables')>
-      <!--- If default, create joined list of tables --->
-      <cfset arguments.tables = "" />
-      <cfloop index="k" from="2" to="#ArrayLen(props_keys)#">
-        <cfset new_string = " INNER JOIN " & props_keys[k] & " ON " />
-        <cfset new_string = new_string & props_keys[1] & "." & variables.primary_key & " = " />
-        <cfset new_string = new_string & props_keys[k] & "." & variables.primary_key />
-        <cfset arguments.tables = arguments.tables & new_string />
-      </cfloop>
-      <cfset arguments.tables = props_keys[1] & arguments.tables />
-    </cfif>
-
-    <cfquery name="query" datasource="#variables.dsn#">
-      SELECT #arguments.columns#
-      FROM #arguments.tables#
-      <cfif arguments.conditions NEQ "">
-      WHERE #PreserveSingleQuotes(arguments.conditions)#
-      </cfif>
-      <cfif arguments.ordering NEQ "">
-      ORDER BY #arguments.ordering#
-      </cfif>
-    </cfquery>
-
-    <cfreturn query />
-  </cffunction>
+		<cfreturn query />
+	</cffunction>
 
 <!--------------------------------------------------------------------------------------- insertQuery
 
