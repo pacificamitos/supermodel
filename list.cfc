@@ -45,7 +45,7 @@
 
 ---------------------------------------------------------------------------------------------->
 
-  <cffunction name="current" access="public" returntype="supermodel" output="false">
+  <cffunction name="current" access="public" returntype="model" output="false">
     <cfreturn variables.object />
   </cffunction>
 
