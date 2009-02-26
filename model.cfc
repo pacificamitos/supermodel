@@ -117,7 +117,25 @@
 			</cfloop>
 		</cfif>
 	</cffunction>
+	
+	
+	<!---------------------------------------------------------------------------------------------- set
 
+	Description:	A simple setter that will check to see if a variable being set is a database field. If
+								not, it calls the property method, with the custom_fields, as the list argument.
+
+---------------------------------------------------------------------------------------------------->
+
+  <cffunction name="set" access="public" returntype="void">
+		<cfargument name="name" required="yes" type="string" />
+		<cfargument name="value" required="yes" type="any" />
+		
+		<cfif NOT listFind(variables.database_fields,arguments.name)>
+			<cfset property(arguments.name,'varchar','custom_fields') />
+		</cfif>
+		
+		<cfset this[arguments.name] = arguments.value />
+  </cffunction>
 
 <!---------------------------------------------------------------------------------------------- save
 
@@ -357,6 +375,27 @@
 
 	<cffunction name="persisted" access="public" returntype="boolean">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "" AND this.id NEQ 0>
+	</cffunction>
+	
+	<!--------------------------------------------------------------------------------------- getArgs
+
+	Description:
+
+---------------------------------------------------------------------------------------------------->
+
+	<cffunction name="getArgs" access="public" returntype="struct">
+
+		<cfset var struct = structNew() />
+
+		<cfloop list="#variables.database_fields#" index="field">
+			<cfset structInsert(struct,field,structFind(this,field))/>
+		</cfloop>
+		
+		<cfloop list="#variables.custom_fields#" index="field">
+			<cfset structInsert(struct,field,structFind(this,field))/>
+		</cfloop>
+
+		<cfreturn struct />
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------------->
@@ -670,4 +709,5 @@
 
 		<cfreturn struct />
 	</cffunction>
+	
 </cfcomponent>
