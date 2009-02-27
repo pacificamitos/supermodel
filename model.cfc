@@ -165,7 +165,7 @@
 		<cfif structKeyExists(arguments, 'params')>
 			<cfset load(arguments.params) />
 		</cfif>
-
+		<cfset validate() />
 		<cfif valid()>
 				<cfset insertQuery() />
 				<cfset read(this.id) />
@@ -246,7 +246,7 @@
 		<cfif structKeyExists(arguments, 'params')>
 			<cfset load(arguments.params) />
 		</cfif>
-
+		<cfset validate() />
 		<cfif valid()>
 			<cfset updateQuery() />
 			<cfreturn true />
