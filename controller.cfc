@@ -6,8 +6,13 @@
     <cfset variables.views_path = request.path & 'views/' />
     <cfset variables.controller_path = request.path & 'controllers/' />
     <cfset variables.routes_path = request.path & 'index.cfm/' />
+	<cfset before() />
   </cffunction>
 
+
+	<cffunction name="before" access="private" returntype="void">
+	
+	</cffunction>
   <cffunction name="object" access="public" returntype="model">
     <cfargument name="name" type="string" required="yes" />
 
