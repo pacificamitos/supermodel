@@ -6,6 +6,7 @@
     <cfset variables.views_path = request.path & 'views/' />
     <cfset variables.controller_path = request.path & 'controllers/' />
     <cfset variables.routes_path = request.path & 'index.cfm/' />
+	<cfset before() />
   </cffunction>
 
 
