@@ -6,13 +6,55 @@
     <cfset variables.views_path = request.path & 'views/' />
     <cfset variables.controller_path = request.path & 'controllers/' />
     <cfset variables.routes_path = request.path & 'index.cfm/' />
-	<cfset before() />
+	<cfset variables.before_filters = arrayNew(1) />
+	<cfset variables.after_filters = arrayNew(1) />
   </cffunction>
 
 
-	<cffunction name="before" access="private" returntype="void">
-	
+	<cffunction name="handleRequest" access="public" returntype="void">
+		<cfargument name="action" required="yes" type="string" />
+		
+		<cfloop from="1" to="#arrayLen(variables.before_filters)#" index="i">
+			<cfif 
+				not structKeyExists(variables.before_filters[i],'actions')
+				or
+				listFind(variables.before_filters[i].actions,arguments.action)
+			>
+					<cfinvoke method="#variables.before_filters[i].function#" />
+			</cfif>
+		</cfloop>  
+		
+		<cfinvoke method="#arguments.action#" />
+		<cfloop from="1" to="#arrayLen(variables.after_filters)#" index="i">
+			<cfif 
+				not structKeyExists(variables.after_filters[i],'actions')
+				or
+				listFind(variables.after_filters[i].actions,arguments.action)
+			>
+					<cfinvoke method="#variables.after_filters[i].function#" />
+			</cfif>
+		</cfloop>  
+		
 	</cffunction>
+
+	<cffunction name="before" access="private" returntype="void">
+		<cfargument name="actions" required="no" type="string" />
+		<cfargument name="function" required="yes" type="string" />
+
+		<cfset var filter = structCopy(arguments) />
+		<cfset arrayAppend(variables.before_filters,filter) />
+		
+	</cffunction>
+	
+	<cffunction name="after" access="private" returntype="void">
+		<cfargument name="actions" required="no" type="string" />
+		<cfargument name="function" required="yes" type="string" />
+
+		<cfset var filter = structCopy(arguments) />
+		<cfset arrayAppend(variables.after_filters,filter) />
+		
+	</cffunction>
+	
   <cffunction name="object" access="public" returntype="model">
     <cfargument name="name" type="string" required="yes" />
 
