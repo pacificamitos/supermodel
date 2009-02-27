@@ -43,7 +43,7 @@
 
         <cfif route.match(path)> 
           <cfset fillRequest(route.getParams()) />
-          <cfinvoke component="#request.path#controllers/#request.controller#_controller" method="#request.action#">
+          <cfinvoke component="#request.path#controllers/#request.controller#_controller" method="handleRequest" action="#request.action#">
           <cfreturn />
         </cfif>
       </cfloop>
