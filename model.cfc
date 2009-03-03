@@ -395,9 +395,11 @@
 			<cfset structInsert(struct,field,structFind(this,field))/>
 		</cfloop>
 		
-		<cfloop list="#variables.custom_fields#" index="field">
-			<cfset structInsert(struct,field,structFind(this,field))/>
-		</cfloop>
+		<cfif structKeyExists(variables,'custom_fields')>
+			<cfloop list="#variables.custom_fields#" index="field">
+				<cfset structInsert(struct,field,structFind(this,field))/>
+			</cfloop>
+		</cfif>
 
 		<cfreturn struct />
 	</cffunction>
