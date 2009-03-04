@@ -8,7 +8,7 @@
 
 <cfloop query="query">
   <option value="#query[attributes.value][query.currentrow]#">
-    #query[attributes.display][query.currentrow]#
+    #htmlEditFormat(query[attributes.display][query.currentrow])#
   </option>
 </cfloop>
 
