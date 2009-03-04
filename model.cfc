@@ -392,12 +392,12 @@
 		<cfset var struct = structNew() />
 
 		<cfloop list="#variables.database_fields#" index="field">
-			<cfset structInsert(struct,field,structFind(this,field))/>
+			<cfset structInsert(struct,field,structFind(this,field),true)/>
 		</cfloop>
 		
 		<cfif structKeyExists(variables,'custom_fields')>
 			<cfloop list="#variables.custom_fields#" index="field">
-				<cfset structInsert(struct,field,structFind(this,field))/>
+				<cfset structInsert(struct,field,structFind(this,field),true)/>
 			</cfloop>
 		</cfif>
 
