@@ -16,7 +16,7 @@
     </cfif>
   </cfif>
   <option value="#query[attributes.value][query.currentrow]#" #selected#>
-    #query[attributes.display][query.currentrow]#
+    #htmlEditFormat(query[attributes.display][query.currentrow])#
   </option>
 </cfloop>
 
