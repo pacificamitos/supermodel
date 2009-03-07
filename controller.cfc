@@ -53,8 +53,10 @@
 
   <cffunction name="gateway" access="public" returntype="gateway">
     <cfargument name="name" type="string" required="yes" />
+    <cfset var gateway = createObject('component', model_path & arguments.name & '_gateway') />
+    <cfset gateway.init(request.dsn) />
 
-    <cfreturn createObject('component', model_path & arguments.name & '_gateway') />
+    <cfreturn gateway />
   </cffunction>
 
   <cffunction name="render" access="private" returntype="void">
