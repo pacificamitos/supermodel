@@ -109,7 +109,11 @@
 
     <cfloop from="1" to="#arrayLen(arguments.filters)#" index="i">
       <cfset appliesToAll = not structKeyExists(arguments.filters[i], 'actions') />
+	  <cfif appliesToAll>
+	  	<cfset appliesToCurrent = true />
+	<cfelse>
       <cfset appliesToCurrent = listFind(arguments.filters[i].actions, arguments.action) />
+	 </cfif>
 
 			<cfif appliesToAll or appliesToCurrent> 
         <cfinvoke method="#arguments.filters[i].function#" />
