@@ -1,6 +1,10 @@
 <cfoutput>
 
-<cfset query = caller[attributes.query] /> 
+<cfif structKeyExists(attributes, 'list')>
+  <cfset query = caller[attributes.list].toQuery() />
+<cfelse>
+  <cfset query = caller[attributes.query] /> 
+</cfif>
 
 <cfif structKeyExists(attributes, 'default')>
   <option value="">#attributes.default#</option>
