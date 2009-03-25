@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------->
 
   <cffunction name="init" access="public" returntype="void">
-    <cfargument name="object" type="model" required="yes" />
+    <cfargument name="object" type="supermodel" required="yes" />
     <cfargument name="query" type="query" required="yes" />
 
     <cfset variables.object = arguments.object />
@@ -45,7 +45,7 @@
 
 ---------------------------------------------------------------------------------------------->
 
-  <cffunction name="current" access="public" returntype="supermodel2" output="false">
+  <cffunction name="current" access="public" returntype="supermodel" output="false">
     <cfreturn variables.object />
   </cffunction>
 
@@ -122,8 +122,8 @@
 
 ---------------------------------------------------------------------------------------------->
 
-  <cffunction name="copy" access="public" returntype="supermodel2.list" output="false">
-    <cfset var list = createObject('component', 'supermodel2.list') />
+  <cffunction name="copy" access="public" returntype="supermodel.objectlist" output="false">
+    <cfset var list = createObject('component', 'supermodel.objectlist') />
     <cfset list.init(variables.object, Duplicate(variables.query)) />
 
     <cfif structKeyExists(variables, 'order_by')>
@@ -188,7 +188,7 @@
 
 ---------------------------------------------------------------------------------------------->
 
-  <cffunction name="getObject" access="public" returntype="supermodel2.model" output="false">
+  <cffunction name="getObject" access="public" returntype="supermodel.datamodel" output="false">
     <cfreturn variables.object />
   </cffunction>
 
@@ -211,7 +211,7 @@
 ---------------------------------------------------------------------------------------------->
 
   <cffunction name="setObject" access="public" returntype="void" output="false">
-    <cfargument name="object" type="supermodel2.model" required="yes" />
+    <cfargument name="object" type="supermodel.datamodel" required="yes" />
 
     <cfset init(arguments.object,variables.query) />
   </cffunction>
