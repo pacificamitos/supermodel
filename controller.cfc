@@ -69,8 +69,9 @@
 
   <cffunction name="redirect_to" access="private" returntype="void">
     <cfargument name="action" type="string" required="yes" />
+    <cfargument name="controller" type="string" default="#prefix()#" />
 
-    <cflocation url="#routes_path##prefix()#/#arguments.action#" addtoken="no" />
+    <cflocation url="#routes_path##controller#/#arguments.action#" addtoken="no" />
   </cffunction>
 
   <cffunction name="path_to" access="private" returntype="string">
@@ -78,6 +79,11 @@
     <cfargument name="controller" type="string" default="#prefix()#" />
 
     <cfreturn "#routes_path##controller#/#action#" />
+  </cffunction>
+
+  <cffunction name="goto" access="private" returntype="void">
+    <cfargument name="route" type="string" required="yes" /> 
+    <cflocation url="#routes_path##arguments.route#" addtoken="no" />
   </cffunction>
 
   <cffunction name="prefix" access="private" returntype="string">
@@ -99,6 +105,19 @@
 
     <cfset arrayAppend(session['messages'][arguments.type], arguments.message) />
   </cffunction>
+
+  <cffunction name="notice" access="private" returntype="void">
+    <cfargument name="msg" type="string" required="yes" />
+
+    <cfset message(arguments.msg, 'notice') />
+  </cffunction>
+
+  <cffunction name="error" access="private" returntype="void">
+    <cfargument name="msg" type="string" required="yes" />
+
+    <cfset message(arguments.msg, 'error') />
+  </cffunction>
+    
 
   <cffunction name="run" access="private" returntype="void">
     <cfargument name="filters" type="array" required="yes" />
