@@ -131,13 +131,10 @@
     <cfset var appliesToCurrent = false />
 
     <cfloop from="1" to="#arrayLen(arguments.filters)#" index="i">
-      <cfset appliesToAll = 
+      <cfif 
         not structKeyExists(arguments.filters[i], 'actions') 
-        or arguments.filters[i]['actions'] EQ 'all' />
-
-      <cfset appliesToCurrent = listFind(arguments.filters[i].actions, arguments.action) />
-
-			<cfif appliesToAll or appliesToCurrent> 
+        or arguments.filters[i]['actions'] EQ 'all' 
+        or listFind(arguments.filters[i].actions, arguments.action)>
         <cfloop list="#arguments.filters[i].functions#" index="function">
           <cfinvoke method="#function#" />
         </cfloop>
