@@ -1,5 +1,4 @@
 <cfoutput>
-
 <cfif structKeyExists(attributes, 'list')>
   <cfset query = caller[attributes.list].toQuery() />
 <cfelse>
