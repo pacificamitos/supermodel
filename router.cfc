@@ -28,10 +28,11 @@
     <cfset var route = "" />
     <cfset var controller = "" />
     <cfset var action = "" />
-
+	<cfset var corrected_path = replace(cgi.path_info,request.path&'index.cfm','') />
+	
     <!--- Get the part of the URL that trails index.cfm --->
-    <cfif len(cgi.path_info) GT 1>
-      <cfset path = right(cgi.path_info, len(cgi.path_info) - 1) />
+    <cfif len(corrected_path) GT 1>
+      <cfset path = right(corrected_path, len(corrected_path) - 1) />
     </cfif>
 
     <cfset fillRequest(url) />
@@ -43,7 +44,10 @@
 
         <cfif route.match(path)> 
           <cfset fillRequest(route.getParams()) />
-          <cfinvoke component="#request.path#controllers/#request.controller#_controller" method="handleRequest" action="#request.action#">
+          <cfinvoke 
+            component="#request.path#controllers/#request.controller#_controller" 
+            method="execute" 
+            action="#request.action#">
           <cfreturn />
         </cfif>
       </cfloop>
