@@ -141,4 +141,9 @@
 			</cfif>
 		</cfloop>
   </cffunction>
+
+  <cffunction name="param" access="private" returntype="void">
+    <cfargument name="name" type="string" required="yes" />
+    <cfargument name="type" type="string" default="required" />
+  </cffunction>
 </cfcomponent>
