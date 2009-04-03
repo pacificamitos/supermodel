@@ -5,10 +5,10 @@
     <cfinclude template="common.cfm" />
     <cfinvoke method="before" argumentcollection="#attributes#" />
     <div class="date">
-	  <input name="#attributes.id#" id="#attributes.id#" type="text" class="whole_date" maxlength="0"/>
-      <input id="#attributes.id#_dd" class="day" type="text" maxlength="2" />
+	  <input name="#attributes.id#" id="#attributes.id#" type="text" class="whole_date" maxlength="0" value="#DateFormat(request.data_object[attributes.id], "mm-dd-yyyy")#"/>
       <input id="#attributes.id#_mm" class="month" type="text" maxlength="2" />
-      <input id="#attributes.id#_yyyy" class="year" type="text" maxlength="4" />
+	  <input id="#attributes.id#_dd" class="day" type="text" maxlength="2"/>
+      <input id="#attributes.id#_yyyy" class="year" type="text" maxlength="4"/> (mm-dd-yyyy)
 	  
 	  
     </div>
