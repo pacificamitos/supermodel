@@ -20,11 +20,10 @@
 
 	<cffunction name="before" access="private" returntype="void">
 		<cfargument name="actions" required="no" type="string" />
-		<cfargument name="function" required="yes" type="string" />
+		<cfargument name="functions" required="yes" type="string" />
 
 		<cfset var filter = structCopy(arguments) />
 		<cfset arrayAppend(variables.before_filters, filter) />
-		
 	</cffunction>
 	
 	<cffunction name="after" access="private" returntype="void">
@@ -64,13 +63,19 @@
     <cfargument name="layout" type="string" default="main" />
 
     <cfset content = "#views_path##prefix()#/#arguments.view#.cfm" />
-    <cfinclude template="#views_path#layouts/#arguments.layout#.cfm" />
+
+    <cfif arguments.layout NEQ "">
+      <cfinclude template="#views_path#layouts/#arguments.layout#.cfm" />
+    <cfelse>
+      <cfinclude template="#content#" />
+    </cfif>
   </cffunction>
 
   <cffunction name="redirect_to" access="private" returntype="void">
     <cfargument name="action" type="string" required="yes" />
+    <cfargument name="controller" type="string" default="#prefix()#" />
 
-    <cflocation url="#routes_path##prefix()#/#arguments.action#" addtoken="no" />
+    <cflocation url="#routes_path##controller#/#arguments.action#" addtoken="no" />
   </cffunction>
 
   <cffunction name="path_to" access="private" returntype="string">
@@ -78,6 +83,11 @@
     <cfargument name="controller" type="string" default="#prefix()#" />
 
     <cfreturn "#routes_path##controller#/#action#" />
+  </cffunction>
+
+  <cffunction name="goto" access="private" returntype="void">
+    <cfargument name="route" type="string" required="yes" /> 
+    <cflocation url="#routes_path##arguments.route#" addtoken="no" />
   </cffunction>
 
   <cffunction name="prefix" access="private" returntype="string">
@@ -100,6 +110,19 @@
     <cfset arrayAppend(session['messages'][arguments.type], arguments.message) />
   </cffunction>
 
+  <cffunction name="notice" access="private" returntype="void">
+    <cfargument name="msg" type="string" required="yes" />
+
+    <cfset message(arguments.msg, 'notice') />
+  </cffunction>
+
+  <cffunction name="error" access="private" returntype="void">
+    <cfargument name="msg" type="string" required="yes" />
+
+    <cfset message(arguments.msg, 'error') />
+  </cffunction>
+    
+
   <cffunction name="run" access="private" returntype="void">
     <cfargument name="filters" type="array" required="yes" />
 		<cfargument name="action" required="yes" type="string" />
@@ -108,16 +131,19 @@
     <cfset var appliesToCurrent = false />
 
     <cfloop from="1" to="#arrayLen(arguments.filters)#" index="i">
-      <cfset appliesToAll = not structKeyExists(arguments.filters[i], 'actions') />
-	  <cfif appliesToAll>
-	  	<cfset appliesToCurrent = true />
-	<cfelse>
-      <cfset appliesToCurrent = listFind(arguments.filters[i].actions, arguments.action) />
-	 </cfif>
-
-			<cfif appliesToAll or appliesToCurrent> 
-        <cfinvoke method="#arguments.filters[i].function#" />
+      <cfif 
+        not structKeyExists(arguments.filters[i], 'actions') 
+        or arguments.filters[i]['actions'] EQ 'all' 
+        or listFind(arguments.filters[i].actions, arguments.action)>
+        <cfloop list="#arguments.filters[i].functions#" index="function">
+          <cfinvoke method="#function#" />
+        </cfloop>
 			</cfif>
 		</cfloop>
+  </cffunction>
+
+  <cffunction name="param" access="private" returntype="void">
+    <cfargument name="name" type="string" required="yes" />
+    <cfargument name="type" type="string" default="required" />
   </cffunction>
 </cfcomponent>
