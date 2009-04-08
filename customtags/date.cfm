@@ -8,7 +8,7 @@
  	<div class="date" id="#attributes.id#">
 	  <input id="#attributes.id#_dd" class="day" type="text" maxlength="2" autocomplete="off"/>
 	  <input id="#attributes.id#_mm" class="month" type="text" maxlength="2" autocomplete="off" />
-	  <input id="#attributes.id#_yyyy" class="year" type="text" maxlength="4" />
+	  <input id="#attributes.id#_yyyy" class="year" type="text" maxlength="4"  autocomplete="off"/>
 	   (dd-mm-yyyy) 
     </div>
     <cfinvoke method="after" argumentcollection="#attributes#" />
