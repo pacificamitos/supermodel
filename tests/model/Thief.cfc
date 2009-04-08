@@ -3,7 +3,7 @@
     <cfset super.configure() />
 
     <cfset variables.table_name = "thieves" />
-    <cfset addProperty('arrested', 'boolean') />
+    <cfset property('arrested', 'boolean') />
 
   </cffunction>
 </cfcomponent>
