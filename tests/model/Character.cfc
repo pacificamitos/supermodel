@@ -6,6 +6,7 @@
     <!---<cfset hasMany('weapons', "Weapon', 'weapon') /> --->
 
     <cfset property('name',  'varchar') />
+    <cfset persist('name') />
 
   </cffunction>
 

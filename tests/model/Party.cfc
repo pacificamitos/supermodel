@@ -5,6 +5,7 @@
 
     <cfset property('id',   'int') />
     <cfset property('name', 'varchar') />
+    <cfset persist('id,name') />
   </cffunction>
 
 </cfcomponent>

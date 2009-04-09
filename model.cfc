@@ -119,25 +119,6 @@
 	</cffunction>
 
 
-	<!---------------------------------------------------------------------------------------- set
-
-	Description:	A simple setter that will check to see if a variable being set is a database
-                field. If not, it calls the property method, with the custom_fields, as the
-                list argument.
-
----------------------------------------------------------------------------------------------->
-
-  <cffunction name="set" access="public" returntype="void">
-		<cfargument name="name" required="yes" type="string" />
-		<cfargument name="value" required="yes" type="any" />
-
-		<cfif NOT listFind(variables.database_fields,arguments.name)>
-			<cfset property(arguments.name,'varchar','custom_fields') />
-		</cfif>
-
-		<cfset this[arguments.name] = arguments.value />
-  </cffunction>
-
 <!---------------------------------------------------------------------------------------- save
 
 	Description:	If the object has a value for its id then the record will be updated otherwise
@@ -234,7 +215,7 @@
 			</cfloop>
 		 </cfif>
 	</cffunction>
-
+ 
 <!-------------------------------------------------------------------------------------- update
 
 	Description: Saves the content of the current object into the database.
@@ -408,15 +389,7 @@
 
 		<cfreturn struct />
 	</cffunction>
-<!-------------------------------------------------------------------------------- getProperties
 
-  Description:
-
------------------------------------------------------------------------------------------------>
-
-  <cffunction name="getProperties" access="public" returntype="struct">
-    <cfreturn variables.properties />
-  </cffunction>
 
 <!-------------------------------------------------------------------------------------------->
 <!---------------------------------- Basic Query Functions ----------------------------------->
@@ -435,8 +408,11 @@
 		<cfargument name="ordering" default="" />
 
 		<cfset var query  = "" />
-    <cfset var props = getProperties() />
-    <cfset var props_keys = StructKeyArray(props) />
+    <cfif not IsStruct(variables.database_fields)>
+      <cfreturn />
+    </cfif>
+    <cfset props = variables.database_fields />
+    <cfset props_keys = StructKeyArray(props) />
 
     <cfif arguments.columns eq "*">
       <!--- If default, create the amalgamated list of column names --->
@@ -490,7 +466,7 @@
 
 		<cfset var delimiter = "" />
 
-    <cfset var props = getProperties() />
+    <cfset var props = variables.database_fields />
 
     <cfif IsDefined('arguments.table')>
       <cfset table_name = arguments.table />
@@ -572,7 +548,7 @@
 
 		<cfset var delimiter = "" />
 
-    <cfset props = getProperties() />
+    <cfset props = variables.database_fields />
 
     <cfquery name="query" datasource="#variables.dsn#">
       <cfloop list="#tables#" index="table_name">
@@ -612,7 +588,7 @@
         DELETE FROM #table#
 		 	  WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
 		  </cfloop>
-    </cfquery>
+    </cfquery>either i put back the list thing, or i separate the 
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------->
@@ -629,41 +605,22 @@
   <cffunction name="property" access="private" returntype="void">
     <cfargument name="name" type="string" required="yes" />
     <cfargument name="type" type="string" required="yes" />
+    <!--- Determise whether arg is persisted in the db. Deprecated --->
+    <cfargument name="persisted" type="boolean" required="no" default="yes" />
 
     <cfset structInsert(this, arguments.name, "", true) />
 
     <cfparam name="variables.field_types" default="#StructNew()#" />
-    <cfparam name="variables.tables" default="" />
-    <cfparam name="variables.properties" default="#StructNew()#" />
 
-    <cfset structInsert(
-      variables.field_types,
-      arguments.name,
-      cf_sql_type(arguments.type),
-      true) />
-
-    <!--- Record the table_name if it's not in there already --->
-    <cfif not ListContains(variables.tables, variables.table_name)>
-      <cfset variables.tables = ListAppend(variables.tables, variables.table_name) />
+    <cfset structInsert(variables.field_types,
+                        arguments.name,
+                        cf_sql_type(arguments.type),
+                        true) />
+    <!--- Add argument to the persisted fields list unless otherwise noted;
+          this should be deprecated --->
+    <cfif arguments.persisted>
+      <cfset persist(arguments.name) />
     </cfif>
-
-    <!--- Insert the property into the properties struct according to what table
-          it belongs to --->
-    <cfif arguments.name NEQ "id">
-      <cfif StructKeyExists(variables.properties, variables.table_name)>
-        <cfset list = StructFind(variables.properties, variables.table_name) />
-      <cfelse>
-        <cfset list = "" />
-      </cfif>
-
-      <cfset list = ListAppend(list, arguments.name) />
-      <cfset StructInsert(
-        variables.properties,
-        variables.table_name,
-        list,
-        true) />
-    </cfif>
-
   </cffunction>
 
   <cffunction name="table" access="private" returntype="void">
@@ -677,6 +634,42 @@
     <cfargument name="value" type="string" required="yes" />
 
     <cfset this[arguments.property] = arguments.value />
+  </cffunction>
+
+  <cffunction name="persist" access="private" returntype="void">
+    <cfargument name="persisted_fields" type="string" required="yes" />
+    
+    <cfparam name="variables.database_fields" default="#StructNew()#" />
+    <cfparam name="variables.tables" default="" />
+   
+    <!--- Record the table_name if it's not in there already --->
+    <cfif not ListContains(variables.tables, variables.table_name)>
+      <cfset variables.tables = ListAppend(variables.tables, variables.table_name) />
+    </cfif>
+
+    <!--- Insert the property into the fields struct according to what table
+          it belongs to --->
+    <!--- remove 'id' field --->
+    <cfset REReplaceNoCase(arguments.persisted_fields, '(?=,)id(?=,)', '', 'all') />
+    <cfif StructKeyExists(variables.database_fields, variables.table_name)>
+      <cfset list = StructFind(variables.database_fields, variables.table_name) />
+    <cfelse>
+      <cfset list = "" />
+    </cfif>
+
+    <cfset list = ListAppend(list, arguments.persisted_fields) />
+
+    <!--- Remove duplicates --->
+    <cfset temp_struct = StructNew() />
+    <cfloop list="#list#" index="i" delimiters=",">
+      <cfset temp_struct[i]="" />
+    </cfloop>
+    <cfset list = StructKeyList(temp_struct) />
+
+    <cfset StructInsert(variables.database_fields,
+                        variables.table_name,
+                        list,
+                        true) />
   </cffunction>
 
 <!--------------------------------------------------------------------------------------- value
@@ -694,7 +687,9 @@
 		<cfset var type = type(arguments.field_name) />
 
 		<!--- If the value is a date we must convert it to an ODBC date --->
-		<cfif isDate(value) OR (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') and value NEQ "">
+		<cfif isDate(value) 
+          OR (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') 
+          AND value NEQ "">
 			<cfset value = makeDate(value) />
 		</cfif>
 
@@ -712,17 +707,24 @@
 
 		<!--- First, see if we can create a valid date right off the bat --->
 		<cftry>
-			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") 
+                     & " " 
+                     & LSTimeFormat(value, "HH:mm:ss")) />
 			<cfcatch>
 				<!--- Next, try parsing the value as a timestamp formatted in the current locale --->
 				<cftry>
 					<cfset value = LSParseDateTime(value) />
-					<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+					<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") 
+                         & " " 
+                         & LSTimeFormat(value, "HH:mm:ss")) />
 
-					<!--- Finally, try assuming that it's a timestamp string that's not formatted for the current locale --->
+					<!--- Finally, try assuming that it's a timestamp string that's not formatted for 
+                the current locale --->
 					<cfcatch>
 						<cfset value = ParseDateTime(value) />
-						<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+						<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") 
+                           & " " 
+                           & LSTimeFormat(value, "HH:mm:ss")) />
 					</cfcatch>
 				</cftry>
 			</cfcatch>

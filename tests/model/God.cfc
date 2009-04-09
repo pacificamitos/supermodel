@@ -4,6 +4,7 @@
     <cfset super.configure() />
     <cfset table('gods') />
     <cfset property('power', 'varchar') />
+    <cfset persist('power') />
   </cffunction>
 
 </cfcomponent>
