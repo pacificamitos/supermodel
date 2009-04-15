@@ -2,8 +2,9 @@
 
   <cffunction name="configure" access="private" returntype="void">
     <cfset super.configure() />
-    <cfset variables.table_name = "gods" />
-    <cfset addProperty('power', 'varchar') />
+    <cfset table('gods') />
+    <cfset property('power', 'varchar') />
+    <cfset persist('power') />
   </cffunction>
 
 </cfcomponent>
