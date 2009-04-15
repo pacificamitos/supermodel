@@ -374,20 +374,7 @@
 ---------------------------------------------------------------------------------------------->
 
 	<cffunction name="getArgs" access="public" returntype="struct">
-
-		<cfset var struct = structNew() />
-
-		<cfloop list="#variables.database_fields#" index="field">
-			<cfset structInsert(struct,field,structFind(this,field),true)/>
-		</cfloop>
-
-		<cfif structKeyExists(variables,'custom_fields')>
-			<cfloop list="#variables.custom_fields#" index="field">
-				<cfset structInsert(struct,field,structFind(this,field),true)/>
-			</cfloop>
-		</cfif>
-
-		<cfreturn struct />
+		<cfreturn variables.database_fields />
 	</cffunction>
 
 
@@ -650,14 +637,14 @@
     <!--- Insert the property into the fields struct according to what table
           it belongs to --->
     <!--- remove 'id' field --->
-    <cfset REReplaceNoCase(arguments.persisted_fields, '(?=,)id(?=,)', '', 'all') />
+    <cfset args = REReplaceNoCase(arguments.persisted_fields, '\bid\b', '', 'all') />
     <cfif StructKeyExists(variables.database_fields, variables.table_name)>
       <cfset list = StructFind(variables.database_fields, variables.table_name) />
     <cfelse>
       <cfset list = "" />
     </cfif>
 
-    <cfset list = ListAppend(list, arguments.persisted_fields) />
+    <cfset list = ListAppend(list, args) />
 
     <!--- Remove duplicates --->
     <cfset temp_struct = StructNew() />
