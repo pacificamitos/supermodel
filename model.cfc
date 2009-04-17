@@ -1,22 +1,22 @@
-<!----------------------------------------- model ---------------------------------------------------
+<!--------------------------------------- model -----------------------------------------------
 
 	Description:	Adds CRUD (Create/Read/Update/Delete) methods to the object so that each instance
 								of the object is tied to a single record in the database table.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 <cfcomponent>
 
-<!-------------------------------------------------------------------------------------------------->
-<!---------------------------------------- Core Functions ------------------------------------------>
-<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+<!----------------------------------- Core Functions ----------------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
-<!---------------------------------------------------------------------------------------------- init
+<!---------------------------------------------------------------------------------------- init
 
 	Description:	Constructs the object by reading all the columns from the database and creating
 								private member variables for each field.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="init" access="public" returntype="void">
 		<cfargument name="dsn" type="string" required="yes" />
@@ -29,11 +29,11 @@
 		<cfset configure() />
 	</cffunction>
 
-<!---------------------------------------------------------------------------------------------- load
+<!---------------------------------------------------------------------------------------- load
 
 	Description: Loads values from the given data structure into corresponding fields in the object
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="load" access="public"  returntype="void">
 		<cfargument	name="data" required="yes" type="any" />
@@ -117,32 +117,14 @@
 			</cfloop>
 		</cfif>
 	</cffunction>
-	
-	
-	<!---------------------------------------------------------------------------------------------- set
 
-	Description:	A simple setter that will check to see if a variable being set is a database field. If
-								not, it calls the property method, with the custom_fields, as the list argument.
 
----------------------------------------------------------------------------------------------------->
-
-  <cffunction name="set" access="public" returntype="void">
-		<cfargument name="name" required="yes" type="string" />
-		<cfargument name="value" required="yes" type="any" />
-		
-		<cfif NOT listFind(variables.database_fields,arguments.name)>
-			<cfset property(arguments.name,'varchar','custom_fields') />
-		</cfif>
-		
-		<cfset this[arguments.name] = arguments.value />
-  </cffunction>
-
-<!---------------------------------------------------------------------------------------------- save
+<!---------------------------------------------------------------------------------------- save
 
 	Description:	If the object has a value for its id then the record will be updated otherwise
                 a new record will be created.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
   <cffunction name="save" access="public" returntype="boolean">
 		<cfif NOT persisted()>
@@ -152,11 +134,11 @@
     </cfif>
   </cffunction>
 
-<!-------------------------------------------------------------------------------------------- create
+<!-------------------------------------------------------------------------------------- create
 
 	Description:	Inserts a new record into the database with values taken from this object.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="create" access="public" returntype="boolean">
 		<cfargument name="params" required="no" type="struct"
@@ -175,11 +157,11 @@
 		<cfreturn false />
 	</cffunction>
 
-<!---------------------------------------------------------------------------------------------- read
+<!---------------------------------------------------------------------------------------- read
 
 	Description:	Takes in an ID and reads the data from the database into this object.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="read" access="public" returntype="void">
 		<cfargument name="id" type="numeric" required="yes" />
@@ -233,16 +215,16 @@
 			</cfloop>
 		 </cfif>
 	</cffunction>
-
-<!-------------------------------------------------------------------------------------------- update
+ 
+<!-------------------------------------------------------------------------------------- update
 
 	Description: Saves the content of the current object into the database.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="update" access="public" returntype="boolean">
 		<cfargument name="params" required="no" type="struct" />
-		
+
 		<cfif structKeyExists(arguments, 'params')>
 			<cfset load(arguments.params) />
 		</cfif>
@@ -255,25 +237,25 @@
 		<cfreturn false />
 	</cffunction>
 
-<!-------------------------------------------------------------------------------------------- delete
+<!-------------------------------------------------------------------------------------- delete
 
 	Description: Deletes the current record from the database and clears the object.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="delete" access="public" returntype="void">
 		<cfinvoke method="deleteQuery" />
 	</cffunction>
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------- Relationship Helpers --------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+<!---------------------------------- Relationship Helpers ------------------------------------>
+<!-------------------------------------------------------------------------------------------->
 
-<!------------------------------------------------------------------------------------------- hasMany
+<!------------------------------------------------------------------------------------- hasMany
 
 	Description:	Takes in a component path and sets up an objectList of those components
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="hasMany" access="private" returntype="void">
 		<cfargument name="name" type="string" required="yes" />
@@ -284,7 +266,9 @@
 		<cfset var object_list = '' />
 
 		<cfif not structKeyExists(request, arguments.component)>
-			<cfset structInsert(request, arguments.component, createObject('component', arguments.component)) />
+			<cfset structInsert(request,
+                          arguments.component,
+                          createObject('component', arguments.component)) />
 			<cfset request[arguments.component].init(variables.dsn) />
 		</cfif>
 
@@ -306,18 +290,20 @@
 		<cfset variables.collections = listAppend(variables.collections, arguments.name) />
 	</cffunction>
 
-<!----------------------------------------------------------------------------------------- belongsTo
+<!----------------------------------------------------------------------------------- belongsTo
 
 	Description:
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="belongsTo" access="private" returntype="void">
 		<cfargument name="name" type="string" required="yes" />
 		<cfargument name="component" type="string" required="no" />
 
     <cfif not structKeyExists(arguments, 'component')>
-      <cfset arguments['component'] = replace(getMetaData(this).name, listLast(getMetaData(this).name, "."), arguments['name']) />
+      <cfset arguments['component'] = replace(getMetaData(this).name,
+                                              listLast(getMetaData(this).name, "."),
+                                              arguments['name']) />
     </cfif>
 
     <cfif structKeyExists(this['parents'], arguments.component)>
@@ -337,55 +323,55 @@
 
 		<cfset variables.children = listAppend(variables.children, arguments.name) /> </cffunction>
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------------- Accessors -------------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+<!---------------------------------------- Accessors ----------------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
-<!----------------------------------------------------------------------------------------- validate
+<!------------------------------------------------------------------------------------ validate
 
 	Description: Runs the object's validation criteria
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="validate" access="public" returntype="void">
     <!--- Implemented in child --->
 	</cffunction>
 
-<!---------------------------------------------------------------------------------------- hasErrors 
+<!----------------------------------------------------------------------------------- hasErrors
 
 	Description: Validates the object's attributes
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="hasErrors" access="public" returntype="boolean">
 		<cfreturn not valid() />
 	</cffunction>
 
-<!----------------------------------------------------------------------------------------     valid 
+<!--------------------------------------------------------------------------------------- valid
 
 	Description: Validates the object's attributes
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="valid" access="public" returntype="boolean">
 		<cfreturn structIsEmpty(this.errors) />
 	</cffunction>
 
-<!----------------------------------------------------------------------------------------- persisted
+<!----------------------------------------------------------------------------------- persisted
 
 	Description: Returns true if the object is currently tied to a database record
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="persisted" access="public" returntype="boolean">
 		<cfreturn structKeyExists(this, 'id') AND this.id NEQ "" AND this.id NEQ 0>
 	</cffunction>
-	
-	<!--------------------------------------------------------------------------------------- getArgs
+
+<!------------------------------------------------------------------------------------- getArgs
 
 	Description:
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="getArgs" access="public" returntype="struct">
 
@@ -394,7 +380,7 @@
 		<cfloop list="#variables.database_fields#" index="field">
 			<cfset structInsert(struct,field,structFind(this,field),true)/>
 		</cfloop>
-		
+
 		<cfif structKeyExists(variables,'custom_fields')>
 			<cfloop list="#variables.custom_fields#" index="field">
 				<cfset structInsert(struct,field,structFind(this,field),true)/>
@@ -404,154 +390,236 @@
 		<cfreturn struct />
 	</cffunction>
 
-<!-------------------------------------------------------------------------------------------------->
-<!------------------------------------- Basic Query Functions -------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
 
-<!--------------------------------------------------------------------------------------- selectQuery
+<!-------------------------------------------------------------------------------------------->
+<!---------------------------------- Basic Query Functions ----------------------------------->
+<!-------------------------------------------------------------------------------------------->
+
+<!--------------------------------------------------------------------------------- selectQuery
 
 	Description:	Private function that executes a SELECT SQL query
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
   <cffunction name="selectQuery" access="private" returntype="query">
 		<cfargument name="columns" default="*" />
-		<cfargument name="tables" default="#variables.table_name#" />
+		<cfargument name="tables" />
 		<cfargument name="conditions" default="" />
 		<cfargument name="ordering" default="" />
 
 		<cfset var query  = "" />
+    <cfif not IsStruct(variables.database_fields)>
+      <cfreturn />
+    </cfif>
+    <cfset props = variables.database_fields />
+    <cfset props_keys = StructKeyArray(props) />
 
-		<cfquery name="query" datasource="#variables.dsn#">
-			SELECT #arguments.columns#
-			FROM #arguments.tables#
-			<cfif arguments.conditions NEQ "">
-			WHERE #PreserveSingleQuotes(arguments.conditions)#
-			</cfif>
-			<cfif arguments.ordering NEQ "">
-			ORDER BY #arguments.ordering#
-			</cfif>
-		</cfquery>
+    <cfif arguments.columns eq "*">
+      <!--- If default, create the amalgamated list of column names --->
+      <cfset arguments.columns = "" />
+      <cfloop index="i" from="1" to="#ArrayLen(props_keys)#">
+          <cfset table = props_keys[i] />
+          <cfset list = StructFind(props, table) />
+          <cfloop list="#list#" index="column_name">
+            <cfset arguments.columns = ListAppend(arguments.columns, "#table#.#column_name#") />
+          </cfloop>
+      </cfloop>
+    </cfif>
 
-		<cfreturn query />
+    <cfif not IsDefined('arguments.tables')>
+      <!--- If default, create joined list of tables --->
+      <cfset arguments.tables = "" />
+      <cfloop index="k" from="2" to="#ArrayLen(props_keys)#">
+        <cfset new_string = " INNER JOIN " & props_keys[k] & " ON " />
+        <cfset new_string = new_string & props_keys[1] & "." & variables.primary_key & " = " />
+        <cfset new_string = new_string & props_keys[k] & "." & variables.primary_key />
+        <cfset arguments.tables = arguments.tables & new_string />
+      </cfloop>
+      <cfset arguments.tables = props_keys[1] & arguments.tables />
+    </cfif>
+
+    <cfquery name="query" datasource="#variables.dsn#">
+      SELECT #arguments.columns#
+      FROM #arguments.tables#
+      <cfif arguments.conditions NEQ "">
+      WHERE #PreserveSingleQuotes(arguments.conditions)#
+      </cfif>
+      <cfif arguments.ordering NEQ "">
+      ORDER BY #arguments.ordering#
+      </cfif>
+    </cfquery>
+
+    <cfreturn query />
+
 	</cffunction>
 
-<!--------------------------------------------------------------------------------------- insertQuery
+<!--------------------------------------------------------------------------------- insertQuery
 
 	Description:	Insert a new record into the database with values read from the object's
 					attributes
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="insertQuery" access="private" returntype="void">
-		<cfargument name="table" default="#variables.table_name#" />
-		<cfargument name="fields" default="#variables.database_fields#" />
+		<cfargument name="table" required="no"/>
+		<cfargument name="fields" required="no"/>
 
 		<cfset var delimiter = "" />
 
-		<cfquery name="InsertData" datasource="#variables.dsn#">
-			SET nocount ON
-			INSERT INTO #arguments.table# (#arguments.fields#)
-			VALUES (
-				<cfloop list="#arguments.fields#" index="field_name">
-					#delimiter#
-					<cfqueryparam
-						value="#value(field_name)#"
-						null="#null(field_name)#"
-						cfsqltype="#type(field_name)#" />
-					<cfset delimiter = ",">
-				</cfloop>
-				);
-			SET nocount OFF
+    <cfset var props = variables.database_fields />
 
-			SELECT SCOPE_IDENTITY() as id;
-		</cfquery>
+    <cfif IsDefined('arguments.table')>
+      <cfset table_name = arguments.table />
+    <cfelse>
+      <!--- If table is not passed in, assume tables listed in properties --->
+      <cfset table_name = ListGetAt(variables.tables, 1) />
+    </cfif>
 
-		<cfset this.id = InsertData.id />
+    <cfif IsDefined('arguments.fields')>
+      <cfset cols = arguments.fields />
+    <cfelse>
+      <!--- Get fields from the properties struct --->
+      <cfset cols = StructFind(props, table_name) />
+    </cfif>
+
+    <!--- Insert into the first table in the list to get the primary key --->
+    <cfquery name="primary_query" datasource="#variables.dsn#">
+      SET nocount ON
+      INSERT INTO #table_name# (#cols#)
+        VALUES (
+          <cfloop list="#cols#" index="field_name">
+            #delimiter#
+            <cfset delimiter = ",">
+            <cfqueryparam
+              value="#value(field_name)#"
+              null="#null(field_name)#"
+              cfsqltype="#type(field_name)#" />
+            <cfset delimiter = ",">
+          </cfloop>
+        )
+        SET nocount OFF
+
+        SELECT SCOPE_IDENTITY() AS id;
+    </cfquery>
+
+    <cfif not IsDefined('arguments.table')>
+
+      <!--- If no table was specified, insert into the rest of the tables using the
+            same key --->
+      <cfset rest_tables = ListRest(variables.tables) />
+
+      <cfquery name="query" datasource="#variables.dsn#">
+        <cfloop list="#rest_tables#" index="table_name">
+          <cfset cols = StructFind(props, table_name) />
+          <cfset delimiter = "" />
+          SET nocount ON
+          INSERT INTO #table_name# (id <cfif cols neq "">, #cols#</cfif>)
+          VALUES (
+            <cfqueryparam
+              value="#primary_query.id#"
+              cfsqltype="cf_sql_integer" />
+            <cfloop list="#cols#" index="field_name">
+              , <cfqueryparam
+                value="#value(field_name)#"
+                null="#null(field_name)#"
+                cfsqltype="#type(field_name)#" />
+            </cfloop>
+          )
+          SET nocount OFF
+        </cfloop>
+      </cfquery>
+    </cfif>
+
+    <cfset this.id = primary_query.id />
 	</cffunction>
 
 
-<!--------------------------------------------------------------------------------------- updateQuery
+<!--------------------------------------------------------------------------------- updateQuery
 
 	Description:	Update an existing record in the database with values read from the object's
 								attributes
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="updateQuery" access="private" returntype="void">
-		<cfargument name="table" default="#variables.table_name#" />
-		<cfargument name="fields" default="#variables.database_fields#" />
+		<cfargument name="tables" required="no" default="#variables.tables#" />
+		<cfargument name="fields" required="no" />
 		<cfargument name="primary_key" default="#variables.primary_key#" />
 
 		<cfset var delimiter = "" />
 
-		<cfquery datasource="#variables.dsn#">
-			UPDATE #table#
-			SET
-			<cfloop list="#fields#" index="field_name">
-					#delimiter#[#field_name#] =
-					<cfqueryparam
-						value="#value(field_name)#"
-						null="#null(field_name)#"
-						cfsqltype="#type(field_name)#" />
-					<cfset delimiter = ",">
-			</cfloop>
-			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
-		</cfquery>
+    <cfset props = variables.database_fields />
+
+    <cfquery name="query" datasource="#variables.dsn#">
+      <cfloop list="#tables#" index="table_name">
+        <cfset delimiter = "" />
+        <cfif not IsDefined('arguments.fields')>
+          <cfset cols = StructFind(props,table_name) />
+        </cfif>
+        UPDATE #table_name#
+        SET
+        <cfloop list="#cols#" index="field_name">
+            #delimiter#[#field_name#] =
+            <cfqueryparam
+              value="#value(field_name)#"
+              null="#null(field_name)#"
+              cfsqltype="#type(field_name)#" />
+            <cfset delimiter = ",">
+        </cfloop>
+        WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+      </cfloop>
+    </cfquery>
+
 	</cffunction>
 
-<!--------------------------------------------------------------------------------------- deleteQuery
+<!--------------------------------------------------------------------------------- deleteQuery
 
 	Description:	Delete the record from the database whose ID matches the ID of the current
 					object.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="deleteQuery" access="private" returntype="void">
-		<cfargument name="table" default="#variables.table_name#" />
+		<cfargument name="tables" default="#variables.tables#" />
 		<cfargument name="primary_key" default="#variables.primary_key#" />
 
 		<cfquery datasource="#variables.dsn#">
-			DELETE FROM #table#
-			WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
-		</cfquery>
+		  <cfloop list="#arguments.tables#" index="table_name">	
+        DELETE FROM #table#
+		 	  WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
+		  </cfloop>
+    </cfquery>either i put back the list thing, or i separate the 
 	</cffunction>
 
-<!-------------------------------------------------------------------------------------------------->
-<!--------------------------------------- Helper Functions ----------------------------------------->
-<!-------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+<!------------------------------------ Helper Functions -------------------------------------->
+<!-------------------------------------------------------------------------------------------->
 
-<!--------------------------------------------------------------------------------------- property 
+<!------------------------------------------------------------------------------------ property
 
-	Description:  This function is used to manually add properties to a model rather than 
+	Description:  This function is used to manually add properties to a model rather than
                 introspecting them from the database information_schema.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
   <cffunction name="property" access="private" returntype="void">
     <cfargument name="name" type="string" required="yes" />
     <cfargument name="type" type="string" required="yes" />
-		<cfargument name="list" type="string" default="database_fields" />
+    <!--- Determise whether arg is persisted in the db. Deprecated --->
+    <cfargument name="persisted" type="boolean" required="no" default="yes" />
 
     <cfset structInsert(this, arguments.name, "", true) />
 
-    <cfif not structKeyExists(variables, 'field_types')>
-      <cfset variables['field_types'] = structNew() />
-    </cfif>
+    <cfparam name="variables.field_types" default="#StructNew()#" />
 
-    <cfset structInsert(
-      variables.field_types, 
-      arguments.name, 
-      cf_sql_type(arguments.type), 
-      true) />
-
-    <cfif not structKeyExists(variables, arguments.list)>
-      <cfset variables[arguments.list] = "" />
-    </cfif>
-
-    <cfif arguments.name NEQ "id">
-      <cfset variables[arguments.list] = 
-        listAppend(variables[arguments.list], arguments.name) />
+    <cfset structInsert(variables.field_types,
+                        arguments.name,
+                        cf_sql_type(arguments.type),
+                        true) />
+    <!--- Add argument to the persisted fields list unless otherwise noted;
+          this should be deprecated --->
+    <cfif arguments.persisted>
+      <cfset persist(arguments.name) />
     </cfif>
   </cffunction>
 
@@ -568,12 +636,48 @@
     <cfset this[arguments.property] = arguments.value />
   </cffunction>
 
-<!--------------------------------------------------------------------------------------------- value
+  <cffunction name="persist" access="private" returntype="void">
+    <cfargument name="persisted_fields" type="string" required="yes" />
+    
+    <cfparam name="variables.database_fields" default="#StructNew()#" />
+    <cfparam name="variables.tables" default="" />
+   
+    <!--- Record the table_name if it's not in there already --->
+    <cfif not ListContains(variables.tables, variables.table_name)>
+      <cfset variables.tables = ListAppend(variables.tables, variables.table_name) />
+    </cfif>
+
+    <!--- Insert the property into the fields struct according to what table
+          it belongs to --->
+    <!--- remove 'id' field --->
+    <cfset REReplaceNoCase(arguments.persisted_fields, '(?=,)id(?=,)', '', 'all') />
+    <cfif StructKeyExists(variables.database_fields, variables.table_name)>
+      <cfset list = StructFind(variables.database_fields, variables.table_name) />
+    <cfelse>
+      <cfset list = "" />
+    </cfif>
+
+    <cfset list = ListAppend(list, arguments.persisted_fields) />
+
+    <!--- Remove duplicates --->
+    <cfset temp_struct = StructNew() />
+    <cfloop list="#list#" index="i" delimiters=",">
+      <cfset temp_struct[i]="" />
+    </cfloop>
+    <cfset list = StructKeyList(temp_struct) />
+
+    <cfset StructInsert(variables.database_fields,
+                        variables.table_name,
+                        list,
+                        true) />
+  </cffunction>
+
+<!--------------------------------------------------------------------------------------- value
 
 	Description:	Given a field name this function returns the corresponding value for the
 								<cfqueryparam> tag
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="value" access="private" returntype="string">
 		<cfargument name="field_name" type="string" required="yes"
@@ -583,35 +687,44 @@
 		<cfset var type = type(arguments.field_name) />
 
 		<!--- If the value is a date we must convert it to an ODBC date --->
-		<cfif isDate(value) OR (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') and value NEQ "">
+		<cfif isDate(value) 
+          OR (type eq 'cf_sql_time' or type eq 'cf_sql_timestamp' or type eq 'cf_sql_date') 
+          AND value NEQ "">
 			<cfset value = makeDate(value) />
 		</cfif>
 
 		<cfreturn value />
 	</cffunction>
 
-<!------------------------------------------------------------------------------------------ makeDate
+<!------------------------------------------------------------------------------------ makeDate
 
 	Description:	Tries to convert a string into a date that can be inserted into the database
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="makeDate" access="private" returntype="string">
 		<cfargument name="value" type="string" required="yes" />
 
 		<!--- First, see if we can create a valid date right off the bat --->
 		<cftry>
-			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+			<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") 
+                     & " " 
+                     & LSTimeFormat(value, "HH:mm:ss")) />
 			<cfcatch>
 				<!--- Next, try parsing the value as a timestamp formatted in the current locale --->
 				<cftry>
 					<cfset value = LSParseDateTime(value) />
-					<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+					<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") 
+                         & " " 
+                         & LSTimeFormat(value, "HH:mm:ss")) />
 
-					<!--- Finally, try assuming that it's a timestamp string that's not formatted for the current locale --->
+					<!--- Finally, try assuming that it's a timestamp string that's not formatted for 
+                the current locale --->
 					<cfcatch>
 						<cfset value = ParseDateTime(value) />
-						<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") & " " & LSTimeFormat(value, "HH:mm:ss")) />
+						<cfset value = createODBCDateTime(LSDateFormat(value, "yyyy-mm-dd") 
+                           & " " 
+                           & LSTimeFormat(value, "HH:mm:ss")) />
 					</cfcatch>
 				</cftry>
 			</cfcatch>
@@ -620,12 +733,12 @@
 		<cfreturn value />
 	</cffunction>
 
-<!---------------------------------------------------------------------------------------------- type
+<!---------------------------------------------------------------------------------------- type
 
 	Description:	Given a field name this function returns the corresponding type for the
 								<cfqueryparam> tag
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="type" access="private" returntype="string">
 		<cfargument name="field_name" type="string" required="yes"
@@ -636,12 +749,12 @@
 		<cfreturn type />
 	</cffunction>
 
-<!---------------------------------------------------------------------------------------------- null
+<!---------------------------------------------------------------------------------------- null
 
 	Description:	Given a field name this function returns the corresponding null flag for the
 								<cfqueryparam> tag
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="null" access="private" returntype="string">
 		<cfargument name="field_name" type="string" required="yes"
@@ -659,12 +772,12 @@
 		<cfreturn null />
 	</cffunction>
 
-<!--------------------------------------------------------------------------------------- cf_sql_type
+<!--------------------------------------------------------------------------------- cf_sql_type
 
 	Description:	Takes in a SQL Server column type and returns the corresponding ColdFusion type
 								to be used by the <cfqueryparam> tag.
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="cf_sql_type" access="private" returntype="string">
 		<cfargument name="type" required="yes" />
@@ -705,11 +818,11 @@
 		</cfswitch>
 	</cffunction>
 
-<!--------------------------------------------------------------------------------------- rowToStruct
+<!--------------------------------------------------------------------------------- rowToStruct
 
 	Description:
 
----------------------------------------------------------------------------------------------------->
+---------------------------------------------------------------------------------------------->
 
 	<cffunction name="rowToStruct" access="private" returntype="struct">
 		<cfargument name="query" type="query" required="yes" />
@@ -722,5 +835,5 @@
 
 		<cfreturn struct />
 	</cffunction>
-	
+
 </cfcomponent>

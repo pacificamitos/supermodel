@@ -9,7 +9,14 @@
 
 <cfswitch expression="#thistag.executionmode#">
   <cfcase value="start">
-    <a href="#attributes.root##attributes.path#" title="#attributes.title#">#attributes.text#</a> 
+  <cfset reserved_arguments = "href" />
+  <cfobject name="thistag.attributes" component="supermodel2.attributes" />
+
+  <cfset thistag.attributes.init(
+    argumentcollection = attributes,
+    reserved_arguments = reserved_arguments) />
+
+    <a #thistag.attributes.string()# href="#attributes.root##attributes.path#">#attributes.text#</a> 
   </cfcase>
 </cfswitch>
 
