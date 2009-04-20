@@ -630,7 +630,7 @@
     <cfparam name="variables.tables" default="" />
    
     <!--- Record the table_name if it's not in there already --->
-    <cfif not ListContains(variables.tables, variables.table_name)>
+    <cfif not ListContains(variables.tables, variables.table_name, ',')>
       <cfset variables.tables = ListAppend(variables.tables, variables.table_name) />
     </cfif>
 
