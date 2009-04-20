@@ -572,7 +572,7 @@
 
 		<cfquery datasource="#variables.dsn#">
 		  <cfloop list="#arguments.tables#" index="table_name">	
-        DELETE FROM #table#
+        DELETE FROM #table_name#
 		 	  WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
 		  </cfloop>
     </cfquery>either i put back the list thing, or i separate the 
@@ -630,7 +630,7 @@
     <cfparam name="variables.tables" default="" />
    
     <!--- Record the table_name if it's not in there already --->
-    <cfif not ListContains(variables.tables, variables.table_name, ',')>
+    <cfif not listFindNoCase(variables.tables, variables.table_name, ',')>
       <cfset variables.tables = ListAppend(variables.tables, variables.table_name) />
     </cfif>
 
