@@ -574,7 +574,7 @@
 
 		<cfquery datasource="#variables.dsn#">
 		  <cfloop list="#arguments.tables#" index="table_name">	
-        DELETE FROM #table#
+        DELETE FROM #table_name#
 		 	  WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
 		  </cfloop>
     </cfquery>either i put back the list thing, or i separate the 
