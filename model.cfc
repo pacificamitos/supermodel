@@ -494,27 +494,29 @@
       <!--- If no table was specified, insert into the rest of the tables using the
             same key --->
       <cfset rest_tables = ListRest(variables.tables) />
+      <cfif listLen(rest_tables) gt 0>
 
-      <cfquery name="query" datasource="#variables.dsn#">
-        <cfloop list="#rest_tables#" index="table_name">
-          <cfset cols = StructFind(props, table_name) />
-          <cfset delimiter = "" />
-          SET nocount ON
-          INSERT INTO #table_name# (id <cfif cols neq "">, #cols#</cfif>)
-          VALUES (
-            <cfqueryparam
-              value="#primary_query.id#"
-              cfsqltype="cf_sql_integer" />
-            <cfloop list="#cols#" index="field_name">
-              , <cfqueryparam
-                value="#value(field_name)#"
-                null="#null(field_name)#"
-                cfsqltype="#type(field_name)#" />
-            </cfloop>
-          )
-          SET nocount OFF
-        </cfloop>
-      </cfquery>
+       <cfquery name="query" datasource="#variables.dsn#">
+         <cfloop list="#rest_tables#" index="table_name">
+           <cfset cols = StructFind(props, table_name) />
+           <cfset delimiter = "" />
+           SET nocount ON
+           INSERT INTO #table_name# (id <cfif cols neq "">, #cols#</cfif>)
+           VALUES (
+             <cfqueryparam
+               value="#primary_query.id#"
+               cfsqltype="cf_sql_integer" />
+             <cfloop list="#cols#" index="field_name">
+               , <cfqueryparam
+                 value="#value(field_name)#"
+                 null="#null(field_name)#"
+                 cfsqltype="#type(field_name)#" />
+             </cfloop>
+           )
+           SET nocount OFF
+         </cfloop>
+       </cfquery>
+      </cfif>
     </cfif>
 
     <cfset this.id = primary_query.id />
@@ -630,7 +632,7 @@
     <cfparam name="variables.tables" default="" />
    
     <!--- Record the table_name if it's not in there already --->
-    <cfif not listFindNoCase(variables.tables, variables.table_name, ',')>
+    <cfif not ListFindNoCase(variables.tables, variables.table_name, ',')>
       <cfset variables.tables = ListAppend(variables.tables, variables.table_name) />
     </cfif>
 
