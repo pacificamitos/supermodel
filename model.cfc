@@ -577,7 +577,7 @@
         DELETE FROM #table_name#
 		 	  WHERE #arguments.primary_key# = '#Evaluate("this.#arguments.primary_key#")#'
 		  </cfloop>
-    </cfquery>either i put back the list thing, or i separate the 
+    </cfquery><!---either i put back the list thing, or i separate the --->
 	</cffunction>
 
 <!-------------------------------------------------------------------------------------------->
