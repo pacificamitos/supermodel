@@ -331,6 +331,10 @@
         </cfif>
       </cfquery>
 
+      <cfif isDefined('subquery.job_title') and subquery.job_title EQ 'Administration Clerk'>
+        <cfset request.fuckup = true />
+      </cfif>
+
       <cfset variables.object.load(subquery) />
     <cfelse>
       <cfset variables.object.load(rowToStruct(variables.query)) />

@@ -46,7 +46,7 @@
 		<cfset var num_updated_fields = 0 />
 
 		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
-		<cfset clear() />
+		<cfset clear() />    
 
 		<!--- If we've received a recordset, we only need a single row right now --->
 		<cfif isQuery(data)>
@@ -91,14 +91,12 @@
 				</cfif>
 			</cfif>
 		</cfloop>
-
 		<!---
 			If the load had no effect, we stop now to prevent an infinite loop
 		 --->
 		<cfif num_updated_fields EQ 0>
 			<cfreturn />
 		</cfif>
-
 		<!---
 			Load all the single objects from belongsTo relations
 		 --->

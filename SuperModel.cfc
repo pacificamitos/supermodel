@@ -218,6 +218,10 @@
 			<cfset StructDelete(variables, property) />
 		</cfloop>
 
+    <cfloop list="#variables.database_fields#" index="property">
+      <cfset this[property] = '' />
+    </cfloop>
+
 		<cfset variables.loaded = false />
 	</cffunction>
 
