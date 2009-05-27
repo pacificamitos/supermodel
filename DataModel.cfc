@@ -19,6 +19,7 @@
 		<cfargument name="dsn" type="string" required="yes" />
 
 		<cfset variables.collections = '' />
+    <cfset variables.children = '' />
 		<cfset super.init() />
 		<cfset variables.dsn = arguments.dsn />
 		<cfset variables.primary_key = 'id' />
@@ -84,7 +85,7 @@
 				<cfset key = params_key />
 			</cfif>
 
-			<cfif structKeyExists(this, key) AND prefix_stripped>
+			<cfif structKeyExists(this, key) AND NOT listFind(variables.collections, key) AND NOT listFind(variables.children, key) AND prefix_stripped>
 				<cfif NOT isObject(params[params_key]) AND this[key] NEQ params[params_key]>
 					<cfset structInsert(this, key, structFind(params, params_key), true) />
 					<cfset num_updated_fields = num_updated_fields + 1 />
@@ -101,21 +102,19 @@
 			Load all the single objects from belongsTo relations
 		 --->
 
-		<cfif structKeyExists(variables, 'children')>
 			<cfloop list="#variables.children#" index="object">
 				<cfset this[object].load(params) />
 			</cfloop>
-		</cfif>
 
 		<!---
 			Load all the object lists from hasMany relations
 		--->
 
-		<cfif structKeyExists(variables, 'collections') AND isQuery(data)>
+    <cfif isQuery(data)>
 			<cfloop list="#variables.collections#" index="collection">
 				<cfset this[collection].setQuery(data) />
 			</cfloop>
-		</cfif>
+    </cfif>
 	</cffunction>
 
 
@@ -284,10 +283,6 @@
 
 		<cfif NOT structKeyExists(this, 'group_by')>
 			<cfset structInsert(this, 'group_by', 'id') />
-		</cfif>
-
-		<cfif NOT structKeyExists(variables, 'collections')>
-			<cfset variables.collections = "" />
 		</cfif>
 
 		<cfset variables.collections = listAppend(variables.collections, arguments.name) />
