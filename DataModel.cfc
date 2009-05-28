@@ -47,7 +47,7 @@
 		<cfset var num_updated_fields = 0 />
 
 		<!--- Clear any lazily-initialized variables to force them to be recalculated --->
-		<cfset clear() />    
+		<cfset clear(arguments.data) />    
 
 		<!--- If we've received a recordset, we only need a single row right now --->
 		<cfif isQuery(data)>

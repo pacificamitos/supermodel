@@ -213,13 +213,16 @@
 ---------------------------------------------------------------------------------------------------->
 
 	<cffunction name="clear" access="public" returntype="void">
-
+		<cfargument name="data" required="no" />
+		
 		<cfloop list="#StructKeyList(variables.lazy_variables)#" index="property">
 			<cfset StructDelete(variables, property) />
 		</cfloop>
 
     <cfloop list="#variables.database_fields#" index="property">
-      <cfset this[property] = '' />
+		<cfif not structKeyExists(arguments,'data') OR structKeyExists(data,property)>
+      		<cfset this[property] = '' />
+		</cfif>
     </cfloop>
 
 		<cfset variables.loaded = false />
