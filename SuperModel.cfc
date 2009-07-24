@@ -214,15 +214,22 @@
 
 	<cffunction name="clear" access="public" returntype="void">
 		<cfargument name="data" required="no" />
+    <cfset var columns = '' />
 		
 		<cfloop list="#StructKeyList(variables.lazy_variables)#" index="property">
 			<cfset StructDelete(variables, property) />
 		</cfloop>
 
+    <cfif structKeyExists(arguments,'data') AND isQuery(data)>
+      <cfset columns = data.columnlist />
+    <cfelse>
+      <cfset columns = structKeyList(data) />
+    </cfif>
+
     <cfloop list="#variables.database_fields#" index="property">
-		<cfif not structKeyExists(arguments,'data') OR structKeyExists(data,property)>
-      		<cfset this[property] = '' />
-		</cfif>
+      <cfif not structKeyExists(arguments,'data') OR structKeyExists(data,property) OR findNoCase("_#property#,",columns)>
+        <cfset this[property] = '' />
+      </cfif>
     </cfloop>
 
 		<cfset variables.loaded = false />
