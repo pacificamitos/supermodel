@@ -1,0 +1,6 @@
+<project>
+  <target name="default">
+    <mkdir dir="test" />
+  </target>
+</project>
+
