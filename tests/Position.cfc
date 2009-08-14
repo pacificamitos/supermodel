@@ -1,7 +1,7 @@
-<cfcomponent extends="supermodel2.model">
+<cfcomponent extends="supermodel.datamodel">
 	<cffunction name="configure">
 		<cfset variables.table_name = "positions" />
-		<cfset belongsTo('manager', 'supermodel2.tests.manager') />
-		<cfset belongsTo('process', 'supermodel2.tests.process') />
+		<cfset belongsTo('manager', 'supermodel.tests.manager') />
+		<cfset belongsTo('process', 'supermodel.tests.process') />
 	</cffunction>
 </cfcomponent>
