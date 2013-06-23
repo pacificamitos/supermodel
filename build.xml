@@ -1,0 +1,13 @@
+<project name="supermodel" default="main">  
+  <mkdir dir="testresults" />  
+    
+  <target name="main" depends="runtests" description="Main target for running the tests." />  
+    
+  <target name="runtests" description="Make output directories and run the MXUnit task">  
+    <taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask"  classpath="C:\Inetpub\wwwroot\mxunit\ant\lib\mxunit-ant.jar" />  
+    <mxunittask server="pacdev1.ncr.pwgsc.gc.ca" port="80" outputdir="testresults" verbose="true">  
+      <directory path="C:/hudson/jobs/Supermodel/workspace/tests" recurse="false" componentPath="supermodel.tests" />
+    </mxunittask>  
+  </target>  
+</project>
+
